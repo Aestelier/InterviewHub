@@ -997,7 +997,9 @@ button:hover > .arr {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-top: 24px;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 18px;
   padding: 11px 15px;
   border: 1px solid rgba(244, 240, 232, 0.38);
   border-radius: 999px;
@@ -1040,9 +1042,6 @@ button:hover > .arr {
   font-size: 15px;
   line-height: 1.6;
   color: rgba(244, 240, 232, 0.84);
-}
-.human-promises .human-link {
-  margin-left: 48px;
 }
 
 /* ─── footer ─── */
