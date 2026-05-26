@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   defaultConsentFormData,
@@ -78,8 +79,21 @@ const detailedConsentLabels: Record<ConsentKey, string> = {
   separateAgreement: "Accord ecrit separe pour tout usage hors entretien"
 };
 
-export function ConsentForm() {
+const accessCodeStorageKey = "aestelier:form-access-code";
+
+type ConsentFormProps = {
+  initialAccessCode?: string;
+};
+
+export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
   const [formData, setFormData] = useState<ConsentFormData>(defaultConsentFormData);
+  const [accessCode, setAccessCode] = useState(initialAccessCode);
+  const [accessInput, setAccessInput] = useState(initialAccessCode);
+  const [isAccessReady, setIsAccessReady] = useState(false);
+  const [isAccessLoading, setIsAccessLoading] = useState(false);
+  const [hasCheckedStoredAccess, setHasCheckedStoredAccess] = useState(
+    Boolean(initialAccessCode)
+  );
   const [editedConsentSets, setEditedConsentSets] = useState<Record<string, boolean>>({});
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState("");
   const [previewSignature, setPreviewSignature] = useState("");
@@ -103,6 +117,79 @@ export function ConsentForm() {
       }
     };
   }, [pdfPreviewUrl]);
+
+  useEffect(() => {
+    if (!initialAccessCode) {
+      return;
+    }
+
+    void loadAccess(initialAccessCode);
+  }, [initialAccessCode]);
+
+  useEffect(() => {
+    if (initialAccessCode || isAccessReady) {
+      setHasCheckedStoredAccess(true);
+      return;
+    }
+
+    const storedCode = window.localStorage.getItem(accessCodeStorageKey);
+
+    if (storedCode) {
+      setAccessInput(storedCode);
+      void loadAccess(storedCode);
+    } else {
+      setHasCheckedStoredAccess(true);
+    }
+  }, [initialAccessCode, isAccessReady]);
+
+  async function loadAccess(code: string) {
+    const trimmedCode = code.trim();
+
+    if (!trimmedCode) {
+      setStatus("Entrez un code d'acces.");
+      return;
+    }
+
+    setIsAccessLoading(true);
+    setStatus("Verification du code d'acces...");
+
+    const response = await fetch(`/api/access/${encodeURIComponent(trimmedCode)}`, {
+      cache: "no-store"
+    });
+    const body = (await response.json().catch(() => null)) as
+      | {
+          access?: {
+            code: string;
+            participantName: string;
+            participantContact: string;
+            interviewDate: string;
+          };
+          error?: string;
+        }
+      | null;
+
+    setIsAccessLoading(false);
+
+    if (!response.ok || !body?.access) {
+      setIsAccessReady(false);
+      setHasCheckedStoredAccess(true);
+      setStatus(body?.error ?? "Code d'acces invalide.");
+      return;
+    }
+
+    setAccessCode(body.access.code);
+    setAccessInput(body.access.code);
+    window.localStorage.setItem(accessCodeStorageKey, body.access.code);
+    setFormData((current) => ({
+      ...current,
+      participantName: body.access?.participantName ?? current.participantName,
+      participantContact: body.access?.participantContact ?? current.participantContact,
+      interviewDate: body.access?.interviewDate ?? current.interviewDate
+    }));
+    setIsAccessReady(true);
+    setHasCheckedStoredAccess(true);
+    setStatus("");
+  }
 
   function updateField(field: keyof Omit<ConsentFormData, "consents">, value: string) {
     setFormData((current) => ({ ...current, [field]: value }));
@@ -171,7 +258,7 @@ export function ConsentForm() {
     const response = await fetch("/api/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({ ...formData, accessCode })
     });
 
     if (!response.ok) {
@@ -210,9 +297,110 @@ export function ConsentForm() {
     setStatus("");
   }
 
+  if (!isAccessReady && !hasCheckedStoredAccess) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="border border-line bg-[#fffdf7] p-5 text-sm leading-6 text-muted shadow-soft md:p-7">
+          Verification de l'acces...
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAccessReady) {
+    return (
+      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+        <form
+          className="w-full max-w-xl border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void loadAccess(accessInput);
+          }}
+        >
+          <Link href="/" className="text-sm font-semibold text-muted hover:text-ink">
+            Retour a l'accueil
+          </Link>
+
+          <div className="mt-8">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-ochre">
+              Aestelier
+            </p>
+            <h1 className="mt-4 font-serif text-4xl leading-tight text-ink">
+              Acces au formulaire de consentement
+            </h1>
+            <p className="mt-5 text-base leading-7 text-muted">
+              Entrez le code transmis pour charger les informations de
+              l'entretien. Les consentements resteront a choisir manuellement.
+            </p>
+          </div>
+
+          <div className="mt-7 border-t border-line pt-6">
+            <label className="grid gap-2">
+              <span className="text-sm font-semibold text-ink">Code d'acces</span>
+              <input
+                value={accessInput}
+                onChange={(event) => setAccessInput(event.target.value.toUpperCase())}
+                className="min-h-14 border border-line bg-white px-4 text-lg font-semibold tracking-[0.08em] text-ink outline-none transition placeholder:text-muted/40 focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                autoComplete="off"
+                spellCheck={false}
+                placeholder="ABC-123-XYZ"
+              />
+            </label>
+            <button
+              type="submit"
+              disabled={isAccessLoading || !accessInput.trim()}
+              className="mt-5 min-h-11 w-full border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
+            >
+              {isAccessLoading ? "Verification..." : "Acceder au formulaire"}
+            </button>
+            <p className="mt-4 text-xs leading-5 text-muted">
+              Aucun consentement n'est preselectionne.
+            </p>
+            {accessInput ? (
+              <button
+                type="button"
+                onClick={() => {
+                  window.localStorage.removeItem(accessCodeStorageKey);
+                  setAccessCode("");
+                  setAccessInput("");
+                  setStatus("");
+                }}
+                className="mt-3 text-xs font-semibold text-muted hover:text-ink"
+              >
+                Oublier ce code sur ce navigateur
+              </button>
+            ) : null}
+            {status ? (
+              <p className="mt-5 border border-line bg-white p-3 text-sm leading-6 text-muted">
+                {status}
+              </p>
+            ) : null}
+          </div>
+        </form>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-4xl">
-      <form className="border border-line bg-[#fffdf7] shadow-soft">
+    <div>
+      <Link href="/" className="text-sm font-semibold text-muted hover:text-ink">
+        Retour a l'accueil
+      </Link>
+      <header className="my-10 max-w-3xl">
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-ochre">
+          Version courte - 2026-05-24
+        </p>
+        <h1 className="mt-4 font-serif text-4xl leading-tight text-ink md:text-5xl">
+          Generer le formulaire de consentement Aestelier
+        </h1>
+        <p className="mt-5 text-lg leading-8 text-muted">
+          Les donnees saisies ne creent aucun compte, ne sont pas stockees sous
+          forme de brouillon et ne sont pas envoyees a un service tiers. Le PDF
+          n'est pas conserve par defaut.
+        </p>
+      </header>
+
+      <form className="mx-auto max-w-4xl border border-line bg-[#fffdf7] shadow-soft">
         <div className="grid gap-0">
           <section className="border-b border-line p-5 md:p-7">
             <div className="mb-5 flex items-baseline gap-3">

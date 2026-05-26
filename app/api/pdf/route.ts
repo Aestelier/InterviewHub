@@ -4,8 +4,10 @@ import { copyFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { NextRequest } from "next/server";
+import { isExpired, normalizeAccessCode } from "@/lib/accessCodes";
 import { defaultConsentFormData, type ConsentFormData } from "@/lib/consentTypes";
 import { generateLatex, loadConsentTemplate } from "@/lib/generateLatex";
+import { getSupabaseAdmin, isSupabaseConfigured } from "@/lib/supabaseAdmin";
 
 export const runtime = "nodejs";
 
@@ -63,7 +65,7 @@ function compileLatex(workdir: string): Promise<void> {
 }
 
 export async function POST(request: NextRequest) {
-  let body: Partial<ConsentFormData>;
+  let body: Partial<ConsentFormData> & { accessCode?: string };
 
   try {
     body = (await request.json()) as Partial<ConsentFormData>;
@@ -83,13 +85,39 @@ export async function POST(request: NextRequest) {
       await copyFile(signaturePath, path.join(workdir, "signature.png"));
     }
 
-    const tex = generateLatex(normalizeData(body), loadConsentTemplate(), {
+    const formData = normalizeData(body);
+    const tex = generateLatex(formData, loadConsentTemplate(), {
       responsableSignature: signatureTex
     });
     await writeFile(path.join(workdir, "consentement.tex"), tex, "utf8");
     await compileLatex(workdir);
 
     const pdf = await readFile(path.join(workdir, "consentement.pdf"));
+
+    if (body.accessCode && isSupabaseConfigured()) {
+      const supabase = getSupabaseAdmin();
+      const accessCode = normalizeAccessCode(body.accessCode);
+      const { data } = await supabase
+        .from("interview_accesses")
+        .select("id, expires_at")
+        .eq("code", accessCode)
+        .single();
+
+      if (data && !isExpired(data.expires_at as string | null)) {
+        await supabase
+          .from("interview_accesses")
+          .update({
+            participant_name: formData.participantName || null,
+            participant_contact: formData.participantContact || null,
+            status: "pdf_generated",
+            pdf_generated_at: new Date().toISOString(),
+            consent_snapshot: formData.consents,
+            template_version: "2026-05-24"
+          })
+          .eq("id", data.id as string);
+      }
+    }
+
     return new Response(pdf, {
       headers: {
         "Content-Type": "application/pdf",
