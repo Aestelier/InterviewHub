@@ -410,12 +410,12 @@ export default function Home() {
 
       </section>
 
-      {/* ─────────── § 06 — Participer / CTA full-bleed ─────────── */}
+      {/* ─────────── § 07 — Participer / CTA full-bleed ─────────── */}
       <section id="participer" className="cta-band">
         <div className="cta-inner">
           <div className="cta-col">
             <div>
-              <span className="mono dim">§ 06 — Participer · avec code</span>
+              <span className="mono dim">§ 07 — Participer · avec code</span>
               <h3 style={{ marginTop: 18 }}>
                 vous avez déjà un <span className="it">rendez-vous</span>.
               </h3>
@@ -439,7 +439,7 @@ export default function Home() {
 
           <div className="cta-col">
             <div>
-              <span className="mono dim">§ 06 — Participer · sans rendez-vous</span>
+              <span className="mono dim">§ 07 — Participer · sans rendez-vous</span>
               <h3 style={{ marginTop: 18 }}>
                 vous découvrez le <span className="it">projet</span>.
               </h3>
@@ -471,6 +471,63 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ─────────── § 08 — Responsable / note humaine ─────────── */}
+      <section id="responsable" className="human-band">
+        <div className="human-inner">
+          <div className="human-kicker">
+            <span className="mono">§ 08 — Qui porte la recherche</span>
+            <span className="mono">/ responsable à compléter</span>
+          </div>
+
+          <div className="human-grid">
+            <div className="human-note">
+              <p className="human-overline">Une note personnelle</p>
+              <h2>
+                Derrière Aestelier, il y a une personne qui vous écoute, pas une collecte
+                automatique.
+              </h2>
+              <p>
+                Je m’appelle <strong>[Prénom Nom]</strong>. Je mène cette recherche pour comprendre
+                comment les artistes travaillent réellement avec leurs références, leurs outils et
+                leurs espaces privés, avant de concevoir quoi que ce soit.
+              </p>
+              <p>
+                L’entretien est un échange volontaire. Vous pouvez poser une question, refuser une
+                partie, revenir sur un point, ou demander ce qui sera fait de vos réponses. Mon rôle
+                est de garder ce cadre clair et de ne jamais transformer votre participation en
+                autorisation générale.
+              </p>
+              <div className="human-signature">
+                <span>[Prénom Nom]</span>
+                <span>Recherche Aestelier · phase ouverte 2026</span>
+              </div>
+            </div>
+
+            <aside className="human-promises" aria-label="Engagements de la recherche">
+              <span className="mono">[ ce que cela change ]</span>
+              <ul>
+                <li>
+                  <span>01</span>
+                  <p>vous savez qui porte l’échange et qui contacter après l’entretien</p>
+                </li>
+                <li>
+                  <span>02</span>
+                  <p>les œuvres, références et espaces privés restent hors champ par défaut</p>
+                </li>
+                <li>
+                  <span>03</span>
+                  <p>une citation publique demande toujours une validation séparée</p>
+                </li>
+                <li>
+                  <span>04</span>
+                  <p>chaque consentement peut être limité, refusé ou retiré</p>
+                </li>
+              </ul>
+            </aside>
+          </div>
+        </div>
+      </section>
+
       {/* ─────────── FOOTER ─────────── */}
       <footer className="foot">
         <div className="foot-grid">
@@ -494,6 +551,7 @@ export default function Home() {
             <span className="mono dim">[ cadre ]</span>
             <a href="#consentement">Cadre de consentement</a>
             <a href="#cadre">Droits de l’interviewé</a>
+            <a href="#responsable">Qui porte la recherche</a>
           </div>
           <div className="foot-col">
             <span className="mono dim">[ accès ]</span>
