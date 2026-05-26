@@ -1186,6 +1186,165 @@ footer.foot {
   border-color: var(--papier);
 }
 
+/* subtle motion */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes soft-enter {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes view-soft-enter {
+    0% {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes view-fade-in {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes line-draw-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes line-draw-y {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  .topbar,
+  .hero > .hero-inner > .mono.dim,
+  .hero h1,
+  .hero-grid > div,
+  .hero .card {
+    animation: soft-enter 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .topbar {
+    animation-duration: 520ms;
+  }
+
+  .hero > .hero-inner > .mono.dim {
+    animation-delay: 80ms;
+  }
+
+  .hero h1 {
+    animation-delay: 150ms;
+  }
+
+  .hero-grid > div {
+    animation-delay: 240ms;
+  }
+
+  .hero .card {
+    animation-delay: 320ms;
+  }
+
+  .brand-link img,
+  .brand-pronunciation,
+  .card,
+  .pill,
+  .human-link,
+  .small-button,
+  .consent-detail-button {
+    transition-duration: 260ms;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .brand-link:hover img {
+    transform: translateY(-1px) rotate(-2deg);
+  }
+
+  .brand-link:hover .brand-pronunciation {
+    color: var(--accent);
+  }
+
+  .card {
+    transition-property: border-color, box-shadow, transform;
+  }
+
+  .card:hover {
+    border-color: rgba(122, 96, 70, 0.38);
+    box-shadow: 0 18px 40px -34px rgba(12, 10, 8, 0.7);
+    transform: translateY(-2px);
+  }
+
+  .text-link {
+    transition: color 180ms ease;
+  }
+
+  @supports (animation-timeline: view()) {
+    .grid-ed > .cell,
+    .cta-col,
+    .human-kicker,
+    .human-note,
+    .human-promises,
+    .form-panel,
+    .consent-document,
+    .form-rail,
+    footer.foot {
+      animation: view-soft-enter both;
+      animation-timeline: view();
+      animation-range: entry 8% cover 28%;
+    }
+
+    .itemlist li,
+    .card li,
+    .human-promises li,
+    .form-rail li,
+    .consent-choice {
+      animation: view-fade-in both;
+      animation-timeline: view();
+      animation-range: entry 6% cover 18%;
+    }
+
+    .cell::before {
+      transform-origin: left center;
+      animation: line-draw-x both;
+      animation-timeline: view();
+      animation-range: entry 6% cover 26%;
+    }
+
+    .cell::after {
+      transform-origin: center top;
+      animation: line-draw-y both;
+      animation-timeline: view();
+      animation-range: entry 6% cover 26%;
+    }
+  }
+}
+
 /* ─── responsive ─── */
 @media (max-width: 900px) {
   .hero {
