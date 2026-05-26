@@ -36,15 +36,21 @@ export function Topbar({ variant = "full" }: TopbarProps) {
           <Link href="/#participer">Participer</Link>
         </nav>
       ) : (
-        <nav>
-          <Link href="/">Accueil</Link>
-        </nav>
+        <div aria-hidden="true" />
       )}
-      <div className="right">
-        <Link href="/formulaire" className="pill dark">
-          Accéder au formulaire <span className="arr" />
-        </Link>
-      </div>
+      {variant === "full" ? (
+        <div className="right">
+          <Link href="/formulaire" className="pill dark">
+            Accéder au formulaire <span className="arr" />
+          </Link>
+        </div>
+      ) : (
+        <div className="right">
+          <Link href="/" className="pill dark">
+            Revenir à l’accueil <span className="arr" />
+          </Link>
+        </div>
+      )}
     </header>
   );
 }

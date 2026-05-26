@@ -35,19 +35,19 @@ const consentGroups: Array<{
     ]
   },
   {
-    title: "Apres l'entretien",
+    title: "Après l'entretien",
     items: [
       {
         keys: ["internalNotes", "anonymousTrends", "wizardOfOz"],
-        label: "Analyse interne et tests anonymises",
+        label: "Analyse interne et tests anonymisés",
         description:
-          "Inclut les notes de recherche, les observations anonymisees et les tests manuels internes sans reutilisation de vos oeuvres."
+          "Inclut les notes de recherche, les observations anonymisées et les tests manuels internes sans réutilisation de vos œuvres."
       },
       {
         keys: ["recontact", "futureAnonymousQuotes", "futureAttributedQuotes"],
         label: "Recontact et validation de citations",
         description:
-          "Aucune citation, meme anonymisee, ne sera publiee sans validation separee."
+          "Aucune citation, même anonymisée, ne sera publiée sans validation séparée."
       }
     ]
   },
@@ -57,25 +57,25 @@ const consentGroups: Array<{
       {
         keys: ["separateAgreement"],
         label:
-          "Je comprends que mes oeuvres ne peuvent pas etre reutilisees, indexees, utilisees pour entrainer une IA ou publiees sans accord ecrit separe."
+          "Je comprends que mes œuvres ne peuvent pas être réutilisées, indexées, utilisées pour entraîner une IA ou publiées sans accord écrit séparé."
       }
     ]
   }
 ];
 
 const detailedConsentLabels: Record<ConsentKey, string> = {
-  participation: "Participer a l'entretien",
-  writtenNotes: "Prise de notes ecrites",
-  recording: "Enregistrement audio ou video",
+  participation: "Participer à l'entretien",
+  writtenNotes: "Prise de notes écrites",
+  recording: "Enregistrement audio ou vidéo",
   transcription: "Transcription",
   internalNotes: "Notes internes de recherche produit",
-  anonymousTrends: "Tendances ou observations anonymisees",
+  anonymousTrends: "Tendances ou observations anonymisées",
   recontact: "Recontact",
-  wizardOfOz: "Test manuel anonymise Wizard-of-Oz",
-  futureAnonymousQuotes: "Validation future de citations anonymisees",
-  futureAttributedQuotes: "Validation future de citations attribuees",
-  adult: "Declaration 18 ans ou plus",
-  separateAgreement: "Accord ecrit separe pour tout usage hors entretien"
+  wizardOfOz: "Test manuel anonymisé Wizard-of-Oz",
+  futureAnonymousQuotes: "Validation future de citations anonymisées",
+  futureAttributedQuotes: "Validation future de citations attribuées",
+  adult: "Déclaration 18 ans ou plus",
+  separateAgreement: "Accord écrit séparé pour tout usage hors entretien"
 };
 
 const accessCodeStorageKey = "aestelier:form-access-code";
@@ -145,12 +145,12 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
     const trimmedCode = code.trim();
 
     if (!trimmedCode) {
-      setStatus("Entrez un code d'acces.");
+      setStatus("Entrez un code d'accès.");
       return;
     }
 
     setIsAccessLoading(true);
-    setStatus("Verification du code d'acces...");
+    setStatus("Vérification du code d'accès...");
 
     const response = await fetch(`/api/access/${encodeURIComponent(trimmedCode)}`, {
       cache: "no-store"
@@ -172,7 +172,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
     if (!response.ok || !body?.access) {
       setIsAccessReady(false);
       setHasCheckedStoredAccess(true);
-      setStatus(body?.error ?? "Code d'acces invalide.");
+      setStatus(body?.error ?? "Code d'accès invalide.");
       return;
     }
 
@@ -226,7 +226,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
       setIsPreviewExpanded(true);
     }
 
-    setStatus("Generation de la previsualisation PDF...");
+    setStatus("Génération de la prévisualisation PDF...");
     const blob = await fetchPdf();
 
     if (!blob) {
@@ -241,7 +241,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
       return URL.createObjectURL(blob);
     });
     setPreviewSignature(formSignature);
-    setStatus("Previsualisation PDF generee localement.");
+    setStatus("Prévisualisation PDF générée localement.");
   }
 
   function openPreview() {
@@ -278,7 +278,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
     }
 
     downloadBlob(blob, "aestelier-consentement.pdf");
-    setStatus("PDF genere. Aucune donnee n'a ete stockee.");
+    setStatus("PDF généré. Aucune donnée n'a été stockée.");
   }
 
   function resetForm() {
@@ -298,9 +298,10 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
 
   if (!isAccessReady && !hasCheckedStoredAccess) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="border border-line bg-[#fffdf7] p-5 text-sm leading-6 text-muted shadow-soft md:p-7">
-          Verification de l'acces...
+      <div className="form-loading">
+        <div className="form-panel form-panel-compact">
+          <span className="mono dim">[ accès ]</span>
+          <p className="form-muted">Vérification de l'accès...</p>
         </div>
       </div>
     );
@@ -308,9 +309,9 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
 
   if (!isAccessReady) {
     return (
-      <div className="grid place-items-start py-8">
+      <div className="access-shell">
         <form
-          className="w-full max-w-xl border border-line bg-paper-2/40 p-5 md:p-7"
+          className="form-panel access-panel"
           onSubmit={(event) => {
             event.preventDefault();
             void loadAccess(accessInput);
@@ -319,7 +320,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
           <span className="mono dim">[ accès ]</span>
           <h2
             className="section-title"
-            style={{ fontSize: "clamp(22px, 2.2vw, 28px)", marginTop: 12 }}
+            style={{ fontSize: "clamp(22px, 2.2vw, 30px)", marginTop: 12 }}
           >
             Entrez votre <span className="it">code</span>.
           </h2>
@@ -328,19 +329,19 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
             mais aucun consentement n’est présélectionné.
           </p>
 
-          <div className="mt-7 border-t border-line pt-6">
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Code d&apos;accès</span>
+          <div className="form-divider">
+            <label className="form-field">
+              <span className="form-label">Code d'accès</span>
               <input
                 value={accessInput}
                 onChange={(event) => setAccessInput(event.target.value.toUpperCase())}
-                className="min-h-14 border border-line bg-paper px-4 text-lg font-semibold tracking-[0.08em] text-ink outline-none transition placeholder:text-muted/40 focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                className="form-input form-input-code"
                 autoComplete="off"
                 spellCheck={false}
                 placeholder="ABC-123-XYZ"
               />
             </label>
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <div className="form-action-row">
               <button
                 type="submit"
                 disabled={isAccessLoading || !accessInput.trim()}
@@ -358,20 +359,14 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                     setAccessInput("");
                     setStatus("");
                   }}
-                  className="mono dim hover:text-ink"
+                  className="text-link"
                 >
                   Oublier ce code
                 </button>
               ) : null}
             </div>
-            <p className="mt-4 text-xs leading-5 text-muted">
-              Aucun consentement n&apos;est présélectionné.
-            </p>
-            {status ? (
-              <p className="mt-5 border border-line bg-paper p-3 text-sm leading-6 text-muted">
-                {status}
-              </p>
-            ) : null}
+            <p className="form-help">Aucun consentement n'est présélectionné.</p>
+            {status ? <p className="form-status">{status}</p> : null}
           </div>
         </form>
       </div>
@@ -379,8 +374,8 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
   }
 
   return (
-    <div>
-      <header className="mb-10 max-w-3xl">
+    <div className="consent-workspace">
+      <header className="consent-header">
         <span className="mono dim">[ étape suivante ]</span>
         <h2
           className="section-title"
@@ -390,88 +385,82 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
         </h2>
         <p className="prose" style={{ marginTop: 18, maxWidth: "60ch" }}>
           Aucun compte créé, aucun brouillon stocké, aucun envoi à un service tiers. Le PDF est
-          généré localement et n&apos;est pas conservé par défaut.
+          généré localement et n'est pas conservé par défaut.
         </p>
       </header>
 
-      <form className="mx-auto max-w-4xl border border-line bg-[#fffdf7] shadow-soft">
-        <div className="grid gap-0">
-          <section className="border-b border-line p-5 md:p-7">
-            <div className="mb-5 flex items-baseline gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-ochre">
-                01
-              </span>
-              <h2 className="text-xl font-semibold text-ink">Informations</h2>
+      <div className="consent-layout">
+        <form className="consent-document">
+          <section className="form-section">
+            <div className="form-section-head">
+              <span className="num">01</span>
+              <h2>Informations</h2>
             </div>
 
-            <div className="grid gap-5">
-              <label className="grid gap-2">
-                <span className="text-sm font-semibold text-ink">
-                  Nom, pseudonyme ou handle du/de la participant(e)
-                </span>
+            <div className="field-stack">
+              <label className="form-field">
+                <span className="form-label">Nom, pseudonyme ou handle du/de la participant(e)</span>
                 <input
                   value={formData.participantName}
                   onChange={(event) => updateField("participantName", event.target.value)}
-                  className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                  className="form-input"
                   autoComplete="name"
                 />
               </label>
 
-              <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_16rem]">
-                <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-ink">
-                    Adresse e-mail ou moyen de contact
-                  </span>
+              <div className="field-grid">
+                <label className="form-field">
+                  <span className="form-label">Adresse e-mail ou moyen de contact</span>
                   <input
                     value={formData.participantContact}
                     onChange={(event) =>
                       updateField("participantContact", event.target.value)
                     }
-                    className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                    className="form-input"
                     autoComplete="email"
                   />
                 </label>
 
-                <label className="grid gap-2">
-                  <span className="text-sm font-semibold text-ink">
-                    Date de l'entretien
-                  </span>
+                <label className="form-field">
+                  <span className="form-label">Date de l'entretien</span>
                   <input
                     type="date"
                     value={formData.interviewDate}
                     onChange={(event) => updateField("interviewDate", event.target.value)}
-                    className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                    className="form-input"
                   />
                 </label>
               </div>
             </div>
           </section>
 
-          <fieldset className="p-5 md:p-7">
-            <legend className="mb-5 flex items-baseline gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-ochre">
-                02
-              </span>
-              <span className="text-xl font-semibold text-ink">Consentements</span>
+          <fieldset className="form-section consent-fieldset">
+            <legend className="form-section-head consent-legend">
+              <span className="num">02</span>
+              <span>Consentements</span>
             </legend>
-            <div className="grid gap-5">
-              {consentGroups.map((group) => (
-                <section key={group.title} className="grid gap-3">
-                  <h3 className="border-b border-line pb-2 text-sm font-semibold uppercase tracking-[0.12em] text-ochre">
-                    {group.title}
-                  </h3>
-                  <div className="grid gap-3">
-                    {group.items.map((item) => (
-                      (() => {
+
+            <div className="consent-groups">
+              {consentGroups.map((group, groupIndex) => {
+                const isLimitGroup = group.title === "Limites";
+
+                return (
+                  <section key={group.title} className="consent-group">
+                    <h3 className="consent-group-title">
+                      <span>{String(groupIndex + 1).padStart(2, "0")}</span>
+                      {group.title}
+                    </h3>
+                    <div className="consent-stack">
+                      {group.items.map((item) => {
                         const itemId = item.keys.join("-");
                         const isEditing = editedConsentSets[itemId];
 
                         return (
                           <div
                             key={itemId}
-                            className="border border-line bg-white p-4 text-sm leading-6 text-ink"
+                            className={`consent-choice${isLimitGroup ? " is-limit" : ""}`}
                           >
-                            <div className="grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start">
+                            <div className="consent-choice-main">
                               <input
                                 id={`consent-${itemId}`}
                                 type="checkbox"
@@ -479,15 +468,15 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                                 onChange={(event) =>
                                   updateConsentSet(item.keys, event.target.checked)
                                 }
-                                className="mt-1 h-5 w-5 shrink-0 accent-ochre"
+                                className="consent-check"
                               />
                               <label
                                 htmlFor={`consent-${itemId}`}
-                                className="grid flex-1 cursor-pointer gap-1"
+                                className="consent-choice-label"
                               >
-                                <span>{item.label}</span>
+                                <span className="consent-choice-title">{item.label}</span>
                                 {item.description ? (
-                                  <span className="text-xs leading-5 text-muted">
+                                  <span className="consent-choice-description">
                                     {item.description}
                                   </span>
                                 ) : null}
@@ -496,21 +485,19 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                                 <button
                                   type="button"
                                   onClick={() => toggleConsentSetEdit(itemId)}
-                                  className="justify-self-start border border-line bg-paper px-3 py-1.5 text-xs font-semibold text-ink sm:justify-self-end"
+                                  className="consent-detail-button"
                                   aria-expanded={isEditing}
                                 >
-                                  {isEditing ? "^ Masquer" : "v Details"}
+                                  {isEditing ? "Masquer" : "Détails"}
                                 </button>
                               ) : null}
                             </div>
 
                             {item.keys.length > 1 && !isEditing ? (
-                              <ul className="mt-3 grid gap-1 border-t border-line pt-3 text-xs leading-5 text-muted">
+                              <ul className="consent-detail-list">
                                 {item.keys.map((key) => (
-                                  <li key={key} className="flex gap-2">
-                                    <span aria-hidden="true" className="text-ochre">
-                                      -&gt;
-                                    </span>
+                                  <li key={key}>
+                                    <span aria-hidden="true">→</span>
                                     <span>{detailedConsentLabels[key]}</span>
                                   </li>
                                 ))}
@@ -518,19 +505,16 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                             ) : null}
 
                             {item.keys.length > 1 && isEditing ? (
-                              <div className="mt-3 grid gap-2 border-t border-line pt-3">
+                              <div className="consent-detail-list consent-detail-edit">
                                 {item.keys.map((key) => (
-                                  <label
-                                    key={key}
-                                    className="flex items-start gap-3 text-xs leading-5 text-muted"
-                                  >
+                                  <label key={key}>
                                     <input
                                       type="checkbox"
                                       checked={formData.consents[key]}
                                       onChange={(event) =>
                                         updateConsent(key, event.target.checked)
                                       }
-                                      className="mt-0.5 h-4 w-4 shrink-0 accent-ochre"
+                                      className="consent-check small"
                                     />
                                     <span>{detailedConsentLabels[key]}</span>
                                   </label>
@@ -539,16 +523,16 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                             ) : null}
                           </div>
                         );
-                      })()
-                    ))}
-                  </div>
-                </section>
-              ))}
+                      })}
+                    </div>
+                  </section>
+                );
+              })}
             </div>
           </fieldset>
 
-          <div className="border-t border-line bg-paper-2/40 p-5 md:p-7">
-            <div className="flex flex-wrap items-center gap-3">
+          <div className="form-actions">
+            <div className="form-action-row">
               <button
                 type="button"
                 onClick={openPreview}
@@ -565,81 +549,91 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
               >
                 Télécharger le PDF <span className="arr" />
               </button>
-              <button
-                type="button"
-                onClick={resetForm}
-                className="mono dim hover:text-ink"
-              >
+              <button type="button" onClick={resetForm} className="text-link">
                 Réinitialiser
               </button>
             </div>
-            {status ? <p className="mt-4 text-sm text-muted">{status}</p> : null}
+            {status ? <p className="form-status">{status}</p> : null}
           </div>
-        </div>
-      </form>
+        </form>
+
+        <aside className="form-rail" aria-label="Repères du document">
+          <span className="mono dim">[ repères ]</span>
+          <ul>
+            <li>
+              <span className="num">01</span>
+              <span>Les champs de contexte sont les seuls préremplis.</span>
+            </li>
+            <li>
+              <span className="num">02</span>
+              <span>Chaque consentement reste modifiable séparément.</span>
+            </li>
+            <li>
+              <span className="num">03</span>
+              <span>Le PDF est généré localement, puis téléchargé par vous.</span>
+            </li>
+            <li>
+              <span className="num">04</span>
+              <span>Aucune cession de droits n'est créée par ce formulaire.</span>
+            </li>
+          </ul>
+        </aside>
+      </div>
 
       {isPreviewExpanded ? (
-        <div
-          className="fixed inset-0 z-50 grid place-items-center bg-ink/70 p-3 md:p-8"
-          onClick={() => setIsPreviewExpanded(false)}
-        >
-          <div
-            className="flex h-full min-h-0 w-full max-w-[54rem] flex-col border border-line bg-[#fffdf7] p-4 shadow-soft"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="mb-3 grid gap-3 md:flex md:items-start md:justify-between">
+        <div className="preview-backdrop" onClick={() => setIsPreviewExpanded(false)}>
+          <div className="preview-panel" onClick={(event) => event.stopPropagation()}>
+            <div className="preview-head">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-ochre">
-                  Apercu PDF
-                </p>
-                <p className="mt-1 text-xs leading-5 text-muted">
+                <p className="mono dim">[ aperçu PDF ]</p>
+                <p className="form-help">
                   {pdfPreviewUrl
                     ? isPreviewStale
-                      ? "Cet apercu n'inclut pas encore les dernieres modifications."
-                      : "Apercu a jour."
-                    : "Generation de l'apercu en cours."}
+                      ? "Cet aperçu n'inclut pas encore les dernières modifications."
+                      : "Aperçu à jour."
+                    : "Génération de l'aperçu en cours."}
                 </p>
               </div>
-              <div className="flex flex-wrap gap-2">
+              <div className="preview-actions">
                 <button
                   type="button"
                   onClick={downloadPdf}
                   disabled={!canGenerate}
-                  className="min-h-9 border border-line bg-white px-3 text-xs font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-40"
+                  className="small-button"
                 >
-                  Telecharger PDF
+                  Télécharger PDF
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsPreviewExpanded(false)}
-                  className="min-h-9 border border-line bg-white px-3 text-xs font-semibold text-ink"
+                  className="small-button"
                 >
                   Fermer
                 </button>
               </div>
             </div>
             {isPreviewStale ? (
-              <p className="mb-3 border border-ochre bg-[#fffaf0] p-3 text-xs leading-5 text-muted">
-                Des champs ou consentements ont change depuis la generation de ce PDF.
+              <p className="form-status is-warning">
+                Des champs ou consentements ont changé depuis la génération de ce PDF.
               </p>
             ) : null}
             {pdfPreviewUrl ? (
               <iframe
-                title="Previsualisation PDF du formulaire de consentement"
+                title="Prévisualisation PDF du formulaire de consentement"
                 src={pdfPreviewUrl}
-                className="min-h-0 w-full flex-1 border border-line bg-paper"
+                className="preview-frame"
               />
             ) : (
-              <div className="grid min-h-0 flex-1 place-items-center border border-line bg-paper p-6 text-center text-sm leading-6 text-muted">
-                <div className="grid gap-3">
-                  <span>Generation de l'apercu PDF...</span>
+              <div className="preview-empty">
+                <div>
+                  <span>Génération de l'aperçu PDF...</span>
                   <button
                     type="button"
                     onClick={openPreview}
                     disabled={!canGenerate}
-                    className="mx-auto min-h-10 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
+                    className="small-button dark"
                   >
-                    Reessayer
+                    Réessayer
                   </button>
                 </div>
               </div>
