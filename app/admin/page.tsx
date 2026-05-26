@@ -1,4 +1,5 @@
 import { AdminAccessPanel } from "@/components/AdminAccessPanel";
+import { Footer } from "@/components/Footer";
 import { Topbar } from "@/components/Topbar";
 
 export default function AdminPage() {
@@ -46,6 +47,8 @@ export default function AdminPage() {
           <AdminAccessPanel />
         </div>
       </section>
+
+      <Footer />
     </main>
   );
 }

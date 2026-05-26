@@ -1,4 +1,5 @@
 import { ConsentForm } from "@/components/ConsentForm";
+import { Footer } from "@/components/Footer";
 import { Topbar } from "@/components/Topbar";
 
 export default async function FormulairePage({
@@ -49,6 +50,8 @@ export default async function FormulairePage({
       <section className="form-area">
         <ConsentForm initialAccessCode={code} />
       </section>
+
+      <Footer />
     </main>
   );
 }
