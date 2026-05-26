@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Topbar } from "@/components/Topbar";
 
 const parcours = [
   {
@@ -52,24 +53,7 @@ const formDoesNotAllow = [
 export default function Home() {
   return (
     <main>
-      {/* ─────────── NAV ─────────── */}
-      <header className="topbar">
-        <div>
-          <span className="mono">/aestelier</span>
-        </div>
-        <nav>
-          <a href="#demarche">Démarche</a>
-          <a href="#entretiens">Entretiens</a>
-          <a href="#cadre">Cadre</a>
-          <a href="#consentement">Consentement</a>
-          <a href="#participer">Participer</a>
-        </nav>
-        <div className="right">
-          <Link href="/formulaire" className="pill dark">
-            Accéder au formulaire <span className="arr" />
-          </Link>
-        </div>
-      </header>
+      <Topbar variant="full" />
 
       {/* ─────────── HERO (flux linéaire) ─────────── */}
       <section className="hero">

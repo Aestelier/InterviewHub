@@ -1,24 +1,51 @@
 import { AdminAccessPanel } from "@/components/AdminAccessPanel";
+import { Topbar } from "@/components/Topbar";
 
 export default function AdminPage() {
   return (
-    <main className="min-h-screen px-5 py-8 md:px-8">
-      <div className="mx-auto max-w-5xl">
-        <header className="mb-8 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-ochre">
-            Administration
-          </p>
-          <h1 className="mt-4 font-serif text-4xl leading-tight text-ink md:text-5xl">
-            Acces artistes
-          </h1>
-          <p className="mt-5 text-lg leading-8 text-muted">
-            Generez des liens d'acces pour pre-remplir le formulaire sans
-            pre-cocher les consentements.
-          </p>
-        </header>
+    <main>
+      <Topbar variant="minimal" />
 
-        <AdminAccessPanel />
-      </div>
+      <section style={{ padding: "56px 28px 32px" }}>
+        <div style={{ maxWidth: "var(--wide)", margin: "0 auto" }}>
+          <span className="mono dim">§ — Administration</span>
+          <h1
+            className="section-title"
+            style={{ marginTop: 18, maxWidth: "22ch" }}
+          >
+            Accès <span className="it">artistes.</span>
+          </h1>
+          <p className="lead" style={{ marginTop: 20, maxWidth: "60ch" }}>
+            Générez des liens d’accès pour préremplir le formulaire, sans pré-cocher les
+            consentements.
+          </p>
+          <div
+            className="mono dim"
+            style={{
+              marginTop: 28,
+              display: "flex",
+              gap: 24,
+              flexWrap: "wrap",
+              borderTop: "1px solid var(--hair)",
+              paddingTop: 18,
+              maxWidth: "var(--wide)"
+            }}
+          >
+            <span>
+              <span className="accent">Token</span> · session navigateur
+            </span>
+            <span>
+              <span className="accent">Liens</span> · un code par entretien
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: "16px 28px 80px" }}>
+        <div style={{ maxWidth: "var(--wide)", margin: "0 auto" }}>
+          <AdminAccessPanel />
+        </div>
+      </section>
     </main>
   );
 }
