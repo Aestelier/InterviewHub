@@ -83,16 +83,17 @@ export default function Home() {
 
           <div className="hero-grid">
             <div>
-              <p className="lead" style={{ maxWidth: "42ch" }}>
+              <p className="lead" style={{ maxWidth: "44ch" }}>
                 Aestelier explore comment la technologie peut soutenir le travail des artistes
-                visuels — sans prendre le contrôle sur leurs œuvres, leurs méthodes ou leurs
+                visuels, sans prendre le contrôle sur leurs œuvres, leurs méthodes ou leurs
                 espaces privés.
               </p>
-              <div className="prose" style={{ marginTop: 28, maxWidth: "56ch" }}>
+              <div className="prose" style={{ marginTop: 28, maxWidth: "58ch" }}>
                 <p>
                   Les entretiens servent à construire depuis les usages réels&nbsp;: comprendre
-                  comment les artistes travaillent, ce qui les freine, ce qui doit rester sous leur
-                  contrôle, et à quelles conditions un outil numérique peut réellement les aider.
+                  comment les artistes travaillent, ce qui les freine, ce qui doit rester sous
+                  leur contrôle, et à quelles conditions un outil numérique peut réellement les
+                  aider.
                 </p>
               </div>
               <div
@@ -105,11 +106,32 @@ export default function Home() {
                 }}
               >
                 <Link href="/formulaire" className="pill dark">
-                  J’ai un code — accéder au formulaire <span className="arr" />
+                  J’ai un code, accéder au formulaire <span className="arr" />
                 </Link>
                 <a href="#demarche" className="pill">
                   Comprendre la démarche
                 </a>
+              </div>
+              <div
+                className="mono dim"
+                style={{
+                  marginTop: 36,
+                  display: "flex",
+                  gap: 24,
+                  flexWrap: "wrap",
+                  borderTop: "1px solid var(--hair)",
+                  paddingTop: 18
+                }}
+              >
+                <span>
+                  <span className="accent">Phase 01</span> · Recherche
+                </span>
+                <span>
+                  <span className="accent">Format</span> · Entretien
+                </span>
+                <span>
+                  <span className="accent">Durée</span> · 30 à 60 min
+                </span>
               </div>
             </div>
 
@@ -138,7 +160,7 @@ export default function Home() {
                   color: "var(--encre-2)"
                 }}
               >
-                Chaque étape peut être interrompue. Le formulaire n’est pas une cession de droits —
+                Chaque étape peut être interrompue. Le formulaire n’est pas une cession de droits,
                 c’est un cadre de transparence.
               </p>
             </aside>
@@ -161,9 +183,9 @@ export default function Home() {
             </h2>
           </div>
           <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ Une recherche appliquée, volontaire</span>
+            <span className="mono dim"><span className="accent">→</span> Une recherche appliquée, volontaire</span>
             <p className="lead" style={{ maxWidth: "38ch" }}>
-              Comprendre les pratiques réelles avant de figer un outil — et défendre ce qui doit
+              Comprendre les pratiques réelles avant de figer un outil, et défendre ce qui doit
               rester sous le contrôle de l’artiste.
             </p>
           </div>
@@ -187,7 +209,7 @@ export default function Home() {
                 Aestelier part d’une autre direction&nbsp;: créer des outils faits pour les
                 artistes, avec les artistes, dans un cadre qui défend leur travail et leur capacité
                 de décision. L’enjeu n’est pas de remplacer le geste artistique, mais{" "}
-                <em>d’augmenter le workflow</em> — tout en laissant le contrôle à l’artiste.
+                <em>d’augmenter le workflow</em>, tout en laissant le contrôle à l’artiste.
               </p>
               <p>
                 <strong>
@@ -211,10 +233,10 @@ export default function Home() {
             </h2>
           </div>
           <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ 30 à 60 minutes · à distance ou en présentiel</span>
+            <span className="mono dim"><span className="accent">→</span> 30 à 60 minutes · à distance ou en présentiel</span>
             <p className="lead" style={{ maxWidth: "38ch" }}>
-              L’entretien porte sur la manière de travailler — outils, habitudes, zones privées,
-              conditions de confiance.
+              L’entretien porte sur la manière de travailler&nbsp;: outils, habitudes, zones
+              privées, conditions de confiance.
             </p>
           </div>
         </div>
@@ -253,9 +275,9 @@ export default function Home() {
             </h2>
           </div>
           <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ Le consentement n’est jamais figé</span>
+            <span className="mono dim"><span className="accent">→</span> Le consentement n’est jamais figé</span>
             <p className="lead" style={{ maxWidth: "38ch" }}>
-              Pendant l’entretien et après — chaque droit ci-dessous peut être exercé sans
+              Pendant l’entretien et après. Chaque droit ci-dessous peut être exercé sans
               justification.
             </p>
           </div>
@@ -326,7 +348,7 @@ export default function Home() {
             </h2>
           </div>
           <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ Code transmis avant l’échange</span>
+            <span className="mono dim"><span className="accent">→</span> Code transmis avant l’échange</span>
             <p className="lead" style={{ maxWidth: "38ch" }}>
               Le formulaire rend le cadre explicite. Les consentements restent décochés et choisis
               manuellement.
@@ -349,7 +371,12 @@ export default function Home() {
               <p>
                 Les participants y accèdent avec un code transmis avant l’échange. Le formulaire
                 préremplit seulement le contexte nécessaire&nbsp;: projet, nature de l’entretien,
-                date.
+                date.{" "}
+                <strong>
+                  Participer ne donne aucun droit automatique sur les œuvres, les références,
+                  l’identité ou les propos de l’artiste. Tout usage public ou spécifique demande
+                  un accord écrit séparé.
+                </strong>
               </p>
             </div>
           </div>
@@ -376,23 +403,14 @@ export default function Home() {
             </ul>
           </div>
 
-          <div className="cell h-lg span2 col between solid-encre">
+          <div className="cell h-lg span2 col between solid-accent">
             <div>
-              <span className="mono" style={{ color: "var(--accent)" }}>
-                [ n’autorise pas ]
-              </span>
+              <span className="mono">[ n’autorise pas ]</span>
               <h3
                 className="section-title"
-                style={{
-                  fontSize: "clamp(24px, 2.4vw, 30px)",
-                  marginTop: 14,
-                  color: "var(--papier)"
-                }}
+                style={{ fontSize: "clamp(24px, 2.4vw, 30px)", marginTop: 14 }}
               >
-                Ce qui reste{" "}
-                <span className="it" style={{ color: "var(--accent)" }}>
-                  hors champ.
-                </span>
+                Ce qui reste <span className="it">hors champ.</span>
               </h3>
             </div>
             <ul className="itemlist" style={{ marginTop: 24 }}>
@@ -406,50 +424,19 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="grid-ed">
-          <div className="cell span4">
-            <p
-              className="prose"
-              style={{ fontSize: 15, color: "var(--pierre)", maxWidth: "78ch", margin: 0 }}
-            >
-              Participer à un entretien ne donne aucun droit automatique sur les œuvres, les
-              références, l’identité ou les propos de l’artiste. Tout usage public ou usage plus
-              spécifique demanderait un accord écrit séparé.
-            </p>
-          </div>
-        </div>
       </section>
 
-      {/* ─────────── § 06 — Participer / CTA (deux pistes de poids égal) ─────────── */}
-      <section id="participer">
-        <div className="grid-ed">
-          <div className="cell h-sm span2 col between">
-            <span className="mono dim">§ 06 — Participer</span>
-            <h2 className="section-title">
-              Deux <span className="it">chemins,</span> selon votre point de départ.
-            </h2>
-          </div>
-          <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ Aucun engagement automatique</span>
-            <p className="lead" style={{ maxWidth: "38ch" }}>
-              Que vous ayez déjà un rendez-vous ou non, le premier pas reste le même&nbsp;: lire le
-              cadre avant tout.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid-ed">
-          <div className="cell h-lg span2 col between">
+      {/* ─────────── § 06 — Participer / CTA full-bleed ─────────── */}
+      <section id="participer" className="cta-band">
+        <div className="cta-inner">
+          <div className="cta-col">
             <div>
-              <span className="mono">[ piste 01 · avec code ]</span>
-              <h3
-                className="section-title"
-                style={{ fontSize: "clamp(24px, 2.4vw, 32px)", marginTop: 14 }}
-              >
-                Vous avez déjà un <span className="it">rendez-vous</span>.
+              <span className="mono dim">§ 06 — Participer · avec code</span>
+              <h3 style={{ marginTop: 18 }}>
+                vous avez déjà un <span className="it">rendez-vous</span>.
               </h3>
             </div>
-            <p className="prose" style={{ maxWidth: "44ch" }}>
+            <p className="prose" style={{ maxWidth: "44ch", fontSize: 16 }}>
               Accédez au formulaire avec le code transmis avant l’entretien. Vous pourrez lire le
               cadre, choisir les consentements et préparer l’échange.
             </p>
@@ -457,29 +444,23 @@ export default function Home() {
               <Link href="/formulaire" className="pill dark">
                 Accéder au formulaire <span className="arr" />
               </Link>
-              <div className="mono dim" style={{ marginTop: 14 }}>
-                ~5 minutes · décochés par défaut
+              <div
+                className="mono"
+                style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}
+              >
+                Aucune création de compte
               </div>
             </div>
           </div>
 
-          <div className="cell h-lg span2 col between solid-encre">
+          <div className="cta-col">
             <div>
-              <span className="mono" style={{ color: "var(--accent)" }}>
-                [ piste 02 · sans rendez-vous ]
-              </span>
-              <h3
-                className="section-title"
-                style={{
-                  fontSize: "clamp(24px, 2.4vw, 32px)",
-                  marginTop: 14,
-                  color: "var(--papier)"
-                }}
-              >
-                Vous découvrez le <span className="it">projet</span>.
+              <span className="mono dim">§ 06 — Participer · sans rendez-vous</span>
+              <h3 style={{ marginTop: 18 }}>
+                vous découvrez le <span className="it">projet</span>.
               </h3>
             </div>
-            <p className="prose" style={{ maxWidth: "44ch", color: "var(--papier)" }}>
+            <p className="prose" style={{ maxWidth: "44ch", fontSize: 16 }}>
               Écrivez-moi pour discuter de la démarche, poser une question, ou proposer un
               entretien. Je réponds personnellement.
             </p>
@@ -497,9 +478,9 @@ export default function Home() {
               </Link>
               <div
                 className="mono"
-                style={{ marginTop: 14, color: "rgba(244,240,232,0.6)" }}
+                style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}
               >
-                réponse sous quelques jours
+                Réponse en quelques jours
               </div>
             </div>
           </div>
@@ -512,7 +493,7 @@ export default function Home() {
           <div className="foot-col">
             <span className="mono dim">[ aestelier ]</span>
             <div className="prose" style={{ fontSize: 14 }}>
-              Recherche avec les artistes — phase ouverte, 2026.
+              Recherche avec les artistes · phase ouverte, 2026.
             </div>
           </div>
           <div className="foot-col">
