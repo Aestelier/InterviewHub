@@ -523,6 +523,14 @@ export default function Home() {
                   <p>chaque consentement peut être limité, refusé ou retiré</p>
                 </li>
               </ul>
+              <a
+                href="https://votre-site.fr"
+                className="human-link"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Voir ma page personnelle <span className="arr" />
+              </a>
             </aside>
           </div>
         </div>
