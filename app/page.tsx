@@ -53,7 +53,7 @@ const formDoesNotAllow = [
 
 export default function Home() {
   return (
-    <main>
+    <main className="landing-page">
       <Topbar variant="full" />
 
       {/* ─────────── HERO (flux linéaire) ─────────── */}
@@ -67,7 +67,7 @@ export default function Home() {
           </h1>
 
           <div className="hero-grid">
-            <div>
+            <div className="hero-copy">
               <p className="lead" style={{ maxWidth: "44ch" }}>
                 Aestelier explore comment la technologie peut soutenir le travail des artistes
                 visuels, sans prendre le contrôle sur leurs œuvres, leurs méthodes ou leurs
@@ -82,6 +82,7 @@ export default function Home() {
                 </p>
               </div>
               <div
+                className="hero-actions"
                 style={{
                   display: "flex",
                   gap: 14,
@@ -98,7 +99,7 @@ export default function Home() {
                 </a>
               </div>
               <div
-                className="mono dim"
+                className="mono dim hero-meta"
                 style={{
                   marginTop: 36,
                   display: "flex",
@@ -120,7 +121,7 @@ export default function Home() {
               </div>
             </div>
 
-            <aside className="card">
+            <aside className="card hero-steps">
               <span className="mono dim">Le parcours · 4 étapes</span>
               <ul>
                 {parcours.map((step, idx) => (

@@ -1246,8 +1246,14 @@ footer.foot {
   .topbar,
   .hero > .hero-inner > .mono.dim,
   .hero h1,
-  .hero-grid > div,
-  .hero .card {
+  .hero-copy > .lead,
+  .hero-copy > .prose,
+  .hero-actions,
+  .hero-meta,
+  .hero .card,
+  .hero-steps > .mono,
+  .hero-steps li,
+  .hero-steps p {
     animation: soft-enter 760ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
@@ -1263,12 +1269,48 @@ footer.foot {
     animation-delay: 150ms;
   }
 
-  .hero-grid > div {
+  .hero-copy > .lead {
     animation-delay: 240ms;
   }
 
+  .hero-copy > .prose {
+    animation-delay: 310ms;
+  }
+
+  .hero-actions {
+    animation-delay: 380ms;
+  }
+
+  .hero-meta {
+    animation-delay: 450ms;
+  }
+
   .hero .card {
-    animation-delay: 320ms;
+    animation-delay: 280ms;
+  }
+
+  .hero-steps > .mono {
+    animation-delay: 390ms;
+  }
+
+  .hero-steps li:nth-child(1) {
+    animation-delay: 450ms;
+  }
+
+  .hero-steps li:nth-child(2) {
+    animation-delay: 510ms;
+  }
+
+  .hero-steps li:nth-child(3) {
+    animation-delay: 570ms;
+  }
+
+  .hero-steps li:nth-child(4) {
+    animation-delay: 630ms;
+  }
+
+  .hero-steps p {
+    animation-delay: 700ms;
   }
 
   .brand-link img,
@@ -1319,14 +1361,28 @@ footer.foot {
       animation-range: entry 8% cover 28%;
     }
 
+    .landing-page .grid-ed > .cell > :where(.mono, .section-title, .lead, .prose),
+    .landing-page .cta-col > *,
+    .landing-page .human-note > *,
+    .landing-page .human-promises > .mono,
+    .landing-page .foot-col {
+      animation: view-fade-in both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 24%;
+    }
+
     .itemlist li,
-    .card li,
     .human-promises li,
     .form-rail li,
     .consent-choice {
       animation: view-fade-in both;
       animation-timeline: view();
       animation-range: entry 6% cover 18%;
+    }
+
+    .landing-page .itemlist li:nth-child(2n),
+    .landing-page .human-promises li:nth-child(2n) {
+      animation-range: entry 10% cover 22%;
     }
 
     .cell::before {
