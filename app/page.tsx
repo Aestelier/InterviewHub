@@ -450,7 +450,7 @@ export default function Home() {
       </section>
 
       {/* ─────────── § 06 — Participer / CTA (flux linéaire) ─────────── */}
-      <section id="participer" className="bloc" style={{ borderTop: "1px solid var(--hair)" }}>
+      <section id="participer" className="bloc">
         <div className="shell">
           <div className="cta">
             <div>
