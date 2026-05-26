@@ -1,0 +1,17 @@
+/node_modules
+/.next
+/out
+/.env.local
+/private
+*.pdf
+*.aux
+*.log
+*.out
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.xdv
+*.bbl
+*.blg
+*.tsbuildinfo

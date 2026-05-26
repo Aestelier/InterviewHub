@@ -1,0 +1,169 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+%\usepackage{microtype}
+\usepackage{geometry}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+
+\geometry{top=1.5cm, bottom=1.5cm, left=1.7cm, right=1.7cm, headheight=12pt, footskip=0.7cm}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.7em}
+\setlength{\parfillskip}{0pt plus 1fil}
+\emergencystretch=2em
+
+\setlist[itemize]{leftmargin=1.3em, itemsep=0.3em, topsep=0.4em, parsep=0pt, partopsep=0pt}
+
+\definecolor{AestelierInk}{HTML}{1F1F1F}
+\definecolor{AestelierMuted}{HTML}{6B6B6B}
+\definecolor{AestelierLine}{HTML}{C8C8C8}
+\definecolor{AestelierSoft}{HTML}{F4F3EE}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AestelierInk,
+  urlcolor=AestelierInk,
+  pdftitle={Aestelier - Consentement entretien},
+  pdfauthor={Guillaume Schneider}
+}
+
+\titleformat{\section}
+  {\normalfont\normalsize\bfseries\color{AestelierInk}}
+  {\thesection.}{0.55em}{}
+\titlespacing*{\section}{0pt}{0.9em}{0.3em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[C]{\scriptsize\color{AestelierMuted}Aestelier — Consentement entretien — v.~2026-05-24 — page \thepage}
+
+\newcommand{\checkbox}{\fbox{\rule{0pt}{0.7em}\hspace{0.7em}}}
+\newcommand{\fieldline}[1]{\textbf{#1}\hspace{0.4em}\hrulefill}
+\newcommand{\smallnote}[1]{{\small\color{AestelierMuted}#1}}
+
+\newcommand{\notice}[1]{%
+  \begingroup
+  \setlength{\fboxsep}{0.6em}%
+  \noindent\colorbox{AestelierSoft}{%
+    \parbox{\dimexpr\linewidth-2\fboxsep\relax}{#1}%
+  }%
+  \endgroup
+  \par\vspace{0.4em}
+}
+
+\begin{document}
+
+\begin{center}
+  {\Large\textbf{Aestelier}}\\[0.25em]
+  {\normalsize Formulaire court de consentement pour entretien de recherche}\\[0.35em]
+  \smallnote{Version courte — 2026-05-24}
+\end{center}
+
+\vspace{0.4em}
+
+\notice{%
+  \textbf{En clair.} Cet entretien sert uniquement à comprendre les workflows d'artistes et à concevoir de meilleurs outils. En participant, vous m'aidez à comprendre vos méthodes de recherche, d'organisation et d'évaluation de références. Vous pouvez refuser une question, demander une pause, arrêter l'entretien ou demander l'arrêt de l'enregistrement à tout moment.\par
+  \vspace{0.35em}
+  \textbf{Ce formulaire n'autorise pas :} entraînement IA, indexation de vos œuvres, réutilisation de vos créations, usage marketing, ajout à un corpus, publication de votre identité ou citation sans validation séparée. Tout usage de ce type nécessiterait un accord écrit distinct.
+}
+
+\section{Objet de l'entretien}
+
+L'entretien est lié au projet \textbf{Aestelier}. Il vise à comprendre :
+
+\begin{itemize}
+  \item comment vous recherchez, organisez et utilisez des références visuelles ;
+  \item ce qui rend certaines recherches difficiles ou incertaines ;
+  \item ce qui rend un outil créatif utile, fiable, inquiétant ou acceptable ;
+  \item vos attentes en matière de transparence, de contrôle des données et de respect du travail artistique.
+\end{itemize}
+
+L'entretien n'est pas une collecte d'assets commerciaux, de dataset ou d'œuvres à réutiliser.
+
+\section{Ce que vous autorisez, selon les cases cochées}
+
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.045\linewidth}@{\hspace{0.5em}}>{\raggedright\arraybackslash}p{0.91\linewidth}@{}}
+\checkbox & Je consens à participer à l'entretien de recherche. \\[0.4em]
+\checkbox & Je consens à une prise de notes écrites pendant l'entretien. \\[0.4em]
+\checkbox & Je consens à l'enregistrement audio ou vidéo de l'entretien pour faciliter la prise de notes. \\[0.4em]
+\checkbox & Je consens à la transcription de l'entretien pour faciliter l'analyse et la prise de notes. \\[0.4em]
+\checkbox & Je consens à l'utilisation de notes internes dans le cadre de la recherche produit Aestelier. \\[0.4em]
+\checkbox & Je consens à l'utilisation de tendances ou observations anonymisées dans des synthèses de recherche. \\[0.4em]
+\checkbox & Je consens à être recontacté(e) pour des questions de suivi liées à cette recherche. \\[0.4em]
+\checkbox & Je consens à ce qu'une requête de recherche de référence soit reformulée par le responsable pour retirer les détails identifiants, puis utilisée de manière anonymisée pour un test manuel interne de type Wizard-of-Oz. Les résultats ne seront pas diffusés sans nouveau consentement écrit, et mes œuvres ne seront ni indexées ni réutilisées. \\[0.4em]
+\checkbox & Je suis ouvert(e) à recevoir plus tard une demande d'approbation pour certaines citations anonymisées. Chaque citation devra être validée séparément par écrit avant toute publication. \\[0.4em]
+\checkbox & Je suis ouvert(e) à recevoir plus tard une demande d'approbation pour certaines citations attribuées. Chaque citation devra être validée séparément par écrit avant toute publication. \\[0.4em]
+\checkbox & Je déclare être âgé(e) de 18 ans ou plus. \\[0.4em]
+\checkbox & Je comprends que toute réutilisation d'œuvre, indexation, entraînement IA, usage marketing ou usage comme asset produit n'est pas couverte par ce formulaire et nécessiterait un accord écrit séparé. \\
+\end{longtable}
+
+\newpage
+
+\section{Limites explicites du consentement}
+
+Votre participation \textbf{n'autorise pas}, sauf accord écrit séparé :
+
+\begin{itemize}
+  \item la publication de votre nom, pseudonyme, handle ou identité ;
+  \item la publication de citations, même anonymisées, sans validation au cas par cas ;
+  \item la copie, publication, indexation ou réutilisation de vos œuvres ;
+  \item l'ajout de vos œuvres à un corpus, dataset, moteur de recherche ou index Aestelier ;
+  \item l'utilisation de vos œuvres ou données pour entraîner, ajuster, tester ou évaluer un modèle d'IA ;
+  \item toute communication laissant entendre que vous recommandez officiellement Aestelier.
+\end{itemize}
+
+Le consentement à l'entretien autorise une \textbf{analyse humaine} des informations partagées afin d'améliorer la compréhension du problème produit. Il n'autorise pas l'ingestion automatisée de vos œuvres ou données dans un modèle IA.
+
+Pour toute citation soumise à approbation, le texte exact, le contexte d'usage et le support prévu seront envoyés par écrit. Une validation écrite est nécessaire ; l'absence de réponse sous \textbf{14 jours} vaut refus.
+
+\section{Partage d'écran et éléments visibles accidentellement}
+
+Si vous partagez votre écran ou montrez un outil de travail, des éléments non destinés à l'entretien peuvent apparaître : œuvres en cours, fichiers clients, moodboards, références, noms de projets, conversations ou informations confidentielles. Ces éléments ne seront pas copiés, extraits, archivés, publiés, indexés ou réutilisés, sauf accord écrit séparé de votre part.
+
+\section{Conservation, outils et droits}
+
+Le traitement des données liées à l'entretien repose sur votre \textbf{consentement} au sens du RGPD, article 6.1.a, pour les finalités cochées ci-dessus. Le responsable de traitement est \textbf{Guillaume Schneider}, actuellement à titre individuel dans le cadre du projet Aestelier, joignable à \href{mailto:contact@guillaumeschneider.fr}{contact@guillaumeschneider.fr}. Si Aestelier devient une structure juridique distincte, tout transfert de données vers cette structure se fera uniquement dans le respect des finalités initialement acceptées, et les participant(e)s en seront informé(e)s.
+
+Sauf demande contraire de votre part ou contrainte légale, les enregistrements bruts seront supprimés après extraction des notes utiles, et au plus tard \textbf{90 jours} après l'entretien, sauf accord explicite séparé de conservation supplémentaire. Les notes identifiables seront revues au moins une fois tous les \textbf{6 mois}. Les synthèses anonymisées peuvent être conservées sans limite définie dès lors qu'elles ne permettent plus de vous identifier.
+
+\textbf{Outils utilisés :} OBS Studio pour l'enregistrement local ; Proton Drive pour le stockage des enregistrements, transcriptions et notes ; traitement, anonymisation et analyse effectués localement. Aucun outil de transcription automatique tiers, service d'IA cloud ou plateforme d'analyse externe ne sera utilisé pour traiter vos données sans accord séparé.
+
+Vous pouvez demander l'accès, la correction, la suppression, la limitation, l'opposition, la portabilité ou le retrait de votre consentement. Une réponse sera apportée sous \textbf{30 jours}. Vous pouvez aussi introduire une réclamation auprès de la CNIL : \href{https://www.cnil.fr}{www.cnil.fr}.
+
+\needspace{6\baselineskip}
+\section{Signatures}
+
+\vspace{0.5em}
+
+\noindent
+\begin{minipage}[t]{0.47\linewidth}
+  \textbf{Participant(e)}\\[1.1em]
+  \fieldline{Nom, pseudonyme ou handle}\\[1.7em]
+  \fieldline{Adresse email ou moyen de contact}\\[1.7em]
+  \fieldline{Date}\\[2.4em]
+  \fieldline{Signature}
+\end{minipage}%
+\hfill
+\begin{minipage}[t]{0.47\linewidth}
+  \textbf{Responsable de l'entretien}\\[1.1em]
+  \textbf{Nom :} Guillaume Schneider\\[1.7em]
+  \textbf{Contact :} \href{mailto:contact@guillaumeschneider.fr}{contact@guillaumeschneider.fr}\\[1.7em]
+  \fieldline{Date}\\[2.4em]
+  \fieldline{Signature}
+\end{minipage}
+
+\vspace{1.2em}
+
+\smallnote{Version courte destinée aux entretiens exploratoires simples. Pour tout usage d'œuvre, de citation attribuée, de corpus, d'index de recherche, de dataset ou d'entraînement IA, un accord écrit séparé doit être demandé.}
+
+\end{document}

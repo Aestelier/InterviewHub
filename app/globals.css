@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background: #f7f3ea;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 245, 0.88), rgba(247, 243, 234, 0.96)),
+    #f7f3ea;
+  color: #20201d;
+}
+
+::selection {
+  background: #d8c49f;
+  color: #20201d;
+}
+
+input,
+select,
+button,
+textarea {
+  font: inherit;
+}
