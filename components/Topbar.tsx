@@ -10,10 +10,8 @@ export function Topbar({ variant = "full" }: TopbarProps) {
       <div>
         <Link
           href="/"
+          className="brand-link"
           style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: 12,
             color: "inherit"
           }}
         >
@@ -24,7 +22,10 @@ export function Topbar({ variant = "full" }: TopbarProps) {
             height={19}
             style={{ display: "block", height: 22, width: "auto" }}
           />
-          <span className="mono">/aestelier</span>
+          <span className="brand-copy">
+            <span className="mono brand-name">Aestelier</span>
+            <span className="mono dim brand-pronunciation">/es-te-lier/</span>
+          </span>
         </Link>
       </div>
       {variant === "full" ? (

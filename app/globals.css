@@ -351,6 +351,23 @@ section.bloc.tight {
   gap: 14px;
   justify-content: flex-end;
 }
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-copy {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  min-width: 0;
+}
+.brand-name {
+  color: var(--encre);
+}
+.brand-pronunciation {
+  white-space: nowrap;
+}
 
 /* ─── pill ─── */
 .pill {
