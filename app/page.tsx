@@ -1,10 +1,22 @@
 import Link from "next/link";
 
-const essentials = [
-  "Participation volontaire.",
-  "Consentements explicites et séparés.",
-  "Aucun usage des œuvres pour entraîner une IA.",
-  "Aucun usage public sans accord écrit séparé."
+const parcours = [
+  {
+    title: "Recevoir un code",
+    detail: "Transmis par e-mail avant l’entretien. Aucune création de compte."
+  },
+  {
+    title: "Lire le cadre",
+    detail: "Découvrir ce qui peut être autorisé, refusé, ou laissé hors champ."
+  },
+  {
+    title: "Choisir ses consentements",
+    detail: "Décochés par défaut. Chacun coché séparément, à son rythme."
+  },
+  {
+    title: "Faire l’entretien",
+    detail: "30 à 60 minutes, à distance ou en présentiel. Interruptible."
+  }
 ];
 
 const interviewRights = [
@@ -102,12 +114,18 @@ export default function Home() {
             </div>
 
             <aside className="card">
-              <span className="mono dim">À savoir avant l’entretien</span>
+              <span className="mono dim">Le parcours · 4 étapes</span>
               <ul>
-                {essentials.map((item, idx) => (
-                  <li key={item}>
+                {parcours.map((step, idx) => (
+                  <li key={step.title} style={{ alignItems: "flex-start" }}>
                     <span className="num">{String(idx + 1).padStart(2, "0")}</span>
-                    <span>{item}</span>
+                    <span>
+                      <strong style={{ fontWeight: 500, color: "var(--encre)" }}>
+                        {step.title}
+                      </strong>
+                      <br />
+                      <span style={{ color: "var(--encre-2)" }}>{step.detail}</span>
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -120,8 +138,8 @@ export default function Home() {
                   color: "var(--encre-2)"
                 }}
               >
-                Le formulaire existe dans une démarche de transparence et de protection de
-                l’interviewé. Il ne constitue pas une cession de droits.
+                Chaque étape peut être interrompue. Le formulaire n’est pas une cession de droits —
+                c’est un cadre de transparence.
               </p>
             </aside>
           </div>
@@ -138,15 +156,15 @@ export default function Home() {
           <div className="cell h-sm span2 col between">
             <span className="mono dim">§ 02 — Démarche</span>
             <h2 className="section-title">
-              Faire de la technologie un outil d’appui,{" "}
-              <span className="it">pas un rapport de force.</span>
+              Construire <span className="it">avec</span> les artistes plutôt que concevoir à leur
+              place.
             </h2>
           </div>
           <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ Une recherche appliquée</span>
+            <span className="mono dim">→ Une recherche appliquée, volontaire</span>
             <p className="lead" style={{ maxWidth: "38ch" }}>
-              Comprendre comment les artistes travaillent, ce qui les freine, ce qui doit rester
-              sous leur contrôle.
+              Comprendre les pratiques réelles avant de figer un outil — et défendre ce qui doit
+              rester sous le contrôle de l’artiste.
             </p>
           </div>
         </div>
@@ -154,7 +172,7 @@ export default function Home() {
         <div className="grid-ed">
           <div className="cell h-md col between">
             <span className="mono">[ contexte ]</span>
-            <span className="mono dim">/ usages actuels</span>
+            <span className="mono dim">/ dépossession en cours</span>
           </div>
           <div className="cell h-md span3">
             <div className="prose" style={{ maxWidth: "58ch" }}>
@@ -163,60 +181,13 @@ export default function Home() {
                 classer, archiver et présenter leur travail. Mais une partie des usages
                 technologiques récents a fragilisé leur position&nbsp;: consentements flous,
                 extraction d’images, datasets opaques, modèles entraînés sans accord clair.
+                Beaucoup s’y sentent dépossédés.
               </p>
               <p>
                 Aestelier part d’une autre direction&nbsp;: créer des outils faits pour les
                 artistes, avec les artistes, dans un cadre qui défend leur travail et leur capacité
-                de décision.
-              </p>
-              <p>
-                <strong>
-                  L’enjeu n’est pas de remplacer le geste artistique, mais d’augmenter le
-                  workflow — tout en laissant le contrôle à l’artiste.
-                </strong>
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ─────────── § 02.1 — Mission ─────────── */}
-      <section>
-        <div className="grid-ed">
-          <div className="cell h-sm span2 col between">
-            <span className="mono dim">§ 02.1 — Mission</span>
-            <h2 className="section-title">
-              Construire <span className="it">avec</span> les artistes plutôt que concevoir à leur
-              place.
-            </h2>
-          </div>
-          <div className="cell h-sm span2 col between">
-            <span className="mono dim">→ Phase de recherche volontaire</span>
-            <p className="lead" style={{ maxWidth: "38ch" }}>
-              Avant de figer un outil, comprendre les pratiques réelles et les conditions de
-              confiance.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid-ed">
-          <div className="cell h-md col between">
-            <span className="mono">[ pourquoi ]</span>
-            <span className="mono dim">/ dépossession IA</span>
-          </div>
-          <div className="cell h-md span3">
-            <div className="prose" style={{ maxWidth: "58ch" }}>
-              <p>
-                Aestelier commence par une phase de recherche volontaire. Avant de figer un outil,
-                l’objectif est de comprendre les pratiques réelles, les contraintes, les
-                habitudes, les résistances et les conditions de confiance propres aux artistes
-                visuels.
-              </p>
-              <p>
-                Cette démarche est particulièrement importante aujourd’hui, alors que beaucoup
-                d’artistes se sentent dépossédés par certains usages de l’intelligence
-                artificielle et par des systèmes techniques qui exploitent les œuvres sans cadre
-                suffisamment lisible.
+                de décision. L’enjeu n’est pas de remplacer le geste artistique, mais{" "}
+                <em>d’augmenter le workflow</em> — tout en laissant le contrôle à l’artiste.
               </p>
               <p>
                 <strong>
@@ -449,55 +420,87 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ─────────── § 06 — Participer / CTA (flux linéaire) ─────────── */}
-      <section id="participer" className="bloc">
-        <div className="shell">
-          <div className="cta">
+      {/* ─────────── § 06 — Participer / CTA (deux pistes de poids égal) ─────────── */}
+      <section id="participer">
+        <div className="grid-ed">
+          <div className="cell h-sm span2 col between">
+            <span className="mono dim">§ 06 — Participer</span>
+            <h2 className="section-title">
+              Deux <span className="it">chemins,</span> selon votre point de départ.
+            </h2>
+          </div>
+          <div className="cell h-sm span2 col between">
+            <span className="mono dim">→ Aucun engagement automatique</span>
+            <p className="lead" style={{ maxWidth: "38ch" }}>
+              Que vous ayez déjà un rendez-vous ou non, le premier pas reste le même&nbsp;: lire le
+              cadre avant tout.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid-ed">
+          <div className="cell h-lg span2 col between">
             <div>
-              <span className="mono dim">§ 06 — Participer</span>
-              <h2>
-                vous avez déjà un <span className="it">rendez-vous</span>&nbsp;?
-              </h2>
-              <p className="lead" style={{ marginTop: 24, maxWidth: "44ch" }}>
-                Accédez au formulaire avec le code transmis avant l’entretien. Vous pourrez lire le
-                cadre, choisir les consentements et préparer l’échange avant de participer.
-              </p>
-              <div style={{ display: "flex", gap: 14, marginTop: 32, flexWrap: "wrap" }}>
-                <Link href="/formulaire" className="pill dark">
-                  Accéder au formulaire <span className="arr" />
-                </Link>
-                <Link href="/contact" className="pill">
-                  Me contacter
-                </Link>
+              <span className="mono">[ piste 01 · avec code ]</span>
+              <h3
+                className="section-title"
+                style={{ fontSize: "clamp(24px, 2.4vw, 32px)", marginTop: 14 }}
+              >
+                Vous avez déjà un <span className="it">rendez-vous</span>.
+              </h3>
+            </div>
+            <p className="prose" style={{ maxWidth: "44ch" }}>
+              Accédez au formulaire avec le code transmis avant l’entretien. Vous pourrez lire le
+              cadre, choisir les consentements et préparer l’échange.
+            </p>
+            <div>
+              <Link href="/formulaire" className="pill dark">
+                Accéder au formulaire <span className="arr" />
+              </Link>
+              <div className="mono dim" style={{ marginTop: 14 }}>
+                ~5 minutes · décochés par défaut
               </div>
             </div>
+          </div>
 
-            <div style={{ borderLeft: "1px solid rgba(244,240,232,0.2)", paddingLeft: 32 }}>
-              <span className="mono dim">[ pas encore de rendez-vous ? ]</span>
-              <p
-                className="lead"
+          <div className="cell h-lg span2 col between solid-encre">
+            <div>
+              <span className="mono" style={{ color: "var(--accent)" }}>
+                [ piste 02 · sans rendez-vous ]
+              </span>
+              <h3
+                className="section-title"
                 style={{
-                  marginTop: 16,
-                  fontSize: "clamp(18px, 1.6vw, 22px)",
+                  fontSize: "clamp(24px, 2.4vw, 32px)",
+                  marginTop: 14,
                   color: "var(--papier)"
                 }}
               >
-                Contactez-moi pour discuter de la démarche, poser une question ou proposer un
-                entretien.
-              </p>
+                Vous découvrez le <span className="it">projet</span>.
+              </h3>
+            </div>
+            <p className="prose" style={{ maxWidth: "44ch", color: "var(--papier)" }}>
+              Écrivez-moi pour discuter de la démarche, poser une question, ou proposer un
+              entretien. Je réponds personnellement.
+            </p>
+            <div>
               <Link
                 href="/contact"
-                className="mono"
+                className="pill"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 8,
-                  marginTop: 24,
-                  color: "var(--papier)"
+                  background: "var(--papier)",
+                  color: "var(--encre)",
+                  borderColor: "var(--papier)"
                 }}
               >
-                écrire à aestelier <span className="arr" />
+                Me contacter <span className="arr" />
               </Link>
+              <div
+                className="mono"
+                style={{ marginTop: 14, color: "rgba(244,240,232,0.6)" }}
+              >
+                réponse sous quelques jours
+              </div>
             </div>
           </div>
         </div>
