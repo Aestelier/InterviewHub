@@ -451,8 +451,8 @@ export default function Home() {
               entretien. Je réponds personnellement.
             </p>
             <div>
-              <Link
-                href="/contact"
+              <a
+                href="mailto:contact@guillaumeschneider.fr?subject=Question%20sur%20Aestelier"
                 className="pill"
                 style={{
                   background: "var(--papier)",
@@ -461,7 +461,7 @@ export default function Home() {
                 }}
               >
                 Me contacter <span className="arr" />
-              </Link>
+              </a>
               <div
                 className="mono"
                 style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}
@@ -504,7 +504,7 @@ export default function Home() {
                 <span>Recherche Aestelier · phase ouverte 2026</span>
               </div>
               <a
-                href="https://votre-site.fr"
+                href="https://guillaumeschneider.fr"
                 className="human-link"
                 target="_blank"
                 rel="noreferrer"

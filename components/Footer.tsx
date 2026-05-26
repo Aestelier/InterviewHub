@@ -12,7 +12,9 @@ export function Footer() {
         </div>
         <div className="foot-col">
           <span className="mono dim">[ contact ]</span>
-          <Link href="/contact">Formulaire de contact →</Link>
+          <a href="mailto:contact@guillaumeschneider.fr?subject=Question%20sur%20Aestelier">
+            contact@guillaumeschneider.fr →
+          </a>
           <span
             className="mono dim"
             style={{ display: "inline-block", marginTop: 6, fontSize: 11 }}
