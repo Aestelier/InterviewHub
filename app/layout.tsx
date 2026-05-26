@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Aestelier - Consentement entretien",
+  title: "Aestelier — Construire des outils avec les artistes",
   description:
-    "Site privacy-first pour comprendre l'entretien de recherche Aestelier et generer un formulaire de consentement."
+    "Aestelier est une suite d’outils numériques construits avec les artistes visuels pour augmenter leur workflow, sans rien prendre sur leurs œuvres. Phase de recherche en cours."
 };
 
 export default function RootLayout({
