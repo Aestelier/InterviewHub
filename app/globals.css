@@ -351,6 +351,37 @@ section.bloc.tight {
   gap: 14px;
   justify-content: flex-end;
 }
+.language-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-stack-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--pierre);
+}
+.language-option-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.language-option {
+  color: var(--pierre);
+  transition: color 180ms ease;
+}
+.language-option:hover,
+.language-option.is-active {
+  color: var(--accent);
+}
+.language-option.is-active {
+  font-weight: 500;
+}
+.language-separator {
+  color: var(--hair);
+}
+.language-switch:hover .language-option.is-active {
+  color: var(--encre);
+}
 .brand-link {
   display: inline-flex;
   align-items: center;
