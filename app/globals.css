@@ -601,6 +601,9 @@ button:hover > .arr {
 .access-panel {
   background: var(--papier-2);
 }
+.access-panel .form-action-row {
+  margin-top: 14px;
+}
 .form-divider {
   margin-top: 28px;
   padding-top: 24px;

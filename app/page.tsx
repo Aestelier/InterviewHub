@@ -477,7 +477,7 @@ export default function Home() {
         <div className="human-inner">
           <div className="human-kicker">
             <span className="mono">§ 08 — Qui porte la recherche</span>
-            <span className="mono">/ responsable à compléter</span>
+            <span className="mono">/ ingénieur logiciel R&D</span>
           </div>
 
           <div className="human-grid">
@@ -488,7 +488,7 @@ export default function Home() {
                 automatique.
               </h2>
               <p>
-                Je m’appelle <strong>[Prénom Nom]</strong>. Je mène cette recherche pour comprendre
+                Je m’appelle <strong>Guillaume Schneider</strong>. Je mène cette recherche pour comprendre
                 comment les artistes travaillent réellement avec leurs références, leurs outils et
                 leurs espaces privés, avant de concevoir quoi que ce soit.
               </p>
@@ -499,7 +499,7 @@ export default function Home() {
                 autorisation générale.
               </p>
               <div className="human-signature">
-                <span>[Prénom Nom]</span>
+                <span>[Guillaume Schneider]</span>
                 <span>Recherche Aestelier · phase ouverte 2026</span>
               </div>
               <a

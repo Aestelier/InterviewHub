@@ -365,7 +365,6 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                 </button>
               ) : null}
             </div>
-            <p className="form-help">Aucun consentement n'est présélectionné.</p>
             {status ? <p className="form-status">{status}</p> : null}
           </div>
         </form>
