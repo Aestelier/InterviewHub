@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
   defaultConsentFormData,
@@ -309,69 +308,67 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
 
   if (!isAccessReady) {
     return (
-      <div className="flex min-h-[calc(100vh-4rem)] items-center justify-center">
+      <div className="grid place-items-start py-8">
         <form
-          className="w-full max-w-xl border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7"
+          className="w-full max-w-xl border border-line bg-paper-2/40 p-5 md:p-7"
           onSubmit={(event) => {
             event.preventDefault();
             void loadAccess(accessInput);
           }}
         >
-          <Link href="/" className="text-sm font-semibold text-muted hover:text-ink">
-            Retour a l'accueil
-          </Link>
-
-          <div className="mt-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-ochre">
-              Aestelier
-            </p>
-            <h1 className="mt-4 font-serif text-4xl leading-tight text-ink">
-              Acces au formulaire de consentement
-            </h1>
-            <p className="mt-5 text-base leading-7 text-muted">
-              Entrez le code transmis pour charger les informations de
-              l'entretien. Les consentements resteront a choisir manuellement.
-            </p>
-          </div>
+          <span className="mono dim">[ accès ]</span>
+          <h2
+            className="section-title"
+            style={{ fontSize: "clamp(22px, 2.2vw, 28px)", marginTop: 12 }}
+          >
+            Entrez votre <span className="it">code</span>.
+          </h2>
+          <p className="prose" style={{ marginTop: 16, maxWidth: "50ch" }}>
+            Le code a été transmis avant l’entretien. Il charge le contexte (nom, contact, date)
+            mais aucun consentement n’est présélectionné.
+          </p>
 
           <div className="mt-7 border-t border-line pt-6">
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Code d'acces</span>
+              <span className="text-sm font-semibold text-ink">Code d&apos;accès</span>
               <input
                 value={accessInput}
                 onChange={(event) => setAccessInput(event.target.value.toUpperCase())}
-                className="min-h-14 border border-line bg-white px-4 text-lg font-semibold tracking-[0.08em] text-ink outline-none transition placeholder:text-muted/40 focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                className="min-h-14 border border-line bg-paper px-4 text-lg font-semibold tracking-[0.08em] text-ink outline-none transition placeholder:text-muted/40 focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                 autoComplete="off"
                 spellCheck={false}
                 placeholder="ABC-123-XYZ"
               />
             </label>
-            <button
-              type="submit"
-              disabled={isAccessLoading || !accessInput.trim()}
-              className="mt-5 min-h-11 w-full border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
-            >
-              {isAccessLoading ? "Verification..." : "Acceder au formulaire"}
-            </button>
-            <p className="mt-4 text-xs leading-5 text-muted">
-              Aucun consentement n'est preselectionne.
-            </p>
-            {accessInput ? (
+            <div className="mt-5 flex flex-wrap items-center gap-3">
               <button
-                type="button"
-                onClick={() => {
-                  window.localStorage.removeItem(accessCodeStorageKey);
-                  setAccessCode("");
-                  setAccessInput("");
-                  setStatus("");
-                }}
-                className="mt-3 text-xs font-semibold text-muted hover:text-ink"
+                type="submit"
+                disabled={isAccessLoading || !accessInput.trim()}
+                className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Oublier ce code sur ce navigateur
+                {isAccessLoading ? "Vérification…" : "Accéder au formulaire"}
+                <span className="arr" />
               </button>
-            ) : null}
+              {accessInput ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.localStorage.removeItem(accessCodeStorageKey);
+                    setAccessCode("");
+                    setAccessInput("");
+                    setStatus("");
+                  }}
+                  className="mono dim hover:text-ink"
+                >
+                  Oublier ce code
+                </button>
+              ) : null}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-muted">
+              Aucun consentement n&apos;est présélectionné.
+            </p>
             {status ? (
-              <p className="mt-5 border border-line bg-white p-3 text-sm leading-6 text-muted">
+              <p className="mt-5 border border-line bg-paper p-3 text-sm leading-6 text-muted">
                 {status}
               </p>
             ) : null}
@@ -383,20 +380,17 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
 
   return (
     <div>
-      <Link href="/" className="text-sm font-semibold text-muted hover:text-ink">
-        Retour a l'accueil
-      </Link>
-      <header className="my-10 max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-ochre">
-          Version courte - 2026-05-24
-        </p>
-        <h1 className="mt-4 font-serif text-4xl leading-tight text-ink md:text-5xl">
-          Generer le formulaire de consentement Aestelier
-        </h1>
-        <p className="mt-5 text-lg leading-8 text-muted">
-          Les donnees saisies ne creent aucun compte, ne sont pas stockees sous
-          forme de brouillon et ne sont pas envoyees a un service tiers. Le PDF
-          n'est pas conserve par defaut.
+      <header className="mb-10 max-w-3xl">
+        <span className="mono dim">[ étape suivante ]</span>
+        <h2
+          className="section-title"
+          style={{ fontSize: "clamp(24px, 2.6vw, 34px)", marginTop: 14 }}
+        >
+          Générer votre <span className="it">document</span> de consentement.
+        </h2>
+        <p className="prose" style={{ marginTop: 18, maxWidth: "60ch" }}>
+          Aucun compte créé, aucun brouillon stocké, aucun envoi à un service tiers. Le PDF est
+          généré localement et n&apos;est pas conservé par défaut.
         </p>
       </header>
 
@@ -553,31 +547,31 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
             </div>
           </fieldset>
 
-          <div className="border-t border-line bg-white/70 p-5 md:p-7">
-            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <button
-              type="button"
-              onClick={openPreview}
-              disabled={!canGenerate}
-              className="min-h-11 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Previsualiser le PDF
-            </button>
-            <button
-              type="button"
-              onClick={downloadPdf}
-              disabled={!canGenerate}
-              className="min-h-11 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Telecharger le PDF
-            </button>
-            <button
-              type="button"
-              onClick={resetForm}
-              className="min-h-11 border border-line bg-transparent px-4 text-sm font-semibold text-ink"
-            >
-              Reinitialiser
-            </button>
+          <div className="border-t border-line bg-paper-2/40 p-5 md:p-7">
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={openPreview}
+                disabled={!canGenerate}
+                className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Prévisualiser le PDF <span className="arr" />
+              </button>
+              <button
+                type="button"
+                onClick={downloadPdf}
+                disabled={!canGenerate}
+                className="pill disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Télécharger le PDF <span className="arr" />
+              </button>
+              <button
+                type="button"
+                onClick={resetForm}
+                className="mono dim hover:text-ink"
+              >
+                Réinitialiser
+              </button>
             </div>
             {status ? <p className="mt-4 text-sm text-muted">{status}</p> : null}
           </div>

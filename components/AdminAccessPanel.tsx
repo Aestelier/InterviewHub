@@ -104,65 +104,68 @@ export function AdminAccessPanel() {
   return (
     <div className="grid gap-6">
       {!isUnlocked ? (
-        <section className="mx-auto w-full max-w-xl border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-ochre">
-            Gateway admin
+        <section className="w-full max-w-xl border border-line bg-paper-2/40 p-5 md:p-7">
+          <span className="mono dim">[ gateway ]</span>
+          <h2
+            className="section-title"
+            style={{ fontSize: "clamp(22px, 2.2vw, 28px)", marginTop: 12 }}
+          >
+            Entrez le <span className="it">token</span> admin.
+          </h2>
+          <p className="prose" style={{ marginTop: 14, maxWidth: "50ch" }}>
+            Le token est vérifié côté serveur avant d&apos;afficher la liste des accès.
           </p>
-          <h2 className="mt-3 text-2xl font-semibold text-ink">Entrez le token admin</h2>
-          <p className="mt-3 text-sm leading-6 text-muted">
-            Le token est verifie cote serveur avant d'afficher la liste des acces.
-          </p>
-          <label className="grid gap-2">
+          <label className="mt-6 grid gap-2">
             <span className="text-sm font-semibold text-ink">Token admin</span>
             <input
               type="password"
               value={token}
               onChange={(event) => setToken(event.target.value)}
-              className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
             />
           </label>
           <button
             type="button"
             onClick={loadAccesses}
             disabled={!token}
-            className="mt-5 min-h-11 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
+            className="pill dark mt-5 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Entrer dans l'admin
+            Entrer dans l&apos;admin <span className="arr" />
           </button>
           {status ? <p className="mt-4 text-sm text-muted">{status}</p> : null}
         </section>
       ) : (
         <>
-          <section className="border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7">
+          <section className="border border-line bg-paper-2/40 p-5 md:p-7">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-ochre">
-                  Admin actif
-                </p>
+                <span className="mono dim">[ admin actif ]</span>
                 <p className="mt-2 text-sm text-muted">
-                  Le token est conserve uniquement dans cette session navigateur.
+                  Le token est conservé uniquement dans cette session navigateur.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={loadAccesses}
-                className="min-h-10 border border-line bg-white px-4 text-sm font-semibold text-ink"
-              >
-                Recharger
+              <button type="button" onClick={loadAccesses} className="pill">
+                Recharger <span className="arr" />
               </button>
             </div>
           </section>
 
-      <section className="border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7">
-        <h2 className="text-xl font-semibold text-ink">Nouvel acces</h2>
+      <section className="border border-line bg-paper-2/40 p-5 md:p-7">
+        <span className="mono dim">[ nouvel accès ]</span>
+        <h3
+          className="section-title"
+          style={{ fontSize: "clamp(20px, 2vw, 24px)", marginTop: 10 }}
+        >
+          Générer un lien d&apos;<span className="it">entretien</span>.
+        </h3>
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">Date d'entretien</span>
+            <span className="text-sm font-semibold text-ink">Date d&apos;entretien</span>
             <input
               type="date"
               value={interviewDate}
               onChange={(event) => setInterviewDate(event.target.value)}
-              className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
             />
           </label>
           <label className="grid gap-2">
@@ -171,7 +174,7 @@ export function AdminAccessPanel() {
               type="datetime-local"
               value={expiresAt}
               onChange={(event) => setExpiresAt(event.target.value)}
-              className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
             />
           </label>
         </div>
@@ -179,14 +182,14 @@ export function AdminAccessPanel() {
           type="button"
           onClick={createAccess}
           disabled={!token || !interviewDate}
-          className="mt-5 min-h-11 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
+          className="pill dark mt-5 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Generer un acces
+          Générer un accès <span className="arr" />
         </button>
       </section>
 
-      <section className="border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7">
-        <h2 className="text-xl font-semibold text-ink">Liste des acces</h2>
+      <section className="border border-line bg-paper-2/40 p-5 md:p-7">
+        <span className="mono dim">[ liste des accès ]</span>
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-[0.12em] text-ochre">
@@ -215,9 +218,9 @@ export function AdminAccessPanel() {
                     <button
                       type="button"
                       onClick={() => copyLink(access.code)}
-                      className="border border-line bg-white px-3 py-1.5 text-xs font-semibold text-ink"
+                      className="mono dim hover:text-ink"
                     >
-                      Copier le lien
+                      Copier le lien →
                     </button>
                   </td>
                 </tr>
