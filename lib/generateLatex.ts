@@ -23,12 +23,6 @@ const checkboxPlaceholders: Record<ConsentKey, string> = {
   separateAgreement: "checkbox_separate_agreement"
 };
 
-const interviewLabels: Record<ConsentFormData["interviewType"], string> = {
-  notes: "Notes seules",
-  audio: "Audio",
-  video: "Video"
-};
-
 export function loadConsentTemplate(): string {
   return readFileSync(
     path.join(process.cwd(), "templates", "aestelier_consentement_court.tex"),
@@ -45,7 +39,6 @@ export function generateLatex(
     participant_name: latexEscape(formData.participantName),
     participant_contact: latexEscape(formData.participantContact),
     interview_date: latexEscape(formData.interviewDate),
-    interview_type: latexEscape(interviewLabels[formData.interviewType]),
     responsable_name: "Guillaume Schneider",
     responsable_contact: "contact@guillaumeschneider.fr",
     responsable_signature:

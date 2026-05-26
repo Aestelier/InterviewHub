@@ -1,47 +1,89 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   defaultConsentFormData,
   type ConsentFormData,
-  type ConsentKey,
-  type InterviewType
+  type ConsentKey
 } from "@/lib/consentTypes";
 
-const consentLabels: Array<{ key: ConsentKey; label: string }> = [
-  { key: "participation", label: "participer a l'entretien" },
-  { key: "writtenNotes", label: "prise de notes ecrites" },
-  { key: "recording", label: "enregistrement audio ou video" },
-  { key: "transcription", label: "transcription" },
-  { key: "internalNotes", label: "notes internes recherche produit Aestelier" },
-  { key: "anonymousTrends", label: "tendances ou observations anonymisees" },
-  { key: "recontact", label: "recontact" },
-  { key: "wizardOfOz", label: "test Wizard-of-Oz" },
+const consentGroups: Array<{
+  title: string;
+  items: Array<{ keys: ConsentKey[]; label: string; description?: string }>;
+}> = [
   {
-    key: "futureAnonymousQuotes",
-    label: "demande future d'approbation de citations anonymisees"
+    title: "Essentiel",
+    items: [
+      {
+        keys: ["participation", "adult"],
+        label: "Conditions de participation"
+      }
+    ]
   },
   {
-    key: "futureAttributedQuotes",
-    label: "demande future d'approbation de citations attribuees"
+    title: "Pendant l'entretien",
+    items: [
+      {
+        keys: ["writtenNotes"],
+        label: "Autoriser la prise de notes"
+      },
+      {
+        keys: ["recording", "transcription"],
+        label: "Options d'enregistrement",
+        description: "Uniquement pour faciliter la prise de notes et l'analyse de l'entretien."
+      }
+    ]
   },
-  { key: "adult", label: "declaration 18 ans ou plus" },
   {
-    key: "separateAgreement",
-    label:
-      "tout usage d'oeuvre, indexation, entrainement IA, usage marketing ou asset produit necessite un accord ecrit separe"
+    title: "Apres l'entretien",
+    items: [
+      {
+        keys: ["internalNotes", "anonymousTrends", "wizardOfOz"],
+        label: "Analyse interne et tests anonymises",
+        description:
+          "Inclut les notes de recherche, les observations anonymisees et les tests manuels internes sans reutilisation de vos oeuvres."
+      },
+      {
+        keys: ["recontact", "futureAnonymousQuotes", "futureAttributedQuotes"],
+        label: "Recontact et validation de citations",
+        description:
+          "Aucune citation, meme anonymisee, ne sera publiee sans validation separee."
+      }
+    ]
+  },
+  {
+    title: "Limites",
+    items: [
+      {
+        keys: ["separateAgreement"],
+        label:
+          "Je comprends que mes oeuvres ne peuvent pas etre reutilisees, indexees, utilisees pour entrainer une IA ou publiees sans accord ecrit separe."
+      }
+    ]
   }
 ];
 
-const interviewTypes: Array<{ value: InterviewType; label: string }> = [
-  { value: "notes", label: "Notes seules" },
-  { value: "audio", label: "Audio" },
-  { value: "video", label: "Video" }
-];
+const detailedConsentLabels: Record<ConsentKey, string> = {
+  participation: "Participer a l'entretien",
+  writtenNotes: "Prise de notes ecrites",
+  recording: "Enregistrement audio ou video",
+  transcription: "Transcription",
+  internalNotes: "Notes internes de recherche produit",
+  anonymousTrends: "Tendances ou observations anonymisees",
+  recontact: "Recontact",
+  wizardOfOz: "Test manuel anonymise Wizard-of-Oz",
+  futureAnonymousQuotes: "Validation future de citations anonymisees",
+  futureAttributedQuotes: "Validation future de citations attribuees",
+  adult: "Declaration 18 ans ou plus",
+  separateAgreement: "Accord ecrit separe pour tout usage hors entretien"
+};
 
 export function ConsentForm() {
   const [formData, setFormData] = useState<ConsentFormData>(defaultConsentFormData);
-  const [preview, setPreview] = useState("");
+  const [editedConsentSets, setEditedConsentSets] = useState<Record<string, boolean>>({});
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState("");
+  const [previewSignature, setPreviewSignature] = useState("");
+  const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
   const [status, setStatus] = useState("");
 
   const canGenerate = useMemo(
@@ -51,9 +93,31 @@ export function ConsentForm() {
       formData.interviewDate.trim().length > 0,
     [formData]
   );
+  const formSignature = useMemo(() => JSON.stringify(formData), [formData]);
+  const isPreviewStale = pdfPreviewUrl.length > 0 && previewSignature !== formSignature;
+
+  useEffect(() => {
+    return () => {
+      if (pdfPreviewUrl) {
+        URL.revokeObjectURL(pdfPreviewUrl);
+      }
+    };
+  }, [pdfPreviewUrl]);
 
   function updateField(field: keyof Omit<ConsentFormData, "consents">, value: string) {
     setFormData((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateConsentSet(keys: ConsentKey[], value: boolean) {
+    setFormData((current) => {
+      const consents = { ...current.consents };
+
+      for (const key of keys) {
+        consents[key] = value;
+      }
+
+      return { ...current, consents };
+    });
   }
 
   function updateConsent(key: ConsentKey, value: boolean) {
@@ -63,36 +127,47 @@ export function ConsentForm() {
     }));
   }
 
-  async function fetchLatex() {
-    const response = await fetch("/api/latex", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData)
-    });
+  function hasAnyConsent(keys: ConsentKey[]) {
+    return keys.some((key) => formData.consents[key]);
+  }
 
-    if (!response.ok) {
-      throw new Error("Generation du .tex impossible.");
+  function toggleConsentSetEdit(id: string) {
+    setEditedConsentSets((current) => ({ ...current, [id]: !current[id] }));
+  }
+
+  async function previewPdf(openAfterGenerate = false) {
+    if (openAfterGenerate) {
+      setIsPreviewExpanded(true);
     }
 
-    return response.text();
+    setStatus("Generation de la previsualisation PDF...");
+    const blob = await fetchPdf();
+
+    if (!blob) {
+      return;
+    }
+
+    setPdfPreviewUrl((currentUrl) => {
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+
+      return URL.createObjectURL(blob);
+    });
+    setPreviewSignature(formSignature);
+    setStatus("Previsualisation PDF generee localement.");
   }
 
-  async function previewLatex() {
-    setStatus("Generation de la previsualisation...");
-    const tex = await fetchLatex();
-    setPreview(tex);
-    setStatus("Previsualisation generee localement.");
+  function openPreview() {
+    if (!pdfPreviewUrl || isPreviewStale) {
+      void previewPdf(true);
+      return;
+    }
+
+    setIsPreviewExpanded(true);
   }
 
-  async function downloadTex() {
-    setStatus("Generation du fichier .tex...");
-    const tex = await fetchLatex();
-    downloadBlob(new Blob([tex], { type: "application/x-tex;charset=utf-8" }), "aestelier-consentement.tex");
-    setStatus("Fichier .tex pret.");
-  }
-
-  async function downloadPdf() {
-    setStatus("Compilation PDF locale en cours...");
+  async function fetchPdf() {
     const response = await fetch("/api/pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -105,111 +180,200 @@ export function ConsentForm() {
       return;
     }
 
-    const blob = await response.blob();
+    return response.blob();
+  }
+
+  async function downloadPdf() {
+    setStatus("Compilation PDF locale en cours...");
+    const blob = await fetchPdf();
+
+    if (!blob) {
+      return;
+    }
+
     downloadBlob(blob, "aestelier-consentement.pdf");
     setStatus("PDF genere. Aucune donnee n'a ete stockee.");
   }
 
   function resetForm() {
     setFormData(defaultConsentFormData);
-    setPreview("");
+    setEditedConsentSets({});
+    setPreviewSignature("");
+    setIsPreviewExpanded(false);
+    setPdfPreviewUrl((currentUrl) => {
+      if (currentUrl) {
+        URL.revokeObjectURL(currentUrl);
+      }
+
+      return "";
+    });
     setStatus("");
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-      <form className="border border-line bg-white/50 p-5 shadow-soft md:p-7">
-        <div className="grid gap-5">
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">
-              Nom, pseudonyme ou handle du/de la participant(e)
-            </span>
-            <input
-              value={formData.participantName}
-              onChange={(event) => updateField("participantName", event.target.value)}
-              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none focus:border-ochre"
-              autoComplete="name"
-            />
-          </label>
+    <div className="mx-auto max-w-4xl">
+      <form className="border border-line bg-[#fffdf7] shadow-soft">
+        <div className="grid gap-0">
+          <section className="border-b border-line p-5 md:p-7">
+            <div className="mb-5 flex items-baseline gap-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-ochre">
+                01
+              </span>
+              <h2 className="text-xl font-semibold text-ink">Informations</h2>
+            </div>
 
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">
-              Adresse e-mail ou moyen de contact
-            </span>
-            <input
-              value={formData.participantContact}
-              onChange={(event) => updateField("participantContact", event.target.value)}
-              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none focus:border-ochre"
-              autoComplete="email"
-            />
-          </label>
+            <div className="grid gap-5">
+              <label className="grid gap-2">
+                <span className="text-sm font-semibold text-ink">
+                  Nom, pseudonyme ou handle du/de la participant(e)
+                </span>
+                <input
+                  value={formData.participantName}
+                  onChange={(event) => updateField("participantName", event.target.value)}
+                  className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                  autoComplete="name"
+                />
+              </label>
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Date de l'entretien</span>
-              <input
-                type="date"
-                value={formData.interviewDate}
-                onChange={(event) => updateField("interviewDate", event.target.value)}
-                className="min-h-12 border border-line bg-paper px-3 text-ink outline-none focus:border-ochre"
-              />
-            </label>
-
-            <label className="grid gap-2">
-              <span className="text-sm font-semibold text-ink">Type d'entretien</span>
-              <select
-                value={formData.interviewType}
-                onChange={(event) =>
-                  updateField("interviewType", event.target.value as InterviewType)
-                }
-                className="min-h-12 border border-line bg-paper px-3 text-ink outline-none focus:border-ochre"
-              >
-                {interviewTypes.map((type) => (
-                  <option key={type.value} value={type.value}>
-                    {type.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-
-          <fieldset className="border-t border-line pt-5">
-            <legend className="mb-4 text-sm font-semibold uppercase tracking-[0.12em] text-ochre">
-              Cases de consentement
-            </legend>
-            <div className="grid gap-3">
-              {consentLabels.map((item) => (
-                <label
-                  key={item.key}
-                  className="flex items-start gap-3 border border-line bg-paper/70 p-3 text-sm leading-6 text-ink"
-                >
+              <div className="grid gap-5 md:grid-cols-[minmax(0,1fr)_16rem]">
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold text-ink">
+                    Adresse e-mail ou moyen de contact
+                  </span>
                   <input
-                    type="checkbox"
-                    checked={formData.consents[item.key]}
-                    onChange={(event) => updateConsent(item.key, event.target.checked)}
-                    className="mt-1 h-4 w-4 accent-ochre"
+                    value={formData.participantContact}
+                    onChange={(event) =>
+                      updateField("participantContact", event.target.value)
+                    }
+                    className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                    autoComplete="email"
                   />
-                  <span>{item.label}</span>
                 </label>
+
+                <label className="grid gap-2">
+                  <span className="text-sm font-semibold text-ink">
+                    Date de l'entretien
+                  </span>
+                  <input
+                    type="date"
+                    value={formData.interviewDate}
+                    onChange={(event) => updateField("interviewDate", event.target.value)}
+                    className="min-h-12 border border-line bg-white px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                  />
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <fieldset className="p-5 md:p-7">
+            <legend className="mb-5 flex items-baseline gap-3">
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-ochre">
+                02
+              </span>
+              <span className="text-xl font-semibold text-ink">Consentements</span>
+            </legend>
+            <div className="grid gap-5">
+              {consentGroups.map((group) => (
+                <section key={group.title} className="grid gap-3">
+                  <h3 className="border-b border-line pb-2 text-sm font-semibold uppercase tracking-[0.12em] text-ochre">
+                    {group.title}
+                  </h3>
+                  <div className="grid gap-3">
+                    {group.items.map((item) => (
+                      (() => {
+                        const itemId = item.keys.join("-");
+                        const isEditing = editedConsentSets[itemId];
+
+                        return (
+                          <div
+                            key={itemId}
+                            className="border border-line bg-white p-4 text-sm leading-6 text-ink"
+                          >
+                            <div className="grid gap-3 sm:grid-cols-[auto_minmax(0,1fr)_auto] sm:items-start">
+                              <input
+                                id={`consent-${itemId}`}
+                                type="checkbox"
+                                checked={hasAnyConsent(item.keys)}
+                                onChange={(event) =>
+                                  updateConsentSet(item.keys, event.target.checked)
+                                }
+                                className="mt-1 h-5 w-5 shrink-0 accent-ochre"
+                              />
+                              <label
+                                htmlFor={`consent-${itemId}`}
+                                className="grid flex-1 cursor-pointer gap-1"
+                              >
+                                <span>{item.label}</span>
+                                {item.description ? (
+                                  <span className="text-xs leading-5 text-muted">
+                                    {item.description}
+                                  </span>
+                                ) : null}
+                              </label>
+                              {item.keys.length > 1 ? (
+                                <button
+                                  type="button"
+                                  onClick={() => toggleConsentSetEdit(itemId)}
+                                  className="justify-self-start border border-line bg-paper px-3 py-1.5 text-xs font-semibold text-ink sm:justify-self-end"
+                                  aria-expanded={isEditing}
+                                >
+                                  {isEditing ? "^ Masquer" : "v Details"}
+                                </button>
+                              ) : null}
+                            </div>
+
+                            {item.keys.length > 1 && !isEditing ? (
+                              <ul className="mt-3 grid gap-1 border-t border-line pt-3 text-xs leading-5 text-muted">
+                                {item.keys.map((key) => (
+                                  <li key={key} className="flex gap-2">
+                                    <span aria-hidden="true" className="text-ochre">
+                                      -&gt;
+                                    </span>
+                                    <span>{detailedConsentLabels[key]}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            ) : null}
+
+                            {item.keys.length > 1 && isEditing ? (
+                              <div className="mt-3 grid gap-2 border-t border-line pt-3">
+                                {item.keys.map((key) => (
+                                  <label
+                                    key={key}
+                                    className="flex items-start gap-3 text-xs leading-5 text-muted"
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={formData.consents[key]}
+                                      onChange={(event) =>
+                                        updateConsent(key, event.target.checked)
+                                      }
+                                      className="mt-0.5 h-4 w-4 shrink-0 accent-ochre"
+                                    />
+                                    <span>{detailedConsentLabels[key]}</span>
+                                  </label>
+                                ))}
+                              </div>
+                            ) : null}
+                          </div>
+                        );
+                      })()
+                    ))}
+                  </div>
+                </section>
               ))}
             </div>
           </fieldset>
 
-          <div className="rounded-none border border-line bg-[#fffaf0] p-4 text-sm leading-6 text-muted">
-            Responsable pre-rempli : Guillaume Schneider,
-            contact@guillaumeschneider.fr. La signature manuscrite n'est jamais
-            incluse dans le repo ; elle peut etre chargee localement depuis
-            /private/signature.png.
-          </div>
-
-          <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <div className="border-t border-line bg-white/70 p-5 md:p-7">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <button
               type="button"
-              onClick={previewLatex}
+              onClick={openPreview}
               disabled={!canGenerate}
               className="min-h-11 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Previsualiser
+              Previsualiser le PDF
             </button>
             <button
               type="button"
@@ -221,33 +385,86 @@ export function ConsentForm() {
             </button>
             <button
               type="button"
-              onClick={downloadTex}
-              disabled={!canGenerate}
-              className="min-h-11 border border-line bg-white px-4 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Telecharger le .tex
-            </button>
-            <button
-              type="button"
               onClick={resetForm}
               className="min-h-11 border border-line bg-transparent px-4 text-sm font-semibold text-ink"
             >
               Reinitialiser
             </button>
+            </div>
+            {status ? <p className="mt-4 text-sm text-muted">{status}</p> : null}
           </div>
-
-          {status ? <p className="text-sm text-muted">{status}</p> : null}
         </div>
       </form>
 
-      <aside className="border border-line bg-[#fffdf7] p-5 shadow-soft md:p-7">
-        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-ochre">
-          Previsualisation LaTeX
-        </p>
-        <pre className="mt-4 max-h-[720px] overflow-auto whitespace-pre-wrap break-words border border-line bg-paper p-4 text-xs leading-5 text-ink">
-          {preview || "Cliquez sur Previsualiser pour generer le .tex sans stockage serveur."}
-        </pre>
-      </aside>
+      {isPreviewExpanded ? (
+        <div
+          className="fixed inset-0 z-50 grid place-items-center bg-ink/70 p-3 md:p-8"
+          onClick={() => setIsPreviewExpanded(false)}
+        >
+          <div
+            className="flex h-full min-h-0 w-full max-w-[54rem] flex-col border border-line bg-[#fffdf7] p-4 shadow-soft"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-3 grid gap-3 md:flex md:items-start md:justify-between">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.14em] text-ochre">
+                  Apercu PDF
+                </p>
+                <p className="mt-1 text-xs leading-5 text-muted">
+                  {pdfPreviewUrl
+                    ? isPreviewStale
+                      ? "Cet apercu n'inclut pas encore les dernieres modifications."
+                      : "Apercu a jour."
+                    : "Generation de l'apercu en cours."}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={downloadPdf}
+                  disabled={!canGenerate}
+                  className="min-h-9 border border-line bg-white px-3 text-xs font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  Telecharger PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewExpanded(false)}
+                  className="min-h-9 border border-line bg-white px-3 text-xs font-semibold text-ink"
+                >
+                  Fermer
+                </button>
+              </div>
+            </div>
+            {isPreviewStale ? (
+              <p className="mb-3 border border-ochre bg-[#fffaf0] p-3 text-xs leading-5 text-muted">
+                Des champs ou consentements ont change depuis la generation de ce PDF.
+              </p>
+            ) : null}
+            {pdfPreviewUrl ? (
+              <iframe
+                title="Previsualisation PDF du formulaire de consentement"
+                src={pdfPreviewUrl}
+                className="min-h-0 w-full flex-1 border border-line bg-paper"
+              />
+            ) : (
+              <div className="grid min-h-0 flex-1 place-items-center border border-line bg-paper p-6 text-center text-sm leading-6 text-muted">
+                <div className="grid gap-3">
+                  <span>Generation de l'apercu PDF...</span>
+                  <button
+                    type="button"
+                    onClick={openPreview}
+                    disabled={!canGenerate}
+                    className="mx-auto min-h-10 border border-ink bg-ink px-4 text-sm font-semibold text-paper disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Reessayer
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
