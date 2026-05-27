@@ -2,7 +2,7 @@ import { ConsentForm } from "@/components/ConsentForm";
 import { Footer } from "@/components/Footer";
 import { Topbar } from "@/components/Topbar";
 
-export default async function FormulairePage({
+export default async function EnglishFormPage({
   searchParams
 }: {
   searchParams: Promise<{ code?: string }>;
@@ -13,6 +13,7 @@ export default async function FormulairePage({
     <main>
       <Topbar
         variant="minimal"
+        locale="en"
         languageLinks={{
           fr: code ? `/formulaire?code=${encodeURIComponent(code)}` : "/formulaire",
           en: code ? `/en/formulaire?code=${encodeURIComponent(code)}` : "/en/formulaire"
@@ -22,18 +23,18 @@ export default async function FormulairePage({
       <section className="form-intro">
         <div className="grid-ed">
           <div className="cell h-sm span2 col between">
-            <span className="mono dim">§ 01 — Formulaire de consentement</span>
+            <span className="mono dim">§ 01 — Consent form</span>
             <h1 className="section-title">
-              Un cadre <span className="it">explicite</span> avant l’entretien.
+              An <span className="it">explicit</span> framework before the interview.
             </h1>
           </div>
           <div className="cell h-sm span2 col between">
             <span className="mono dim">
-              <span className="accent">→</span> À remplir avant l’échange
+              <span className="accent">→</span> To complete before the exchange
             </span>
             <p className="lead">
-              Les consentements restent décochés. Vous les choisissez manuellement, séparément, à
-              votre rythme.
+              Consent options remain unchecked. You choose them manually, separately, at your own
+              pace.
             </p>
           </div>
           <div className="cell span4 form-intro-meta">
@@ -41,23 +42,23 @@ export default async function FormulairePage({
               <span className="accent">Version</span> · 2026-05-24
             </span>
             <span>
-              <span className="accent">Stockage</span> · aucun brouillon conservé
+              <span className="accent">Storage</span> · no draft kept
             </span>
             <span>
-              <span className="accent">Sortie</span> · PDF local
+              <span className="accent">Output</span> · local PDF
             </span>
             <span>
-              <span className="accent">Droits</span> · aucune cession
+              <span className="accent">Rights</span> · no transfer
             </span>
           </div>
         </div>
       </section>
 
       <section className="form-area">
-        <ConsentForm initialAccessCode={code} />
+        <ConsentForm initialAccessCode={code} locale="en" />
       </section>
 
-      <Footer />
+      <Footer locale="en" />
     </main>
   );
 }

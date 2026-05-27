@@ -95,7 +95,7 @@ export default function EnglishHome() {
                   alignItems: "center"
                 }}
               >
-                <Link href="/formulaire" className="pill dark">
+                <Link href="/en/formulaire" className="pill dark">
                   I have a code, access the form <span className="arr" />
                 </Link>
                 <a href="#demarche" className="pill">
@@ -418,7 +418,7 @@ export default function EnglishHome() {
               framework, choose consent options, and prepare the exchange.
             </p>
             <div>
-              <Link href="/formulaire" className="pill dark">
+              <Link href="/en/formulaire" className="pill dark">
                 Access the form <span className="arr" />
               </Link>
               <div className="mono" style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}>

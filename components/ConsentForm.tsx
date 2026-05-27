@@ -7,84 +7,316 @@ import {
   type ConsentKey
 } from "@/lib/consentTypes";
 
-const consentGroups: Array<{
+type Locale = "fr" | "en";
+
+type ConsentGroup = {
   title: string;
   items: Array<{ keys: ConsentKey[]; label: string; description?: string }>;
-}> = [
-  {
-    title: "Essentiel",
-    items: [
-      {
-        keys: ["participation", "adult"],
-        label: "Conditions de participation"
-      }
-    ]
-  },
-  {
-    title: "Pendant l'entretien",
-    items: [
-      {
-        keys: ["writtenNotes"],
-        label: "Autoriser la prise de notes"
-      },
-      {
-        keys: ["recording", "transcription"],
-        label: "Options d'enregistrement",
-        description: "Uniquement pour faciliter la prise de notes et l'analyse de l'entretien."
-      }
-    ]
-  },
-  {
-    title: "Après l'entretien",
-    items: [
-      {
-        keys: ["internalNotes", "anonymousTrends", "wizardOfOz"],
-        label: "Analyse interne et tests anonymisés",
-        description:
-          "Inclut les notes de recherche, les observations anonymisées et les tests manuels internes sans réutilisation de vos œuvres."
-      },
-      {
-        keys: ["recontact", "futureAnonymousQuotes", "futureAttributedQuotes"],
-        label: "Recontact et validation de citations",
-        description:
-          "Aucune citation, même anonymisée, ne sera publiée sans validation séparée."
-      }
-    ]
-  },
-  {
-    title: "Limites",
-    items: [
-      {
-        keys: ["separateAgreement"],
-        label:
-          "Je comprends que mes œuvres ne peuvent pas être réutilisées, indexées, utilisées pour entraîner une IA ou publiées sans accord écrit séparé."
-      }
-    ]
-  }
-];
+};
 
-const detailedConsentLabels: Record<ConsentKey, string> = {
-  participation: "Participer à l'entretien",
-  writtenNotes: "Prise de notes écrites",
-  recording: "Enregistrement audio ou vidéo",
-  transcription: "Transcription",
-  internalNotes: "Notes internes de recherche produit",
-  anonymousTrends: "Tendances ou observations anonymisées",
-  recontact: "Recontact",
-  wizardOfOz: "Test manuel anonymisé Wizard-of-Oz",
-  futureAnonymousQuotes: "Validation future de citations anonymisées",
-  futureAttributedQuotes: "Validation future de citations attribuées",
-  adult: "Déclaration 18 ans ou plus",
-  separateAgreement: "Accord écrit séparé pour tout usage hors entretien"
+const copy: Record<
+  Locale,
+  {
+    consentGroups: ConsentGroup[];
+    detailedConsentLabels: Record<ConsentKey, string>;
+    status: Record<string, string>;
+    loading: {
+      tag: string;
+      checking: string;
+    };
+    access: {
+      tag: string;
+      titleBefore: string;
+      titleAccent: string;
+      titleAfter: string;
+      intro: string;
+      label: string;
+      submitLoading: string;
+      submit: string;
+      forget: string;
+    };
+    workspace: {
+      tag: string;
+      titleBefore: string;
+      titleAccent: string;
+      titleAfter: string;
+      intro: string;
+      infoTitle: string;
+      nameLabel: string;
+      contactLabel: string;
+      dateLabel: string;
+      consentTitle: string;
+      hide: string;
+      details: string;
+      preview: string;
+      download: string;
+      reset: string;
+      railLabel: string;
+      railTag: string;
+      railItems: string[];
+      previewTag: string;
+      previewStale: string;
+      previewFresh: string;
+      previewLoading: string;
+      previewWarning: string;
+      previewTitle: string;
+      retry: string;
+      close: string;
+      smallDownload: string;
+      filename: string;
+    };
+  }
+> = {
+  fr: {
+    consentGroups: [
+      {
+        title: "Essentiel",
+        items: [{ keys: ["participation", "adult"], label: "Conditions de participation" }]
+      },
+      {
+        title: "Pendant l'entretien",
+        items: [
+          { keys: ["writtenNotes"], label: "Autoriser la prise de notes" },
+          {
+            keys: ["recording", "transcription"],
+            label: "Options d'enregistrement",
+            description:
+              "Uniquement pour faciliter la prise de notes et l'analyse de l'entretien."
+          }
+        ]
+      },
+      {
+        title: "Après l'entretien",
+        items: [
+          {
+            keys: ["internalNotes", "anonymousTrends", "wizardOfOz"],
+            label: "Analyse interne et tests anonymisés",
+            description:
+              "Inclut les notes de recherche, les observations anonymisées et les tests manuels internes sans réutilisation de vos œuvres."
+          },
+          {
+            keys: ["recontact", "futureAnonymousQuotes", "futureAttributedQuotes"],
+            label: "Recontact et validation de citations",
+            description:
+              "Aucune citation, même anonymisée, ne sera publiée sans validation séparée."
+          }
+        ]
+      },
+      {
+        title: "Limites",
+        items: [
+          {
+            keys: ["separateAgreement"],
+            label:
+              "Je comprends que mes œuvres ne peuvent pas être réutilisées, indexées, utilisées pour entraîner une IA ou publiées sans accord écrit séparé."
+          }
+        ]
+      }
+    ],
+    detailedConsentLabels: {
+      participation: "Participer à l'entretien",
+      writtenNotes: "Prise de notes écrites",
+      recording: "Enregistrement audio ou vidéo",
+      transcription: "Transcription",
+      internalNotes: "Notes internes de recherche produit",
+      anonymousTrends: "Tendances ou observations anonymisées",
+      recontact: "Recontact",
+      wizardOfOz: "Test manuel anonymisé Wizard-of-Oz",
+      futureAnonymousQuotes: "Validation future de citations anonymisées",
+      futureAttributedQuotes: "Validation future de citations attribuées",
+      adult: "Déclaration 18 ans ou plus",
+      separateAgreement: "Accord écrit séparé pour tout usage hors entretien"
+    },
+    status: {
+      enterCode: "Entrez un code d'accès.",
+      checkingCode: "Vérification du code d'accès...",
+      invalidCode: "Code d'accès invalide.",
+      generatingPreview: "Génération de la prévisualisation PDF...",
+      previewGenerated: "Prévisualisation PDF générée localement.",
+      compileFailed: "Compilation PDF impossible.",
+      compiling: "Compilation PDF locale en cours...",
+      pdfGenerated: "PDF généré. Aucune donnée n'a été stockée."
+    },
+    loading: { tag: "[ accès ]", checking: "Vérification de l'accès..." },
+    access: {
+      tag: "[ accès ]",
+      titleBefore: "Entrez votre ",
+      titleAccent: "code",
+      titleAfter: ".",
+      intro:
+        "Le code a été transmis avant l'entretien. Il charge le contexte (nom, contact, date) mais aucun consentement n'est présélectionné.",
+      label: "Code d'accès",
+      submitLoading: "Vérification…",
+      submit: "Accéder au formulaire",
+      forget: "Oublier ce code"
+    },
+    workspace: {
+      tag: "[ étape suivante ]",
+      titleBefore: "Générer votre ",
+      titleAccent: "document",
+      titleAfter: " de consentement.",
+      intro:
+        "Aucun compte créé, aucun brouillon stocké, aucun envoi à un service tiers. Le PDF est généré localement et n'est pas conservé par défaut.",
+      infoTitle: "Informations",
+      nameLabel: "Nom, pseudonyme ou handle du/de la participant(e)",
+      contactLabel: "Adresse e-mail ou moyen de contact",
+      dateLabel: "Date de l'entretien",
+      consentTitle: "Consentements",
+      hide: "Masquer",
+      details: "Détails",
+      preview: "Prévisualiser le PDF",
+      download: "Télécharger le PDF",
+      reset: "Réinitialiser",
+      railLabel: "Repères du document",
+      railTag: "[ repères ]",
+      railItems: [
+        "Les champs de contexte sont les seuls préremplis.",
+        "Chaque consentement reste modifiable séparément.",
+        "Le PDF est généré localement, puis téléchargé par vous.",
+        "Aucune cession de droits n'est créée par ce formulaire."
+      ],
+      previewTag: "[ aperçu PDF ]",
+      previewStale: "Cet aperçu n'inclut pas encore les dernières modifications.",
+      previewFresh: "Aperçu à jour.",
+      previewLoading: "Génération de l'aperçu en cours.",
+      previewWarning: "Des champs ou consentements ont changé depuis la génération de ce PDF.",
+      previewTitle: "Prévisualisation PDF du formulaire de consentement",
+      retry: "Réessayer",
+      close: "Fermer",
+      smallDownload: "Télécharger PDF",
+      filename: "aestelier-consentement.pdf"
+    }
+  },
+  en: {
+    consentGroups: [
+      {
+        title: "Essential",
+        items: [{ keys: ["participation", "adult"], label: "Participation conditions" }]
+      },
+      {
+        title: "During the interview",
+        items: [
+          { keys: ["writtenNotes"], label: "Allow note-taking" },
+          {
+            keys: ["recording", "transcription"],
+            label: "Recording options",
+            description: "Only to make note-taking and interview analysis easier."
+          }
+        ]
+      },
+      {
+        title: "After the interview",
+        items: [
+          {
+            keys: ["internalNotes", "anonymousTrends", "wizardOfOz"],
+            label: "Internal analysis and anonymized tests",
+            description:
+              "Includes research notes, anonymized observations, and internal manual tests without reusing your works."
+          },
+          {
+            keys: ["recontact", "futureAnonymousQuotes", "futureAttributedQuotes"],
+            label: "Follow-up contact and quote approval",
+            description:
+              "No quote, even anonymized, will be published without separate approval."
+          }
+        ]
+      },
+      {
+        title: "Limits",
+        items: [
+          {
+            keys: ["separateAgreement"],
+            label:
+              "I understand that my works cannot be reused, indexed, used to train AI, or published without a separate written agreement."
+          }
+        ]
+      }
+    ],
+    detailedConsentLabels: {
+      participation: "Take part in the interview",
+      writtenNotes: "Written notes",
+      recording: "Audio or video recording",
+      transcription: "Transcription",
+      internalNotes: "Internal product research notes",
+      anonymousTrends: "Anonymized trends or observations",
+      recontact: "Follow-up contact",
+      wizardOfOz: "Anonymized Wizard-of-Oz manual test",
+      futureAnonymousQuotes: "Future approval of anonymized quotes",
+      futureAttributedQuotes: "Future approval of attributed quotes",
+      adult: "18 or older declaration",
+      separateAgreement: "Separate written agreement for any use outside the interview"
+    },
+    status: {
+      enterCode: "Enter an access code.",
+      checkingCode: "Checking access code...",
+      invalidCode: "Invalid access code.",
+      generatingPreview: "Generating PDF preview...",
+      previewGenerated: "PDF preview generated locally.",
+      compileFailed: "PDF compilation failed.",
+      compiling: "Local PDF compilation in progress...",
+      pdfGenerated: "PDF generated. No data has been stored."
+    },
+    loading: { tag: "[ access ]", checking: "Checking access..." },
+    access: {
+      tag: "[ access ]",
+      titleBefore: "Enter your ",
+      titleAccent: "code",
+      titleAfter: ".",
+      intro:
+        "The code was sent before the interview. It loads the context (name, contact, date), but no consent option is preselected.",
+      label: "Access code",
+      submitLoading: "Checking...",
+      submit: "Access the form",
+      forget: "Forget this code"
+    },
+    workspace: {
+      tag: "[ next step ]",
+      titleBefore: "Generate your consent ",
+      titleAccent: "document",
+      titleAfter: ".",
+      intro:
+        "No account created, no draft stored, no data sent to a third-party service. The PDF is generated locally and is not kept by default.",
+      infoTitle: "Information",
+      nameLabel: "Participant name, pseudonym, or handle",
+      contactLabel: "Email address or contact method",
+      dateLabel: "Interview date",
+      consentTitle: "Consent",
+      hide: "Hide",
+      details: "Details",
+      preview: "Preview PDF",
+      download: "Download PDF",
+      reset: "Reset",
+      railLabel: "Document markers",
+      railTag: "[ markers ]",
+      railItems: [
+        "Only context fields are prefilled.",
+        "Each consent option remains separately editable.",
+        "The PDF is generated locally, then downloaded by you.",
+        "No rights transfer is created by this form."
+      ],
+      previewTag: "[ PDF preview ]",
+      previewStale: "This preview does not include the latest changes yet.",
+      previewFresh: "Preview up to date.",
+      previewLoading: "Generating preview.",
+      previewWarning: "Fields or consent options have changed since this PDF was generated.",
+      previewTitle: "Consent form PDF preview",
+      retry: "Try again",
+      close: "Close",
+      smallDownload: "Download PDF",
+      filename: "aestelier-consent.pdf"
+    }
+  }
 };
 
 const accessCodeStorageKey = "aestelier:form-access-code";
 
 type ConsentFormProps = {
   initialAccessCode?: string;
+  locale?: Locale;
 };
 
-export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
+export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFormProps) {
+  const t = copy[locale];
   const [formData, setFormData] = useState<ConsentFormData>(defaultConsentFormData);
   const [accessCode, setAccessCode] = useState(initialAccessCode);
   const [accessInput, setAccessInput] = useState(initialAccessCode);
@@ -145,12 +377,12 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
     const trimmedCode = code.trim();
 
     if (!trimmedCode) {
-      setStatus("Entrez un code d'accès.");
+      setStatus(t.status.enterCode);
       return;
     }
 
     setIsAccessLoading(true);
-    setStatus("Vérification du code d'accès...");
+    setStatus(t.status.checkingCode);
 
     const response = await fetch(`/api/access/${encodeURIComponent(trimmedCode)}`, {
       cache: "no-store"
@@ -172,7 +404,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
     if (!response.ok || !body?.access) {
       setIsAccessReady(false);
       setHasCheckedStoredAccess(true);
-      setStatus(body?.error ?? "Code d'accès invalide.");
+      setStatus(body?.error ?? t.status.invalidCode);
       return;
     }
 
@@ -226,7 +458,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
       setIsPreviewExpanded(true);
     }
 
-    setStatus("Génération de la prévisualisation PDF...");
+    setStatus(t.status.generatingPreview);
     const blob = await fetchPdf();
 
     if (!blob) {
@@ -241,7 +473,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
       return URL.createObjectURL(blob);
     });
     setPreviewSignature(formSignature);
-    setStatus("Prévisualisation PDF générée localement.");
+    setStatus(t.status.previewGenerated);
   }
 
   function openPreview() {
@@ -262,7 +494,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
 
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      setStatus(body?.error ?? "Compilation PDF impossible.");
+      setStatus(body?.error ?? t.status.compileFailed);
       return;
     }
 
@@ -270,15 +502,15 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
   }
 
   async function downloadPdf() {
-    setStatus("Compilation PDF locale en cours...");
+    setStatus(t.status.compiling);
     const blob = await fetchPdf();
 
     if (!blob) {
       return;
     }
 
-    downloadBlob(blob, "aestelier-consentement.pdf");
-    setStatus("PDF généré. Aucune donnée n'a été stockée.");
+    downloadBlob(blob, t.workspace.filename);
+    setStatus(t.status.pdfGenerated);
   }
 
   function resetForm() {
@@ -300,8 +532,8 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
     return (
       <div className="form-loading">
         <div className="form-panel form-panel-compact">
-          <span className="mono dim">[ accès ]</span>
-          <p className="form-muted">Vérification de l'accès...</p>
+          <span className="mono dim">{t.loading.tag}</span>
+          <p className="form-muted">{t.loading.checking}</p>
         </div>
       </div>
     );
@@ -317,21 +549,22 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
             void loadAccess(accessInput);
           }}
         >
-          <span className="mono dim">[ accès ]</span>
+          <span className="mono dim">{t.access.tag}</span>
           <h2
             className="section-title"
             style={{ fontSize: "clamp(22px, 2.2vw, 30px)", marginTop: 12 }}
           >
-            Entrez votre <span className="it">code</span>.
+            {t.access.titleBefore}
+            <span className="it">{t.access.titleAccent}</span>
+            {t.access.titleAfter}
           </h2>
           <p className="prose" style={{ marginTop: 16, maxWidth: "50ch" }}>
-            Le code a été transmis avant l’entretien. Il charge le contexte (nom, contact, date)
-            mais aucun consentement n’est présélectionné.
+            {t.access.intro}
           </p>
 
           <div className="form-divider">
             <label className="form-field">
-              <span className="form-label">Code d'accès</span>
+              <span className="form-label">{t.access.label}</span>
               <input
                 value={accessInput}
                 onChange={(event) => setAccessInput(event.target.value.toUpperCase())}
@@ -347,7 +580,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                 disabled={isAccessLoading || !accessInput.trim()}
                 className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                {isAccessLoading ? "Vérification…" : "Accéder au formulaire"}
+                {isAccessLoading ? t.access.submitLoading : t.access.submit}
                 <span className="arr" />
               </button>
               {accessInput ? (
@@ -359,9 +592,9 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                     setAccessInput("");
                     setStatus("");
                   }}
-                  className="text-link"
-                >
-                  Oublier ce code
+                className="text-link"
+              >
+                  {t.access.forget}
                 </button>
               ) : null}
             </div>
@@ -375,16 +608,17 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
   return (
     <div className="consent-workspace">
       <header className="consent-header">
-        <span className="mono dim">[ étape suivante ]</span>
+        <span className="mono dim">{t.workspace.tag}</span>
         <h2
           className="section-title"
           style={{ fontSize: "clamp(24px, 2.6vw, 34px)", marginTop: 14 }}
         >
-          Générer votre <span className="it">document</span> de consentement.
+          {t.workspace.titleBefore}
+          <span className="it">{t.workspace.titleAccent}</span>
+          {t.workspace.titleAfter}
         </h2>
         <p className="prose" style={{ marginTop: 18, maxWidth: "60ch" }}>
-          Aucun compte créé, aucun brouillon stocké, aucun envoi à un service tiers. Le PDF est
-          généré localement et n'est pas conservé par défaut.
+          {t.workspace.intro}
         </p>
       </header>
 
@@ -393,12 +627,12 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
           <section className="form-section">
             <div className="form-section-head">
               <span className="num">01</span>
-              <h2>Informations</h2>
+              <h2>{t.workspace.infoTitle}</h2>
             </div>
 
             <div className="field-stack">
               <label className="form-field">
-                <span className="form-label">Nom, pseudonyme ou handle du/de la participant(e)</span>
+                <span className="form-label">{t.workspace.nameLabel}</span>
                 <input
                   value={formData.participantName}
                   onChange={(event) => updateField("participantName", event.target.value)}
@@ -409,7 +643,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
 
               <div className="field-grid">
                 <label className="form-field">
-                  <span className="form-label">Adresse e-mail ou moyen de contact</span>
+                  <span className="form-label">{t.workspace.contactLabel}</span>
                   <input
                     value={formData.participantContact}
                     onChange={(event) =>
@@ -421,7 +655,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                 </label>
 
                 <label className="form-field">
-                  <span className="form-label">Date de l'entretien</span>
+                  <span className="form-label">{t.workspace.dateLabel}</span>
                   <input
                     type="date"
                     value={formData.interviewDate}
@@ -436,12 +670,12 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
           <fieldset className="form-section consent-fieldset">
             <legend className="form-section-head consent-legend">
               <span className="num">02</span>
-              <span>Consentements</span>
+              <span>{t.workspace.consentTitle}</span>
             </legend>
 
             <div className="consent-groups">
-              {consentGroups.map((group, groupIndex) => {
-                const isLimitGroup = group.title === "Limites";
+              {t.consentGroups.map((group, groupIndex) => {
+                const isLimitGroup = groupIndex === t.consentGroups.length - 1;
 
                 return (
                   <section key={group.title} className="consent-group">
@@ -487,7 +721,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                                   className="consent-detail-button"
                                   aria-expanded={isEditing}
                                 >
-                                  {isEditing ? "Masquer" : "Détails"}
+                                  {isEditing ? t.workspace.hide : t.workspace.details}
                                 </button>
                               ) : null}
                             </div>
@@ -497,7 +731,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                                 {item.keys.map((key) => (
                                   <li key={key}>
                                     <span aria-hidden="true">→</span>
-                                    <span>{detailedConsentLabels[key]}</span>
+                                    <span>{t.detailedConsentLabels[key]}</span>
                                   </li>
                                 ))}
                               </ul>
@@ -515,7 +749,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                                       }
                                       className="consent-check small"
                                     />
-                                    <span>{detailedConsentLabels[key]}</span>
+                                    <span>{t.detailedConsentLabels[key]}</span>
                                   </label>
                                 ))}
                               </div>
@@ -538,7 +772,7 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                 disabled={!canGenerate}
                 className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Prévisualiser le PDF <span className="arr" />
+                {t.workspace.preview} <span className="arr" />
               </button>
               <button
                 type="button"
@@ -546,35 +780,25 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                 disabled={!canGenerate}
                 className="pill disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Télécharger le PDF <span className="arr" />
+                {t.workspace.download} <span className="arr" />
               </button>
               <button type="button" onClick={resetForm} className="text-link">
-                Réinitialiser
+                {t.workspace.reset}
               </button>
             </div>
             {status ? <p className="form-status">{status}</p> : null}
           </div>
         </form>
 
-        <aside className="form-rail" aria-label="Repères du document">
-          <span className="mono dim">[ repères ]</span>
+        <aside className="form-rail" aria-label={t.workspace.railLabel}>
+          <span className="mono dim">{t.workspace.railTag}</span>
           <ul>
-            <li>
-              <span className="num">01</span>
-              <span>Les champs de contexte sont les seuls préremplis.</span>
-            </li>
-            <li>
-              <span className="num">02</span>
-              <span>Chaque consentement reste modifiable séparément.</span>
-            </li>
-            <li>
-              <span className="num">03</span>
-              <span>Le PDF est généré localement, puis téléchargé par vous.</span>
-            </li>
-            <li>
-              <span className="num">04</span>
-              <span>Aucune cession de droits n'est créée par ce formulaire.</span>
-            </li>
+            {t.workspace.railItems.map((item, index) => (
+              <li key={item}>
+                <span className="num">{String(index + 1).padStart(2, "0")}</span>
+                <span>{item}</span>
+              </li>
+            ))}
           </ul>
         </aside>
       </div>
@@ -584,13 +808,13 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
           <div className="preview-panel" onClick={(event) => event.stopPropagation()}>
             <div className="preview-head">
               <div>
-                <p className="mono dim">[ aperçu PDF ]</p>
+                <p className="mono dim">{t.workspace.previewTag}</p>
                 <p className="form-help">
                   {pdfPreviewUrl
                     ? isPreviewStale
-                      ? "Cet aperçu n'inclut pas encore les dernières modifications."
-                      : "Aperçu à jour."
-                    : "Génération de l'aperçu en cours."}
+                      ? t.workspace.previewStale
+                      : t.workspace.previewFresh
+                    : t.workspace.previewLoading}
                 </p>
               </div>
               <div className="preview-actions">
@@ -600,39 +824,39 @@ export function ConsentForm({ initialAccessCode = "" }: ConsentFormProps) {
                   disabled={!canGenerate}
                   className="small-button"
                 >
-                  Télécharger PDF
+                  {t.workspace.smallDownload}
                 </button>
                 <button
                   type="button"
                   onClick={() => setIsPreviewExpanded(false)}
                   className="small-button"
                 >
-                  Fermer
+                  {t.workspace.close}
                 </button>
               </div>
             </div>
             {isPreviewStale ? (
               <p className="form-status is-warning">
-                Des champs ou consentements ont changé depuis la génération de ce PDF.
+                {t.workspace.previewWarning}
               </p>
             ) : null}
             {pdfPreviewUrl ? (
               <iframe
-                title="Prévisualisation PDF du formulaire de consentement"
+                title={t.workspace.previewTitle}
                 src={pdfPreviewUrl}
                 className="preview-frame"
               />
             ) : (
               <div className="preview-empty">
                 <div>
-                  <span>Génération de l'aperçu PDF...</span>
+                  <span>{t.workspace.previewLoading}</span>
                   <button
                     type="button"
                     onClick={openPreview}
                     disabled={!canGenerate}
                     className="small-button dark"
                   >
-                    Réessayer
+                    {t.workspace.retry}
                   </button>
                 </div>
               </div>

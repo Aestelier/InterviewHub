@@ -2,11 +2,12 @@ import { AdminAccessPanel } from "@/components/AdminAccessPanel";
 import { Footer } from "@/components/Footer";
 import { Topbar } from "@/components/Topbar";
 
-export default function AdminPage() {
+export default function EnglishAdminPage() {
   return (
     <main>
       <Topbar
         variant="minimal"
+        locale="en"
         languageLinks={{
           fr: "/admin",
           en: "/en/admin"
@@ -20,11 +21,10 @@ export default function AdminPage() {
             className="section-title"
             style={{ marginTop: 18, maxWidth: "22ch" }}
           >
-            Accès <span className="it">artistes.</span>
+            Artist <span className="it">access.</span>
           </h1>
           <p className="lead" style={{ marginTop: 20, maxWidth: "60ch" }}>
-            Générez des liens d’accès pour préremplir le formulaire, sans pré-cocher les
-            consentements.
+            Generate access links to prefill the form without preselecting consent options.
           </p>
           <div
             className="mono dim"
@@ -39,10 +39,10 @@ export default function AdminPage() {
             }}
           >
             <span>
-              <span className="accent">Token</span> · session navigateur
+              <span className="accent">Token</span> · browser session
             </span>
             <span>
-              <span className="accent">Liens</span> · un code par entretien
+              <span className="accent">Links</span> · one code per interview
             </span>
           </div>
         </div>
@@ -50,11 +50,11 @@ export default function AdminPage() {
 
       <section style={{ padding: "16px 28px 80px" }}>
         <div style={{ maxWidth: "var(--wide)", margin: "0 auto" }}>
-          <AdminAccessPanel />
+          <AdminAccessPanel locale="en" />
         </div>
       </section>
 
-      <Footer />
+      <Footer locale="en" />
     </main>
   );
 }

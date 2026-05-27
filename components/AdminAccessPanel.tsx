@@ -21,7 +21,109 @@ type AccessResponse = {
   error?: string;
 };
 
-export function AdminAccessPanel() {
+type Locale = "fr" | "en";
+
+const copy = {
+  fr: {
+    status: {
+      actionFailed: "Action admin impossible.",
+      loading: "Chargement des accès...",
+      loaded: "Liste chargée.",
+      unknown: "Erreur inconnue.",
+      creating: "Création de l'accès...",
+      created: "Accès créé.",
+      copied: "Lien copié."
+    },
+    gateway: {
+      tag: "[ gateway ]",
+      titleBefore: "Entrez le ",
+      titleAccent: "token",
+      titleAfter: " admin.",
+      intro: "Le token est vérifié côté serveur avant d'afficher la liste des accès.",
+      label: "Token admin",
+      submit: "Entrer dans l'admin"
+    },
+    active: {
+      tag: "[ admin actif ]",
+      intro: "Le token est conservé uniquement dans cette session navigateur.",
+      reload: "Recharger"
+    },
+    create: {
+      tag: "[ nouvel accès ]",
+      titleBefore: "Générer un lien d'",
+      titleAccent: "entretien",
+      titleAfter: ".",
+      date: "Date d'entretien",
+      expiry: "Expiration optionnelle",
+      submit: "Générer un accès"
+    },
+    list: {
+      tag: "[ liste des accès ]",
+      code: "Code",
+      artist: "Artiste",
+      contact: "Contact",
+      date: "Date",
+      status: "Statut",
+      action: "Action",
+      copy: "Copier le lien",
+      empty: "Aucun accès chargé."
+    },
+    formPath: "/formulaire"
+  },
+  en: {
+    status: {
+      actionFailed: "Admin action failed.",
+      loading: "Loading accesses...",
+      loaded: "List loaded.",
+      unknown: "Unknown error.",
+      creating: "Creating access...",
+      created: "Access created.",
+      copied: "Link copied."
+    },
+    gateway: {
+      tag: "[ gateway ]",
+      titleBefore: "Enter the admin ",
+      titleAccent: "token",
+      titleAfter: ".",
+      intro: "The token is checked server-side before the access list is displayed.",
+      label: "Admin token",
+      submit: "Enter admin"
+    },
+    active: {
+      tag: "[ admin active ]",
+      intro: "The token is kept only in this browser session.",
+      reload: "Reload"
+    },
+    create: {
+      tag: "[ new access ]",
+      titleBefore: "Generate an ",
+      titleAccent: "interview",
+      titleAfter: " link.",
+      date: "Interview date",
+      expiry: "Optional expiry",
+      submit: "Generate access"
+    },
+    list: {
+      tag: "[ access list ]",
+      code: "Code",
+      artist: "Artist",
+      contact: "Contact",
+      date: "Date",
+      status: "Status",
+      action: "Action",
+      copy: "Copy link",
+      empty: "No access loaded."
+    },
+    formPath: "/en/formulaire"
+  }
+} as const;
+
+type AdminAccessPanelProps = {
+  locale?: Locale;
+};
+
+export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
+  const t = copy[locale];
   const [token, setToken] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [accesses, setAccesses] = useState<AccessRow[]>([]);
@@ -49,27 +151,27 @@ export function AdminAccessPanel() {
     const body = ((await response.json().catch(() => ({}))) ?? {}) as AccessResponse;
 
     if (!response.ok) {
-      throw new Error(body?.error ?? "Action admin impossible.");
+      throw new Error(body?.error ?? t.status.actionFailed);
     }
 
     return body;
   }
 
   async function loadAccesses() {
-    setStatus("Chargement des acces...");
+    setStatus(t.status.loading);
 
     try {
       const body = await fetchAdmin("/api/admin/accesses");
       setAccesses(body.accesses ?? []);
       setIsUnlocked(true);
-      setStatus("Liste chargee.");
+      setStatus(t.status.loaded);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Erreur inconnue.");
+      setStatus(error instanceof Error ? error.message : t.status.unknown);
     }
   }
 
   async function createAccess() {
-    setStatus("Creation de l'acces...");
+    setStatus(t.status.creating);
 
     try {
       const body = await fetchAdmin("/api/admin/accesses", {
@@ -86,37 +188,39 @@ export function AdminAccessPanel() {
 
       setInterviewDate("");
       setExpiresAt("");
-      setStatus("Acces cree.");
+      setStatus(t.status.created);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : "Erreur inconnue.");
+      setStatus(error instanceof Error ? error.message : t.status.unknown);
     }
   }
 
   function buildLink(code: string) {
-    return `${origin}/formulaire?code=${encodeURIComponent(code)}`;
+    return `${origin}${t.formPath}?code=${encodeURIComponent(code)}`;
   }
 
   async function copyLink(code: string) {
     await navigator.clipboard.writeText(buildLink(code));
-    setStatus("Lien copie.");
+    setStatus(t.status.copied);
   }
 
   return (
     <div className="grid gap-6">
       {!isUnlocked ? (
         <section className="w-full max-w-xl border border-line bg-paper-2/40 p-5 md:p-7">
-          <span className="mono dim">[ gateway ]</span>
+          <span className="mono dim">{t.gateway.tag}</span>
           <h2
             className="section-title"
             style={{ fontSize: "clamp(22px, 2.2vw, 28px)", marginTop: 12 }}
           >
-            Entrez le <span className="it">token</span> admin.
+            {t.gateway.titleBefore}
+            <span className="it">{t.gateway.titleAccent}</span>
+            {t.gateway.titleAfter}
           </h2>
           <p className="prose" style={{ marginTop: 14, maxWidth: "50ch" }}>
-            Le token est vérifié côté serveur avant d&apos;afficher la liste des accès.
+            {t.gateway.intro}
           </p>
           <label className="mt-6 grid gap-2">
-            <span className="text-sm font-semibold text-ink">Token admin</span>
+            <span className="text-sm font-semibold text-ink">{t.gateway.label}</span>
             <input
               type="password"
               value={token}
@@ -130,7 +234,7 @@ export function AdminAccessPanel() {
             disabled={!token}
             className="pill dark mt-5 disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Entrer dans l&apos;admin <span className="arr" />
+            {t.gateway.submit} <span className="arr" />
           </button>
           {status ? <p className="mt-4 text-sm text-muted">{status}</p> : null}
         </section>
@@ -139,28 +243,30 @@ export function AdminAccessPanel() {
           <section className="border border-line bg-paper-2/40 p-5 md:p-7">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <span className="mono dim">[ admin actif ]</span>
+                <span className="mono dim">{t.active.tag}</span>
                 <p className="mt-2 text-sm text-muted">
-                  Le token est conservé uniquement dans cette session navigateur.
+                  {t.active.intro}
                 </p>
               </div>
               <button type="button" onClick={loadAccesses} className="pill">
-                Recharger <span className="arr" />
+                {t.active.reload} <span className="arr" />
               </button>
             </div>
           </section>
 
       <section className="border border-line bg-paper-2/40 p-5 md:p-7">
-        <span className="mono dim">[ nouvel accès ]</span>
+        <span className="mono dim">{t.create.tag}</span>
         <h3
           className="section-title"
           style={{ fontSize: "clamp(20px, 2vw, 24px)", marginTop: 10 }}
         >
-          Générer un lien d&apos;<span className="it">entretien</span>.
+          {t.create.titleBefore}
+          <span className="it">{t.create.titleAccent}</span>
+          {t.create.titleAfter}
         </h3>
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">Date d&apos;entretien</span>
+            <span className="text-sm font-semibold text-ink">{t.create.date}</span>
             <input
               type="date"
               value={interviewDate}
@@ -169,7 +275,7 @@ export function AdminAccessPanel() {
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">Expiration optionnelle</span>
+            <span className="text-sm font-semibold text-ink">{t.create.expiry}</span>
             <input
               type="datetime-local"
               value={expiresAt}
@@ -184,22 +290,22 @@ export function AdminAccessPanel() {
           disabled={!token || !interviewDate}
           className="pill dark mt-5 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Générer un accès <span className="arr" />
+          {t.create.submit} <span className="arr" />
         </button>
       </section>
 
       <section className="border border-line bg-paper-2/40 p-5 md:p-7">
-        <span className="mono dim">[ liste des accès ]</span>
+        <span className="mono dim">{t.list.tag}</span>
         <div className="mt-5 overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-left text-sm">
             <thead className="border-b border-line text-xs uppercase tracking-[0.12em] text-ochre">
               <tr>
-                <th className="py-3 pr-4">Code</th>
-                <th className="py-3 pr-4">Artiste</th>
-                <th className="py-3 pr-4">Contact</th>
-                <th className="py-3 pr-4">Date</th>
-                <th className="py-3 pr-4">Statut</th>
-                <th className="py-3 pr-4">Action</th>
+                <th className="py-3 pr-4">{t.list.code}</th>
+                <th className="py-3 pr-4">{t.list.artist}</th>
+                <th className="py-3 pr-4">{t.list.contact}</th>
+                <th className="py-3 pr-4">{t.list.date}</th>
+                <th className="py-3 pr-4">{t.list.status}</th>
+                <th className="py-3 pr-4">{t.list.action}</th>
               </tr>
             </thead>
             <tbody>
@@ -220,7 +326,7 @@ export function AdminAccessPanel() {
                       onClick={() => copyLink(access.code)}
                       className="mono dim hover:text-ink"
                     >
-                      Copier le lien →
+                      {t.list.copy} →
                     </button>
                   </td>
                 </tr>
@@ -228,7 +334,7 @@ export function AdminAccessPanel() {
               {accesses.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="py-6 text-center text-muted">
-                    Aucun acces charge.
+                    {t.list.empty}
                   </td>
                 </tr>
               ) : null}

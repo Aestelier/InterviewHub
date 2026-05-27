@@ -7,6 +7,7 @@ type FooterProps = {
 const copy = {
   fr: {
     base: "",
+    formHref: "/formulaire",
     description: "Recherche avec les artistes · phase ouverte, 2026.",
     response: "réponse sous quelques jours",
     frame: "Cadre de consentement",
@@ -19,6 +20,7 @@ const copy = {
   },
   en: {
     base: "/en",
+    formHref: "/en/formulaire",
     description: "Research with artists · open phase, 2026.",
     response: "reply within a few days",
     frame: "Consent framework",
@@ -63,7 +65,7 @@ export function Footer({ locale = "fr" }: FooterProps) {
         </div>
         <div className="foot-col">
           <span className="mono dim">[ accès ]</span>
-          <Link href="/formulaire">{t.access}</Link>
+          <Link href={t.formHref}>{t.access}</Link>
           <a href={`${t.base}/#participer`}>{t.participate}</a>
         </div>
       </div>

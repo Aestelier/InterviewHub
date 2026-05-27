@@ -3,12 +3,17 @@ import Link from "next/link";
 type TopbarProps = {
   variant?: "full" | "minimal";
   locale?: "fr" | "en";
+  languageLinks?: {
+    fr: string;
+    en: string;
+  };
 };
 
 const copy = {
   fr: {
     home: "/",
     navBase: "",
+    formHref: "/formulaire",
     form: "Accéder au formulaire",
     back: "Revenir à l’accueil",
     links: [
@@ -27,6 +32,7 @@ const copy = {
   en: {
     home: "/en",
     navBase: "/en",
+    formHref: "/en/formulaire",
     form: "Access the form",
     back: "Back to home",
     links: [
@@ -44,8 +50,14 @@ const copy = {
   }
 } as const;
 
-export function Topbar({ variant = "full", locale = "fr" }: TopbarProps) {
+export function Topbar({ variant = "full", locale = "fr", languageLinks }: TopbarProps) {
   const t = copy[locale];
+  const languages = languageLinks
+    ? [
+        { label: "FR", href: languageLinks.fr, active: locale === "fr" },
+        { label: "ENG", href: languageLinks.en, active: locale === "en" }
+      ]
+    : t.languages;
 
   return (
     <header className="topbar">
@@ -80,7 +92,7 @@ export function Topbar({ variant = "full", locale = "fr" }: TopbarProps) {
       {variant === "full" ? (
         <div className="right">
           <div className="language-switch" aria-label={t.languageLabel}>
-            {t.languages.map((language, index) => (
+            {languages.map((language, index) => (
               <span key={language.label} className="language-option-wrap">
                 {language.active ? (
                   <span className="language-option is-active" aria-current="true">
@@ -99,12 +111,34 @@ export function Topbar({ variant = "full", locale = "fr" }: TopbarProps) {
               </span>
             ))}
           </div>
-          <Link href="/formulaire" className="pill dark">
+          <Link href={t.formHref} className="pill dark">
             {t.form} <span className="arr" />
           </Link>
         </div>
       ) : (
         <div className="right">
+          {languageLinks ? (
+            <div className="language-switch" aria-label={t.languageLabel}>
+              {languages.map((language, index) => (
+                <span key={language.label} className="language-option-wrap">
+                  {language.active ? (
+                    <span className="language-option is-active" aria-current="true">
+                      {language.label}
+                    </span>
+                  ) : (
+                    <Link href={language.href} className="language-option">
+                      {language.label}
+                    </Link>
+                  )}
+                  {index < languages.length - 1 ? (
+                    <span className="language-separator" aria-hidden="true">
+                      |
+                    </span>
+                  ) : null}
+                </span>
+              ))}
+            </div>
+          ) : null}
           <Link href={t.home} className="pill dark">
             {t.back} <span className="arr" />
           </Link>
