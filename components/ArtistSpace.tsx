@@ -113,10 +113,16 @@ const copy = {
       cta: "Join the call",
       discordCta: "Add me on Discord",
       changeProvider: "Request another provider",
+      missingTitle: "No link yet",
+      missingIntro: "It looks like you don't have a video link for this interview.",
+      missingCta: "Request a link",
       modalTag: "[ provider ]",
       modalTitle: "Change video provider.",
+      modalTitleMissing: "Request a video link.",
       modalIntro:
         "The current call link stays available. This request only proposes an alternative.",
+      modalIntroMissing:
+        "No link is associated with this interview yet. Pick the provider you prefer.",
       modalCancel: "Cancel",
       modalSubmit: "Send request",
       modalSubmitting: "Sending...",
@@ -388,57 +394,56 @@ export function ArtistSpace({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: visioUrl ? "1fr 1fr" : "1fr",
+            gridTemplateColumns: "1fr 1fr",
             gap: 20,
-            marginTop: 36,
-            maxWidth: visioUrl ? "none" : 520
+            marginTop: 36
           }}
         >
-          {visioUrl ? (
-            <div
-              className="form-panel"
-              style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
-            >
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 14
-                  }}
-                >
-                  <span className="mono dim">{t.visio.tag}</span>
-                  {visioProvider ? (
-                    <span
-                      className="mono dim"
-                      style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
-                    >
-                      <img
-                        src={visioProvider.iconUrl}
-                        alt=""
-                        aria-hidden="true"
-                        width={16}
-                        height={16}
-                        onError={(event) => {
-                          event.currentTarget.style.display = "none";
-                        }}
-                        style={{ width: 16, height: 16, borderRadius: 3 }}
-                      />
-                      {visioProvider.name}
-                    </span>
-                  ) : null}
-                </div>
-                <h2
-                  className="section-title"
-                  style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
-                >
-                  {t.visio.title}
-                </h2>
-                <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
-                  {t.visio.intro}
-                </p>
+          <div
+            className="form-panel"
+            style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
+          >
+            <div>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: 14
+                }}
+              >
+                <span className="mono dim">{t.visio.tag}</span>
+                {visioProvider ? (
+                  <span
+                    className="mono dim"
+                    style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+                  >
+                    <img
+                      src={visioProvider.iconUrl}
+                      alt=""
+                      aria-hidden="true"
+                      width={16}
+                      height={16}
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
+                      style={{ width: 16, height: 16, borderRadius: 3 }}
+                    />
+                    {visioProvider.name}
+                  </span>
+                ) : null}
               </div>
+              <h2
+                className="section-title"
+                style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
+              >
+                {visioUrl ? t.visio.title : t.visio.missingTitle}
+              </h2>
+              <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+                {visioUrl ? t.visio.intro : t.visio.missingIntro}
+              </p>
+            </div>
+            {visioUrl ? (
               <div
                 style={{
                   display: "flex",
@@ -459,8 +464,17 @@ export function ArtistSpace({
                   {t.visio.changeProvider}
                 </button>
               </div>
-            </div>
-          ) : null}
+            ) : (
+              <button
+                type="button"
+                onClick={openProviderModal}
+                className="pill dark"
+                style={{ alignSelf: "flex-start" }}
+              >
+                {t.visio.missingCta} <span className="arr" />
+              </button>
+            )}
+          </div>
 
           <div
             className="form-panel"
@@ -719,10 +733,10 @@ export function ArtistSpace({
               className="section-title"
               style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
             >
-              {t.visio.modalTitle}
+              {visioUrl ? t.visio.modalTitle : t.visio.modalTitleMissing}
             </h2>
             <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
-              {t.visio.modalIntro}
+              {visioUrl ? t.visio.modalIntro : t.visio.modalIntroMissing}
             </p>
             {visioProvider ? (
               <div
