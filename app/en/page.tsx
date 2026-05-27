@@ -66,9 +66,9 @@ export default function EnglishHome() {
       <Topbar variant="full" locale="en" />
       <div className="mobile-quick-cta" aria-label="Quick actions">
         <Link
-          href="/en/formulaire"
+          href="/en/espace"
           className="mobile-quick-primary"
-          aria-label="Access the form with a code"
+          aria-label="Access the artist space with a code"
         >
           I have a code
         </Link>
@@ -113,8 +113,8 @@ export default function EnglishHome() {
                   alignItems: "center"
                 }}
               >
-                <Link href="/en/formulaire" className="pill dark">
-                  I have a code, access the form <span className="arr" />
+                <Link href="/en/espace" className="pill dark">
+                  I have a code, access the space <span className="arr" />
                 </Link>
                 <a href="#demarche" className="pill">
                   Understand the approach
@@ -432,12 +432,12 @@ export default function EnglishHome() {
               </h3>
             </div>
             <p className="prose" style={{ maxWidth: "44ch", fontSize: 16 }}>
-              Access the form with the code sent before the interview. You will be able to read the
-              framework, choose consent options, and prepare the exchange.
+              Access your artist space with the code sent before the interview. You will be able to
+              join the call and fill in the consent form.
             </p>
             <div>
-              <Link href="/en/formulaire" className="pill dark">
-                Access the form <span className="arr" />
+              <Link href="/en/espace" className="pill dark">
+                Access the space <span className="arr" />
               </Link>
               <div className="mono" style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}>
                 No account creation

@@ -1,7 +1,7 @@
-import { redirect } from "next/navigation";
 import { isExpired, normalizeAccessCode } from "@/lib/accessCodes";
 import { getSupabaseAdmin, type InterviewAccessRow } from "@/lib/supabaseAdmin";
 import { ArtistSpace } from "@/components/ArtistSpace";
+import { SpaceGateway } from "@/components/SpaceGateway";
 import { Footer } from "@/components/Footer";
 import { Topbar } from "@/components/Topbar";
 
@@ -14,7 +14,15 @@ export default async function EspacePage({
 }) {
   const { code } = await searchParams;
 
-  if (!code) redirect("/formulaire");
+  if (!code) {
+    return (
+      <main>
+        <Topbar variant="minimal" languageLinks={{ fr: "/espace", en: "/en/espace" }} />
+        <SpaceGateway locale="fr" />
+        <Footer />
+      </main>
+    );
+  }
 
   const normalizedCode = normalizeAccessCode(code);
 
@@ -26,7 +34,13 @@ export default async function EspacePage({
     .single();
 
   if (error || !data || isExpired((data as InterviewAccessRow).expires_at)) {
-    redirect(`/formulaire?code=${encodeURIComponent(code)}`);
+    return (
+      <main>
+        <Topbar variant="minimal" languageLinks={{ fr: "/espace", en: "/en/espace" }} />
+        <SpaceGateway locale="fr" />
+        <Footer />
+      </main>
+    );
   }
 
   const access = data as InterviewAccessRow;

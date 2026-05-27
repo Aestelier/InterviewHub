@@ -59,9 +59,9 @@ export default function Home() {
       <Topbar variant="full" />
       <div className="mobile-quick-cta" aria-label="Actions rapides">
         <Link
-          href="/formulaire"
+          href="/espace"
           className="mobile-quick-primary"
-          aria-label="Accéder au formulaire avec un code"
+          aria-label="Accéder à l’espace artiste avec un code"
         >
           J’ai un code
         </Link>
@@ -109,8 +109,8 @@ export default function Home() {
                   alignItems: "center"
                 }}
               >
-                <Link href="/formulaire" className="pill dark">
-                  J’ai un code, accéder au formulaire <span className="arr" />
+                <Link href="/espace" className="pill dark">
+                  J’ai un code, accéder à l’espace <span className="arr" />
                 </Link>
                 <a href="#demarche" className="pill">
                   Comprendre la démarche
@@ -441,12 +441,12 @@ export default function Home() {
               </h3>
             </div>
             <p className="prose" style={{ maxWidth: "44ch", fontSize: 16 }}>
-              Accédez au formulaire avec le code transmis avant l’entretien. Vous pourrez lire le
-              cadre, choisir les consentements et préparer l’échange.
+              Accédez à votre espace artiste avec le code transmis avant l’entretien. Vous pourrez
+              rejoindre la visio et remplir le formulaire de consentement.
             </p>
             <div>
-              <Link href="/formulaire" className="pill dark">
-                Accéder au formulaire <span className="arr" />
+              <Link href="/espace" className="pill dark">
+                Accéder à l’espace <span className="arr" />
               </Link>
               <div
                 className="mono"
