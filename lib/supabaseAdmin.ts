@@ -13,6 +13,7 @@ export type InterviewAccessRow = {
   pdf_generated_at: string | null;
   consent_snapshot: Record<string, boolean> | null;
   template_version: string | null;
+  visio_url: string | null;
 };
 
 export type InterviewAccessInsert = {
@@ -21,6 +22,7 @@ export type InterviewAccessInsert = {
   participant_contact?: string | null;
   interview_date: string;
   expires_at?: string | null;
+  visio_url?: string | null;
 };
 
 export function getSupabaseAdmin() {

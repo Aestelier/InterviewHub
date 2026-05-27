@@ -79,6 +79,7 @@ export async function POST(request: NextRequest) {
   let body: {
     interviewDate?: string;
     expiresAt?: string;
+    visioUrl?: string;
   };
 
   try {
@@ -94,7 +95,8 @@ export async function POST(request: NextRequest) {
   const insert: InterviewAccessInsert = {
     code: normalizeAccessCode(generateAccessCode()),
     interview_date: body.interviewDate,
-    expires_at: body.expiresAt || null
+    expires_at: body.expiresAt || null,
+    visio_url: body.visioUrl || null
   };
 
   try {

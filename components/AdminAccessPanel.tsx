@@ -13,6 +13,7 @@ type AccessRow = {
   created_at: string;
   last_opened_at: string | null;
   pdf_generated_at: string | null;
+  visio_url: string | null;
 };
 
 type AccessResponse = {
@@ -57,6 +58,7 @@ const copy = {
       titleAfter: ".",
       date: "Date d'entretien",
       expiry: "Expiration optionnelle",
+      visioUrl: "Lien visio (optionnel)",
       submit: "Générer un accès"
     },
     list: {
@@ -71,6 +73,7 @@ const copy = {
       delete: "Supprimer",
       confirmDelete: "Confirmer la suppression de",
       expiry: "Expiration",
+      visio: "Visio",
       empty: "Aucun accès chargé."
     },
     formPath: "/formulaire"
@@ -108,6 +111,7 @@ const copy = {
       titleAfter: " link.",
       date: "Interview date",
       expiry: "Optional expiry",
+      visioUrl: "Visio link (optional)",
       submit: "Generate access"
     },
     list: {
@@ -122,6 +126,7 @@ const copy = {
       delete: "Delete",
       confirmDelete: "Confirm deletion of",
       expiry: "Expiry",
+      visio: "Visio",
       empty: "No access loaded."
     },
     formPath: "/en/formulaire"
@@ -139,6 +144,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [accesses, setAccesses] = useState<AccessRow[]>([]);
   const [interviewDate, setInterviewDate] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [visioUrl, setVisioUrl] = useState("");
   const [status, setStatus] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
@@ -189,7 +195,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         method: "POST",
         body: JSON.stringify({
           interviewDate,
-          expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined
+          expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
+          visioUrl: visioUrl || undefined
         })
       });
 
@@ -199,6 +206,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
       setInterviewDate("");
       setExpiresAt("");
+      setVisioUrl("");
       setStatus(t.status.created);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : t.status.unknown);
@@ -309,6 +317,16 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
               className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
             />
           </label>
+          <label className="grid gap-2 md:col-span-2">
+            <span className="text-sm font-semibold text-ink">{t.create.visioUrl}</span>
+            <input
+              type="url"
+              value={visioUrl}
+              onChange={(event) => setVisioUrl(event.target.value)}
+              placeholder="https://meet.example.com/..."
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
         </div>
         <button
           type="button"
@@ -332,6 +350,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                 <th className="py-3 pr-4">{t.list.date}</th>
                 <th className="py-3 pr-4">{t.list.status}</th>
                 <th className="py-3 pr-4">{t.list.expiry}</th>
+                <th className="py-3 pr-4">{t.list.visio}</th>
                 <th className="py-3 pr-4">{t.list.action}</th>
               </tr>
             </thead>
@@ -347,13 +366,26 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                   </td>
                   <td className="py-3 pr-4 text-muted">{access.interview_date}</td>
                   <td className="py-3 pr-4 text-muted">{access.status}</td>
-                  <td className="py-3 pr-4 text-muted">
+                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 80 }}>
                     {access.expires_at
                       ? new Date(access.expires_at).toLocaleDateString(
                           locale === "fr" ? "fr-FR" : "en-GB",
                           { day: "2-digit", month: "2-digit", year: "numeric" }
                         )
                       : "—"}
+                  </td>
+                  <td className="py-3 pr-4 text-muted">
+                    {access.visio_url ? (
+                      <a
+                        href={access.visio_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mono dim hover:text-ink"
+                        style={{ fontSize: 11 }}
+                      >
+                        lien →
+                      </a>
+                    ) : "—"}
                   </td>
                   <td className="py-3 pr-4">
                     <div className="flex flex-wrap items-center gap-3">
@@ -398,7 +430,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
               ))}
               {accesses.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-6 text-center text-muted">
+                  <td colSpan={8} className="py-6 text-center text-muted">
                     {t.list.empty}
                   </td>
                 </tr>

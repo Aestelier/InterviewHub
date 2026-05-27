@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   defaultConsentFormData,
   type ConsentFormData,
@@ -24,6 +25,7 @@ const copy: Record<
       tag: string;
       checking: string;
     };
+    spacePath: string;
     access: {
       tag: string;
       titleBefore: string;
@@ -164,6 +166,7 @@ const copy: Record<
       trigger: "Supprimer cet accès"
     },
     loading: { tag: "[ accès ]", checking: "Vérification de l'accès..." },
+    spacePath: "/espace",
     access: {
       tag: "[ accès ]",
       titleBefore: "Entrez votre ",
@@ -173,7 +176,7 @@ const copy: Record<
         "Le code a été transmis avant l'entretien. Il charge le contexte (nom, contact, date) mais aucun consentement n'est présélectionné.",
       label: "Code d'accès",
       submitLoading: "Vérification…",
-      submit: "Accéder au formulaire",
+      submit: "Accéder à l'espace artiste",
       forget: "Oublier ce code"
     },
     workspace: {
@@ -297,6 +300,7 @@ const copy: Record<
       trigger: "Delete this access"
     },
     loading: { tag: "[ access ]", checking: "Checking access..." },
+    spacePath: "/en/espace",
     access: {
       tag: "[ access ]",
       titleBefore: "Enter your ",
@@ -306,7 +310,7 @@ const copy: Record<
         "The code was sent before the interview. It loads the context (name, contact, date), but no consent option is preselected.",
       label: "Access code",
       submitLoading: "Checking...",
-      submit: "Access the form",
+      submit: "Access the artist space",
       forget: "Forget this code"
     },
     workspace: {
@@ -357,6 +361,7 @@ type ConsentFormProps = {
 
 export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFormProps) {
   const t = copy[locale];
+  const router = useRouter();
   const [formData, setFormData] = useState<ConsentFormData>(defaultConsentFormData);
   const [accessCode, setAccessCode] = useState(initialAccessCode);
   const [accessInput, setAccessInput] = useState(initialAccessCode);
@@ -398,7 +403,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
       return;
     }
 
-    void loadAccess(initialAccessCode);
+    void loadAccess(initialAccessCode, true);
   }, [initialAccessCode]);
 
   useEffect(() => {
@@ -411,13 +416,13 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
     if (storedCode) {
       setAccessInput(storedCode);
-      void loadAccess(storedCode);
+      void loadAccess(storedCode, false);
     } else {
       setHasCheckedStoredAccess(true);
     }
   }, [initialAccessCode, isAccessReady]);
 
-  async function loadAccess(code: string) {
+  async function loadAccess(code: string, skipRedirect = false) {
     const trimmedCode = code.trim();
 
     if (!trimmedCode) {
@@ -438,6 +443,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
             participantName: string;
             participantContact: string;
             interviewDate: string;
+            visioUrl: string | null;
           };
           error?: string;
         }
@@ -452,9 +458,15 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
       return;
     }
 
+    window.localStorage.setItem(accessCodeStorageKey, body.access.code);
+
+    if (!skipRedirect) {
+      router.push(`${t.spacePath}?code=${encodeURIComponent(body.access.code)}`);
+      return;
+    }
+
     setAccessCode(body.access.code);
     setAccessInput(body.access.code);
-    window.localStorage.setItem(accessCodeStorageKey, body.access.code);
     setFormData((current) => ({
       ...current,
       participantName: body.access?.participantName ?? current.participantName,
@@ -622,7 +634,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
           className="form-panel access-panel"
           onSubmit={(event) => {
             event.preventDefault();
-            void loadAccess(accessInput);
+            void loadAccess(accessInput, false);
           }}
         >
           <span className="mono dim">{t.access.tag}</span>

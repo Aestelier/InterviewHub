@@ -72,7 +72,8 @@ export async function GET(
         code: access.code,
         participantName: access.participant_name ?? "",
         participantContact: access.participant_contact ?? "",
-        interviewDate: access.interview_date
+        interviewDate: access.interview_date,
+        visioUrl: access.visio_url ?? null
       }
     });
   } catch (error) {
