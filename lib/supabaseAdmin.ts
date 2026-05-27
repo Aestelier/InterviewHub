@@ -6,6 +6,8 @@ export type InterviewAccessRow = {
   participant_name: string | null;
   participant_contact: string | null;
   interview_date: string;
+  interview_time: string;
+  interview_duration_minutes: number;
   status: "created" | "opened" | "pdf_generated" | "expired" | "revoked";
   expires_at: string | null;
   created_at: string;
@@ -23,6 +25,8 @@ export type InterviewAccessInsert = {
   participant_name?: string | null;
   participant_contact?: string | null;
   interview_date: string;
+  interview_time: string;
+  interview_duration_minutes: number;
   expires_at?: string | null;
   visio_url?: string | null;
 };

@@ -64,6 +64,8 @@ export default async function EspacePage({
         participantName={access.participant_name ?? ""}
         participantContact={access.participant_contact ?? ""}
         interviewDate={access.interview_date}
+        interviewTime={access.interview_time}
+        interviewDurationMinutes={access.interview_duration_minutes}
         expiresAt={access.expires_at}
         visioUrl={access.visio_url}
         providerChangeRequestedProvider={access.provider_change_requested_provider}

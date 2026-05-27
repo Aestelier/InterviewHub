@@ -8,6 +8,8 @@ type AccessRow = {
   participant_name: string | null;
   participant_contact: string | null;
   interview_date: string;
+  interview_time: string;
+  interview_duration_minutes: number;
   status: string;
   expires_at: string | null;
   created_at: string;
@@ -50,6 +52,8 @@ const copy = {
       deleted: "Accès supprimé.",
       updatingDate: "Mise à jour de la date...",
       updatedDate: "Date mise à jour.",
+      updatingSchedule: "Mise à jour de l'horaire...",
+      updatedSchedule: "Horaire mis à jour.",
       updatingVisio: "Mise à jour du lien visio...",
       updatedVisio: "Lien visio mis à jour."
     },
@@ -73,6 +77,8 @@ const copy = {
       titleAccent: "entretien",
       titleAfter: ".",
       date: "Date d'entretien",
+      time: "Horaire (HH:MM)",
+      duration: "Durée (minutes)",
       artist: "Artiste (optionnel)",
       contact: "Contact (optionnel)",
       expiry: "Expiration optionnelle",
@@ -84,7 +90,11 @@ const copy = {
       code: "Code",
       artist: "Artiste",
       contact: "Contact",
-      date: "Date",
+      date: "Date / Horaire",
+      schedule: "Horaire",
+      duration: "Durée",
+      time: "Heure",
+      durationSuffix: "min",
       editDate: "Modifier",
       saveDate: "Enregistrer",
       emailWarning: "Un e-mail sera envoyé au contact après enregistrement.",
@@ -118,6 +128,8 @@ const copy = {
       deleted: "Access deleted.",
       updatingDate: "Updating date...",
       updatedDate: "Date updated.",
+      updatingSchedule: "Updating schedule...",
+      updatedSchedule: "Schedule updated.",
       updatingVisio: "Updating visio link...",
       updatedVisio: "Visio link updated."
     },
@@ -141,6 +153,8 @@ const copy = {
       titleAccent: "interview",
       titleAfter: " link.",
       date: "Interview date",
+      time: "Time (HH:MM)",
+      duration: "Duration (minutes)",
       artist: "Artist (optional)",
       contact: "Contact (optional)",
       expiry: "Optional expiry",
@@ -152,7 +166,11 @@ const copy = {
       code: "Code",
       artist: "Artist",
       contact: "Contact",
-      date: "Date",
+      date: "Date / time",
+      schedule: "Schedule",
+      duration: "Duration",
+      time: "Time",
+      durationSuffix: "min",
       editDate: "Edit",
       saveDate: "Save",
       emailWarning: "An email will be sent to the contact after saving.",
@@ -218,12 +236,16 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [participantName, setParticipantName] = useState("");
   const [participantContact, setParticipantContact] = useState("");
   const [interviewDate, setInterviewDate] = useState("");
+  const [interviewTime, setInterviewTime] = useState("14:00");
+  const [interviewDurationMinutes, setInterviewDurationMinutes] = useState(60);
   const [expiresAt, setExpiresAt] = useState("");
   const [visioUrl, setVisioUrl] = useState("");
   const [status, setStatus] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [editingDateCode, setEditingDateCode] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState("");
+  const [editingTime, setEditingTime] = useState("");
+  const [editingDuration, setEditingDuration] = useState(60);
   const [editingVisioCode, setEditingVisioCode] = useState<string | null>(null);
   const [editingVisioUrl, setEditingVisioUrl] = useState("");
 
@@ -276,6 +298,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           participantName: participantName || undefined,
           participantContact: participantContact || undefined,
           interviewDate,
+          interviewTime,
+          interviewDurationMinutes,
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
           visioUrl: visioUrl || undefined
         })
@@ -288,6 +312,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       setParticipantName("");
       setParticipantContact("");
       setInterviewDate("");
+      setInterviewTime("14:00");
+      setInterviewDurationMinutes(60);
       setExpiresAt("");
       setVisioUrl("");
       setStatus(t.status.created);
@@ -347,14 +373,16 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   }
 
   async function updateInterviewDate(code: string) {
-    setStatus(t.status.updatingDate);
+    setStatus(t.status.updatingSchedule);
 
     try {
       const body = await fetchAdmin("/api/admin/accesses", {
         method: "PATCH",
         body: JSON.stringify({
           code,
-          interviewDate: editingDate
+          interviewDate: editingDate,
+          interviewTime: editingTime,
+          interviewDurationMinutes: editingDuration
         })
       });
 
@@ -366,7 +394,9 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
       setEditingDateCode(null);
       setEditingDate("");
-      setStatus(body.warning ?? t.status.updatedDate);
+      setEditingTime("");
+      setEditingDuration(60);
+      setStatus(body.warning ?? t.status.updatedSchedule);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : t.status.unknown);
     }
@@ -464,6 +494,29 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             />
           </label>
           <label className="grid gap-2">
+            <span className="text-sm font-semibold text-ink">{t.create.time}</span>
+            <input
+              type="time"
+              value={interviewTime}
+              onChange={(event) => setInterviewTime(event.target.value)}
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="text-sm font-semibold text-ink">{t.create.duration}</span>
+            <input
+              type="number"
+              min={5}
+              max={1440}
+              step={5}
+              value={interviewDurationMinutes}
+              onChange={(event) =>
+                setInterviewDurationMinutes(Number(event.target.value) || 0)
+              }
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
+          <label className="grid gap-2">
             <span className="text-sm font-semibold text-ink">{t.create.expiry}</span>
             <input
               type="datetime-local"
@@ -489,7 +542,12 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         <button
           type="button"
           onClick={createAccess}
-          disabled={!token || !interviewDate}
+          disabled={
+            !token ||
+            !interviewDate ||
+            !interviewTime ||
+            !interviewDurationMinutes
+          }
           className="pill dark mt-5 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {t.create.submit} <span className="arr" />
@@ -566,7 +624,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                   <td className="py-3 pr-4 text-muted">
                     {access.participant_contact || "-"}
                   </td>
-                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 160 }}>
+                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 200 }}>
                     {editingDateCode === access.code ? (
                       <div className="grid gap-2">
                         <input
@@ -575,6 +633,26 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                           onChange={(event) => setEditingDate(event.target.value)}
                           className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                         />
+                        <input
+                          type="time"
+                          value={editingTime}
+                          onChange={(event) => setEditingTime(event.target.value)}
+                          className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                        />
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={5}
+                            max={1440}
+                            step={5}
+                            value={editingDuration}
+                            onChange={(event) =>
+                              setEditingDuration(Number(event.target.value) || 0)
+                            }
+                            className="min-h-10 w-24 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                          />
+                          <span className="text-xs text-muted">{t.list.durationSuffix}</span>
+                        </div>
                         <div className="flex flex-wrap gap-3">
                           <button
                             type="button"
@@ -589,7 +667,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
                               updateInterviewDate(access.code);
                             }}
-                            disabled={!editingDate}
+                            disabled={!editingDate || !editingTime || !editingDuration}
                             className="mono hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             {t.list.saveDate} →
@@ -599,6 +677,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                             onClick={() => {
                               setEditingDateCode(null);
                               setEditingDate("");
+                              setEditingTime("");
+                              setEditingDuration(60);
                             }}
                             className="mono dim hover:text-ink"
                           >
@@ -620,12 +700,20 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                       </div>
                     ) : (
                       <div className="flex flex-wrap items-center gap-3">
-                        <span>{access.interview_date}</span>
+                        <span>
+                          {access.interview_date} · {access.interview_time}
+                          <span className="text-muted">
+                            {" "}
+                            ({access.interview_duration_minutes} {t.list.durationSuffix})
+                          </span>
+                        </span>
                         <button
                           type="button"
                           onClick={() => {
                             setEditingDateCode(access.code);
                             setEditingDate(access.interview_date);
+                            setEditingTime(access.interview_time);
+                            setEditingDuration(access.interview_duration_minutes);
                           }}
                           className="mono dim hover:text-ink"
                         >

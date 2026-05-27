@@ -12,6 +12,8 @@ type ArtistSpaceProps = {
   participantName: string;
   participantContact?: string;
   interviewDate: string;
+  interviewTime: string;
+  interviewDurationMinutes: number;
   expiresAt: string | null;
   visioUrl: string | null;
   providerChangeRequestedProvider?: string | null;
@@ -27,6 +29,9 @@ const copy = {
     titleAccent: "espace",
     titleAfter: " pour cet entretien.",
     date: "Date d'entretien",
+    schedule: "Horaire",
+    durationLabel: "Durée",
+    durationSuffix: "min",
     expiration: "Expiration",
     visio: {
       tag: "[ visio ]",
@@ -111,6 +116,9 @@ const copy = {
     titleAccent: "space",
     titleAfter: " for this interview.",
     date: "Interview date",
+    schedule: "Time",
+    durationLabel: "Duration",
+    durationSuffix: "min",
     expiration: "Expiration",
     visio: {
       tag: "[ visio ]",
@@ -194,6 +202,8 @@ export function ArtistSpace({
   participantName,
   participantContact = "",
   interviewDate,
+  interviewTime,
+  interviewDurationMinutes,
   expiresAt,
   visioUrl,
   providerChangeRequestedProvider = null,
@@ -406,6 +416,17 @@ export function ArtistSpace({
             {interviewDate ? (
               <span>
                 <span className="accent">{t.date}</span> · {interviewDate}
+              </span>
+            ) : null}
+            {interviewTime ? (
+              <span>
+                <span className="accent">{t.schedule}</span> · {interviewTime}
+              </span>
+            ) : null}
+            {interviewDurationMinutes ? (
+              <span>
+                <span className="accent">{t.durationLabel}</span> · {interviewDurationMinutes}{" "}
+                {t.durationSuffix}
               </span>
             ) : null}
             {formattedExpiration ? (

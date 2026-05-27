@@ -23,6 +23,14 @@ function isValidEmail(value: string | null) {
   return Boolean(value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()));
 }
 
+function isValidTime(value: string | undefined) {
+  return Boolean(value && /^([01]\d|2[0-3]):[0-5]\d$/.test(value));
+}
+
+function isValidDuration(value: number | undefined) {
+  return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 24 * 60;
+}
+
 function formatDate(date: string) {
   return new Date(`${date}T00:00:00`).toLocaleDateString("fr-FR", {
     day: "2-digit",
@@ -158,6 +166,8 @@ export async function PATCH(request: NextRequest) {
     code?: string;
     visioUrl?: string | null;
     interviewDate?: string;
+    interviewTime?: string;
+    interviewDurationMinutes?: number;
   };
 
   try {
@@ -170,10 +180,20 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Le code est requis." }, { status: 400 });
   }
 
+  if ("interviewTime" in body && !isValidTime(body.interviewTime)) {
+    return Response.json({ error: "Horaire invalide (HH:MM)." }, { status: 400 });
+  }
+
+  if ("interviewDurationMinutes" in body && !isValidDuration(body.interviewDurationMinutes)) {
+    return Response.json({ error: "Durée invalide (en minutes)." }, { status: 400 });
+  }
+
   try {
     const updates: {
       visio_url?: string | null;
       interview_date?: string;
+      interview_time?: string;
+      interview_duration_minutes?: number;
       provider_change_requested_at?: null;
       provider_change_requested_provider?: null;
     } = {};
@@ -186,6 +206,14 @@ export async function PATCH(request: NextRequest) {
 
     if (body.interviewDate) {
       updates.interview_date = body.interviewDate;
+    }
+
+    if (body.interviewTime) {
+      updates.interview_time = body.interviewTime;
+    }
+
+    if (typeof body.interviewDurationMinutes === "number") {
+      updates.interview_duration_minutes = body.interviewDurationMinutes;
     }
 
     if (Object.keys(updates).length === 0) {
@@ -256,6 +284,8 @@ export async function POST(request: NextRequest) {
     participantName?: string;
     participantContact?: string;
     interviewDate?: string;
+    interviewTime?: string;
+    interviewDurationMinutes?: number;
     expiresAt?: string;
     visioUrl?: string;
   };
@@ -270,11 +300,27 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: "La date d'entretien est requise." }, { status: 400 });
   }
 
+  if (!isValidTime(body.interviewTime)) {
+    return Response.json(
+      { error: "L'horaire d'entretien est requis (format HH:MM)." },
+      { status: 400 }
+    );
+  }
+
+  if (!isValidDuration(body.interviewDurationMinutes)) {
+    return Response.json(
+      { error: "La durée d'entretien est requise (en minutes)." },
+      { status: 400 }
+    );
+  }
+
   const insert: InterviewAccessInsert = {
     code: normalizeAccessCode(generateAccessCode()),
     participant_name: body.participantName || null,
     participant_contact: body.participantContact || null,
     interview_date: body.interviewDate,
+    interview_time: body.interviewTime as string,
+    interview_duration_minutes: body.interviewDurationMinutes as number,
     expires_at: body.expiresAt || null,
     visio_url: body.visioUrl || null
   };
