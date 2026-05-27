@@ -32,7 +32,9 @@ const copy = {
       unknown: "Erreur inconnue.",
       creating: "Création de l'accès...",
       created: "Accès créé.",
-      copied: "Lien copié."
+      copied: "Lien copié.",
+      deleting: "Suppression...",
+      deleted: "Accès supprimé."
     },
     gateway: {
       tag: "[ gateway ]",
@@ -66,6 +68,8 @@ const copy = {
       status: "Statut",
       action: "Action",
       copy: "Copier le lien",
+      delete: "Supprimer",
+      confirmDelete: "Confirmer la suppression de",
       empty: "Aucun accès chargé."
     },
     formPath: "/formulaire"
@@ -78,7 +82,9 @@ const copy = {
       unknown: "Unknown error.",
       creating: "Creating access...",
       created: "Access created.",
-      copied: "Link copied."
+      copied: "Link copied.",
+      deleting: "Deleting...",
+      deleted: "Access deleted."
     },
     gateway: {
       tag: "[ gateway ]",
@@ -112,6 +118,8 @@ const copy = {
       status: "Status",
       action: "Action",
       copy: "Copy link",
+      delete: "Delete",
+      confirmDelete: "Confirm deletion of",
       empty: "No access loaded."
     },
     formPath: "/en/formulaire"
@@ -130,6 +138,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [interviewDate, setInterviewDate] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [status, setStatus] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
 
   const origin = useMemo(() => {
     if (typeof window === "undefined") {
@@ -201,6 +210,21 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   async function copyLink(code: string) {
     await navigator.clipboard.writeText(buildLink(code));
     setStatus(t.status.copied);
+  }
+
+  async function deleteAccess(code: string) {
+    setStatus(t.status.deleting);
+    setPendingDelete(null);
+
+    try {
+      await fetchAdmin(`/api/admin/accesses?code=${encodeURIComponent(code)}`, {
+        method: "DELETE"
+      });
+      setAccesses((current) => current.filter((a) => a.code !== code));
+      setStatus(t.status.deleted);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t.status.unknown);
+    }
   }
 
   return (
@@ -321,13 +345,43 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                   <td className="py-3 pr-4 text-muted">{access.interview_date}</td>
                   <td className="py-3 pr-4 text-muted">{access.status}</td>
                   <td className="py-3 pr-4">
-                    <button
-                      type="button"
-                      onClick={() => copyLink(access.code)}
-                      className="mono dim hover:text-ink"
-                    >
-                      {t.list.copy} →
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => copyLink(access.code)}
+                        className="mono dim hover:text-ink"
+                      >
+                        {t.list.copy} →
+                      </button>
+                      {pendingDelete === access.code ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => deleteAccess(access.code)}
+                            className="mono hover:text-ink"
+                            style={{ color: "var(--accent)" }}
+                          >
+                            {t.list.confirmDelete} {access.code} →
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setPendingDelete(null)}
+                            className="mono dim hover:text-ink"
+                          >
+                            ✕
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setPendingDelete(access.code)}
+                          className="mono dim hover:text-ink"
+                          style={{ opacity: 0.5 }}
+                        >
+                          {t.list.delete}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

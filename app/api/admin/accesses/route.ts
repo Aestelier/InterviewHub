@@ -43,6 +43,34 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return unauthorized();
+  }
+
+  const code = request.nextUrl.searchParams.get("code");
+  if (!code) {
+    return Response.json({ error: "Le paramètre code est requis." }, { status: 400 });
+  }
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase
+      .from("interview_accesses")
+      .delete()
+      .eq("code", code);
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   if (!isAuthorized(request)) {
     return unauthorized();

@@ -4,6 +4,31 @@ import { getSupabaseAdmin, type InterviewAccessRow } from "@/lib/supabaseAdmin";
 
 export const runtime = "nodejs";
 
+export async function DELETE(
+  _request: NextRequest,
+  context: { params: Promise<{ code: string }> }
+) {
+  const { code } = await context.params;
+  const normalizedCode = normalizeAccessCode(code);
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const { error } = await supabase
+      .from("interview_accesses")
+      .delete()
+      .eq("code", normalizedCode);
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ code: string }> }

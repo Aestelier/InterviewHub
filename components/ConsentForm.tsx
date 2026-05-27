@@ -35,6 +35,18 @@ const copy: Record<
       submit: string;
       forget: string;
     };
+    deleteModal: {
+      titleBefore: string;
+      titleAccent: string;
+      titleAfter: string;
+      intro: string;
+      label: string;
+      cancel: string;
+      confirm: string;
+      confirming: string;
+      codeMismatch: string;
+      trigger: string;
+    };
     workspace: {
       tag: string;
       titleBefore: string;
@@ -135,7 +147,21 @@ const copy: Record<
       previewGenerated: "Prévisualisation PDF générée localement.",
       compileFailed: "Compilation PDF impossible.",
       compiling: "Compilation PDF locale en cours...",
-      pdfGenerated: "PDF généré. Aucune donnée n'a été stockée."
+      pdfGenerated: "PDF généré. Aucune donnée n'a été stockée.",
+      deleting: "Suppression de l'accès...",
+      deleteFailed: "Impossible de supprimer l'accès."
+    },
+    deleteModal: {
+      titleBefore: "Supprimer ",
+      titleAccent: "l'accès",
+      titleAfter: ".",
+      intro: "Cette action est irréversible. Le code ne sera plus utilisable. Entrez votre code d'accès pour confirmer.",
+      label: "Code d'accès",
+      cancel: "Annuler",
+      confirm: "Supprimer l'accès",
+      confirming: "Suppression…",
+      codeMismatch: "Le code ne correspond pas.",
+      trigger: "Supprimer cet accès"
     },
     loading: { tag: "[ accès ]", checking: "Vérification de l'accès..." },
     access: {
@@ -254,7 +280,21 @@ const copy: Record<
       previewGenerated: "PDF preview generated locally.",
       compileFailed: "PDF compilation failed.",
       compiling: "Local PDF compilation in progress...",
-      pdfGenerated: "PDF generated. No data has been stored."
+      pdfGenerated: "PDF generated. No data has been stored.",
+      deleting: "Deleting access...",
+      deleteFailed: "Unable to delete access."
+    },
+    deleteModal: {
+      titleBefore: "Delete ",
+      titleAccent: "access",
+      titleAfter: ".",
+      intro: "This action is irreversible. The code will no longer be usable. Enter your access code to confirm.",
+      label: "Access code",
+      cancel: "Cancel",
+      confirm: "Delete access",
+      confirming: "Deleting…",
+      codeMismatch: "The code does not match.",
+      trigger: "Delete this access"
     },
     loading: { tag: "[ access ]", checking: "Checking access..." },
     access: {
@@ -330,6 +370,10 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
   const [previewSignature, setPreviewSignature] = useState("");
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
   const [status, setStatus] = useState("");
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteInput, setDeleteInput] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   const canGenerate = useMemo(
     () =>
@@ -511,6 +555,38 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
     downloadBlob(blob, t.workspace.filename);
     setStatus(t.status.pdfGenerated);
+  }
+
+  async function deleteAccess() {
+    if (deleteInput.trim().toUpperCase() !== accessCode.toUpperCase()) {
+      setDeleteError(t.deleteModal.codeMismatch);
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError("");
+    setStatus(t.status.deleting);
+
+    const response = await fetch(`/api/access/${encodeURIComponent(accessCode)}`, {
+      method: "DELETE"
+    });
+
+    setIsDeleting(false);
+
+    if (!response.ok && response.status !== 204) {
+      setDeleteError(t.status.deleteFailed);
+      setStatus("");
+      return;
+    }
+
+    window.localStorage.removeItem(accessCodeStorageKey);
+    setIsDeleteOpen(false);
+    setDeleteInput("");
+    setAccessCode("");
+    setAccessInput("");
+    setIsAccessReady(false);
+    resetForm();
+    setStatus("");
   }
 
   function resetForm() {
@@ -800,8 +876,82 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
               </li>
             ))}
           </ul>
+          <div style={{ marginTop: 24, paddingTop: 18, borderTop: "1px solid var(--hair)" }}>
+            <button
+              type="button"
+              onClick={() => { setIsDeleteOpen(true); setDeleteInput(""); setDeleteError(""); }}
+              className="text-link"
+              style={{ color: "var(--accent)" }}
+            >
+              {t.deleteModal.trigger}
+            </button>
+          </div>
         </aside>
       </div>
+
+      {isDeleteOpen ? (
+        <div
+          className="preview-backdrop"
+          onClick={() => { if (!isDeleting) setIsDeleteOpen(false); }}
+        >
+          <div
+            className="form-panel"
+            style={{ maxWidth: 420 }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className="mono dim" style={{ color: "var(--accent)" }}>
+              [ suppression ]
+            </span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
+            >
+              {t.deleteModal.titleBefore}
+              <span className="it">{t.deleteModal.titleAccent}</span>
+              {t.deleteModal.titleAfter}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.deleteModal.intro}
+            </p>
+            <div className="form-divider">
+              <label className="form-field">
+                <span className="form-label">{t.deleteModal.label}</span>
+                <input
+                  value={deleteInput}
+                  onChange={(event) => { setDeleteInput(event.target.value.toUpperCase()); setDeleteError(""); }}
+                  className="form-input form-input-code"
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder={accessCode}
+                  disabled={isDeleting}
+                />
+              </label>
+              {deleteError ? (
+                <p className="form-status is-warning" style={{ marginTop: 10 }}>{deleteError}</p>
+              ) : null}
+              <div className="form-action-row" style={{ marginTop: 16 }}>
+                <button
+                  type="button"
+                  onClick={() => void deleteAccess()}
+                  disabled={isDeleting || !deleteInput.trim()}
+                  className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ background: "var(--accent)", borderColor: "var(--accent)" }}
+                >
+                  {isDeleting ? t.deleteModal.confirming : t.deleteModal.confirm}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteOpen(false)}
+                  disabled={isDeleting}
+                  className="text-link"
+                >
+                  {t.deleteModal.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {isPreviewExpanded ? (
         <div className="preview-backdrop" onClick={() => setIsPreviewExpanded(false)}>
