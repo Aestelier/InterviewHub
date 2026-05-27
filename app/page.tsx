@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
+import { LandingMotion } from "@/components/LandingMotion";
 import { Topbar } from "@/components/Topbar";
 
 const parcours = [
@@ -54,6 +55,7 @@ const formDoesNotAllow = [
 export default function Home() {
   return (
     <main className="landing-page">
+      <LandingMotion />
       <Topbar variant="full" />
 
       {/* ─────────── HERO (flux linéaire) ─────────── */}

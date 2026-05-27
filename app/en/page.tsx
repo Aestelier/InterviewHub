@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Footer } from "@/components/Footer";
+import { LandingMotion } from "@/components/LandingMotion";
 import { Topbar } from "@/components/Topbar";
 
 export const metadata: Metadata = {
@@ -61,6 +62,7 @@ const formDoesNotAllow = [
 export default function EnglishHome() {
   return (
     <main className="landing-page">
+      <LandingMotion />
       <Topbar variant="full" locale="en" />
 
       <section className="hero">
