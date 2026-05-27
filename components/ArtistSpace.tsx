@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { accessCodeStorageKey } from "@/lib/accessStorage";
 
@@ -100,8 +100,11 @@ const copy = {
       tag: "[ profil ]",
       trigger: "Voir mon profil",
       title: "Mon profil",
+      titleFirst: "Bienvenue dans votre espace.",
       intro:
         "Mettez à jour le nom et le contact transmis à l'organisateur pour cet entretien.",
+      introFirst:
+        "Pour finaliser votre espace, merci de renseigner votre nom et votre contact. Ces informations seront transmises à l'organisateur pour cet entretien.",
       nameLabel: "Nom d'artiste",
       contactLabel: "Contact (e-mail)",
       namePlaceholder: "Votre nom",
@@ -205,7 +208,10 @@ const copy = {
       tag: "[ profile ]",
       trigger: "View my profile",
       title: "My profile",
+      titleFirst: "Welcome to your space.",
       intro: "Update the name and contact shared with the organiser for this interview.",
+      introFirst:
+        "To finalise your space, please add your name and contact. They will be shared with the organiser for this interview.",
       nameLabel: "Artist name",
       contactLabel: "Contact (email)",
       namePlaceholder: "Your name",
@@ -303,6 +309,19 @@ export function ArtistSpace({
   const [isProfileSaving, setIsProfileSaving] = useState(false);
   const [profileStatus, setProfileStatus] = useState("");
   const [profileError, setProfileError] = useState("");
+  const [isProfileFirstPrompt, setIsProfileFirstPrompt] = useState(false);
+
+  useEffect(() => {
+    if (!profileName.trim() || !profileContact.trim()) {
+      setProfileDraftName(profileName);
+      setProfileDraftContact(profileContact);
+      setProfileStatus("");
+      setProfileError("");
+      setIsProfileFirstPrompt(true);
+      setIsProfileOpen(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function signOut() {
     window.localStorage.removeItem(accessCodeStorageKey);
@@ -339,6 +358,7 @@ export function ArtistSpace({
     setProfileDraftContact(profileContact);
     setProfileStatus("");
     setProfileError("");
+    setIsProfileFirstPrompt(false);
     setIsProfileOpen(true);
   }
 
@@ -943,10 +963,10 @@ export function ArtistSpace({
               className="section-title"
               style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
             >
-              {t.profile.title}
+              {isProfileFirstPrompt ? t.profile.titleFirst : t.profile.title}
             </h2>
             <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
-              {t.profile.intro}
+              {isProfileFirstPrompt ? t.profile.introFirst : t.profile.intro}
             </p>
             <div className="form-divider">
               <div className="field-stack">
