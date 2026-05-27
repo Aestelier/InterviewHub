@@ -14,6 +14,8 @@ type AccessRow = {
   last_opened_at: string | null;
   pdf_generated_at: string | null;
   visio_url: string | null;
+  provider_change_requested_at: string | null;
+  provider_change_requested_provider: string | null;
 };
 
 type AccessResponse = {
@@ -76,6 +78,8 @@ const copy = {
       confirmDelete: "Confirmer la suppression de",
       expiry: "Expiration",
       visio: "Visio",
+      changeRequested: "Changer le lien",
+      requestedProvider: "Demande",
       editVisio: "Modifier",
       saveVisio: "Enregistrer",
       cancel: "Annuler",
@@ -134,6 +138,8 @@ const copy = {
       confirmDelete: "Confirm deletion of",
       expiry: "Expiry",
       visio: "Visio",
+      changeRequested: "Change link",
+      requestedProvider: "Request",
       editVisio: "Edit",
       saveVisio: "Save",
       cancel: "Cancel",
@@ -395,7 +401,51 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             <tbody>
               {accesses.map((access) => (
                 <tr key={access.id} className="border-b border-line">
-                  <td className="py-3 pr-4 font-semibold text-ink">{access.code}</td>
+                  <td className="py-3 pr-4 font-semibold text-ink">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{access.code}</span>
+                      {access.provider_change_requested_at ? (
+                        <span
+                          className="inline-flex items-center gap-1 border px-2 py-1 text-[10px] uppercase tracking-[0.14em]"
+                          style={{
+                            borderColor: "rgba(184, 112, 44, 0.45)",
+                            background: "rgba(184, 112, 44, 0.12)",
+                            color: "rgb(142, 77, 26)"
+                          }}
+                          title={
+                            access.provider_change_requested_provider
+                              ? `${t.list.requestedProvider}: ${access.provider_change_requested_provider}`
+                              : t.list.changeRequested
+                          }
+                        >
+                          <svg
+                            aria-hidden="true"
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                            <path d="M12 9v4" />
+                            <path d="M12 17h.01" />
+                          </svg>
+                          {t.list.changeRequested}
+                        </span>
+                      ) : null}
+                    </div>
+                    {access.provider_change_requested_provider ? (
+                      <div
+                        className="mt-1 text-[11px] font-normal text-muted"
+                        style={{ letterSpacing: 0 }}
+                      >
+                        {t.list.requestedProvider}: {access.provider_change_requested_provider}
+                      </div>
+                    ) : null}
+                  </td>
                   <td className="py-3 pr-4 text-muted">
                     {access.participant_name || "-"}
                   </td>

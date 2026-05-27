@@ -11,7 +11,10 @@ create table if not exists public.interview_accesses (
   last_opened_at timestamptz,
   pdf_generated_at timestamptz,
   consent_snapshot jsonb,
-  template_version text
+  template_version text,
+  visio_url text,
+  provider_change_requested_at timestamptz,
+  provider_change_requested_provider text
 );
 
 create index if not exists interview_accesses_code_idx

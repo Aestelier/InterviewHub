@@ -50,15 +50,25 @@ export async function POST(request: Request) {
       return Response.json({ error: "Accès invalide." }, { status: 403 });
     }
 
-    if (body.requestedProvider === "Discord") {
-      const { error: updateError } = await supabase
-        .from("interview_accesses")
-        .update({ visio_url: "https://discord.com/users/306005027552755713" })
-        .eq("id", access.id);
+    const accessUpdate =
+      body.requestedProvider === "Discord"
+        ? {
+            visio_url: "https://discord.com/users/306005027552755713",
+            provider_change_requested_at: null,
+            provider_change_requested_provider: null
+          }
+        : {
+            provider_change_requested_at: new Date().toISOString(),
+            provider_change_requested_provider: body.requestedProvider
+          };
 
-      if (updateError) {
-        return Response.json({ error: updateError.message }, { status: 500 });
-      }
+    const { error: updateError } = await supabase
+      .from("interview_accesses")
+      .update(accessUpdate)
+      .eq("id", access.id);
+
+    if (updateError) {
+      return Response.json({ error: updateError.message }, { status: 500 });
     }
 
     const subject =

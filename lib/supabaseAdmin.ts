@@ -14,6 +14,8 @@ export type InterviewAccessRow = {
   consent_snapshot: Record<string, boolean> | null;
   template_version: string | null;
   visio_url: string | null;
+  provider_change_requested_at: string | null;
+  provider_change_requested_provider: string | null;
 };
 
 export type InterviewAccessInsert = {

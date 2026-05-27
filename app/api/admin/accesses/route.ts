@@ -101,7 +101,11 @@ export async function PATCH(request: NextRequest) {
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase
       .from("interview_accesses")
-      .update({ visio_url: body.visioUrl || null })
+      .update({
+        visio_url: body.visioUrl || null,
+        provider_change_requested_at: null,
+        provider_change_requested_provider: null
+      })
       .eq("code", normalizeAccessCode(body.code))
       .select("*")
       .single();
