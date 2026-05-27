@@ -26,6 +26,15 @@ type AccessResponse = {
 
 type Locale = "fr" | "en";
 
+const providerTools = [
+  { name: "Google Meet", href: "https://meet.google.com/" },
+  { name: "Brave Talk", href: "https://talk.brave.com/" },
+  { name: "Teams", href: "https://teams.microsoft.com/" },
+  { name: "Proton Meet", href: "https://meet.proton.me/" },
+  { name: "Kmeet", href: "https://kmeet.infomaniak.com/" },
+  { name: "Discord", href: "https://discord.com/users/306005027552755713" }
+];
+
 const copy = {
   fr: {
     status: {
@@ -152,6 +161,33 @@ const copy = {
 type AdminAccessPanelProps = {
   locale?: Locale;
 };
+
+function ProviderToolsButton({ label }: { label: string }) {
+  return (
+    <details className="relative inline-block">
+      <summary className="mono dim cursor-pointer list-none hover:text-ink">
+        {label} <span className="arr" />
+      </summary>
+      <div
+        className="absolute right-0 z-20 mt-2 grid min-w-48 border border-line bg-paper p-2 shadow-sm"
+        style={{ boxShadow: "0 16px 40px rgba(0, 0, 0, 0.12)" }}
+      >
+        {providerTools.map((provider) => (
+          <a
+            key={provider.name}
+            href={provider.href}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
+          >
+            <span>{provider.name}</span>
+            <span className="arr" />
+          </a>
+        ))}
+      </div>
+    </details>
+  );
+}
 
 export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const t = copy[locale];
@@ -362,7 +398,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             />
           </label>
           <label className="grid gap-2 md:col-span-2">
-            <span className="text-sm font-semibold text-ink">{t.create.visioUrl}</span>
+            <span className="flex items-center justify-between gap-3 text-sm font-semibold text-ink">
+              <span>{t.create.visioUrl}</span>
+              <ProviderToolsButton label={locale === "fr" ? "Outils" : "Tools"} />
+            </span>
             <input
               type="url"
               value={visioUrl}
@@ -465,6 +504,9 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                   <td className="py-3 pr-4 text-muted" style={{ minWidth: 260 }}>
                     {editingVisioCode === access.code ? (
                       <div className="grid gap-2">
+                        <div className="flex justify-end">
+                          <ProviderToolsButton label={locale === "fr" ? "Outils" : "Tools"} />
+                        </div>
                         <input
                           type="url"
                           value={editingVisioUrl}
