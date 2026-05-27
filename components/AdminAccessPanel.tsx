@@ -85,6 +85,8 @@ const copy = {
       date: "Date",
       editDate: "Modifier",
       saveDate: "Enregistrer",
+      emailWarning: "Un e-mail sera envoyé au contact après enregistrement.",
+      confirmDateEmail: "Cette modification enverra un e-mail au contact. Continuer ?",
       status: "Statut",
       action: "Action",
       copy: "Copier le lien",
@@ -149,6 +151,8 @@ const copy = {
       date: "Date",
       editDate: "Edit",
       saveDate: "Save",
+      emailWarning: "An email will be sent to the contact after saving.",
+      confirmDateEmail: "This change will email the contact. Continue?",
       status: "Status",
       action: "Action",
       copy: "Copy link",
@@ -196,6 +200,10 @@ function ProviderToolsButton({ label }: { label: string }) {
       </div>
     </details>
   );
+}
+
+function isValidEmail(value: string | null) {
+  return Boolean(value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()));
 }
 
 export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
@@ -540,7 +548,17 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                         <div className="flex flex-wrap gap-3">
                           <button
                             type="button"
-                            onClick={() => updateInterviewDate(access.code)}
+                            onClick={() => {
+                              if (
+                                isValidEmail(access.participant_contact) &&
+                                editingDate !== access.interview_date &&
+                                !window.confirm(t.list.confirmDateEmail)
+                              ) {
+                                return;
+                              }
+
+                              updateInterviewDate(access.code);
+                            }}
                             disabled={!editingDate}
                             className="mono hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
                           >
@@ -557,6 +575,18 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                             {t.list.cancel}
                           </button>
                         </div>
+                        {isValidEmail(access.participant_contact) ? (
+                          <p
+                            className="border px-2 py-1 text-[11px]"
+                            style={{
+                              borderColor: "rgba(184, 112, 44, 0.35)",
+                              background: "rgba(184, 112, 44, 0.10)",
+                              color: "rgb(142, 77, 26)"
+                            }}
+                          >
+                            {t.list.emailWarning}
+                          </p>
+                        ) : null}
                       </div>
                     ) : (
                       <div className="flex flex-wrap items-center gap-3">
