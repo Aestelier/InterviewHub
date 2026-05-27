@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import {
   Document,
+  Font,
   Image,
   Link,
   Page,
@@ -16,6 +17,11 @@ import { consentKeys } from "./consentTypes";
 const RESPONSABLE_NAME = "Guillaume Schneider";
 const RESPONSABLE_CONTACT = "contact@guillaumeschneider.fr";
 const TEMPLATE_VERSION = "2026-05-24";
+
+Font.register({
+  family: "Caveat",
+  src: path.join(process.cwd(), "public", "fonts", "Caveat-Regular.ttf")
+});
 
 const COLORS = {
   ink: "#1F1F1F",
@@ -139,6 +145,18 @@ const styles = StyleSheet.create({
   signatureField: {
     marginBottom: 4
   },
+  handwrittenSignature: {
+    fontFamily: "Caveat",
+    fontSize: 22,
+    color: COLORS.ink,
+    lineHeight: 1.1,
+    marginTop: 6,
+    marginBottom: 8
+  },
+  signatureCaption: {
+    fontSize: 7.5,
+    color: COLORS.muted
+  },
   footer: {
     position: "absolute",
     bottom: 14,
@@ -221,6 +239,11 @@ function ConsentDocument({
   const participant = data.participantName || "________________________";
   const contact = data.participantContact || "________________________";
   const date = data.interviewDate || "________________________";
+  const today = new Date().toLocaleDateString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric"
+  });
 
   return (
     <Document
@@ -399,7 +422,7 @@ function ConsentDocument({
             </View>
             <View style={styles.signatureField}>
               <Text>
-                <Text style={styles.signatureLabel}>Date :</Text> {date}
+                <Text style={styles.signatureLabel}>Date :</Text> {today}
               </Text>
             </View>
             <Text style={styles.signatureLabel}>Signature</Text>
@@ -423,13 +446,18 @@ function ConsentDocument({
             </View>
             <View style={styles.signatureField}>
               <Text>
-                <Text style={styles.signatureLabel}>Date :</Text> {date}
+                <Text style={styles.signatureLabel}>Date :</Text> {today}
               </Text>
             </View>
             {signatureDataUrl ? (
               <Image src={signatureDataUrl} style={{ height: 32, width: "auto" }} />
             ) : (
-              <Text>Signature : {RESPONSABLE_NAME}</Text>
+              <View>
+                <Text style={styles.handwrittenSignature}>{RESPONSABLE_NAME}</Text>
+                <Text style={styles.signatureCaption}>
+                  Signé numériquement par le responsable de l'entretien
+                </Text>
+              </View>
             )}
           </View>
         </View>
