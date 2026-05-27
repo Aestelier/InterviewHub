@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AccessCodeLink } from "@/components/AccessCodeLink";
 
 type TopbarProps = {
   variant?: "full" | "minimal";
@@ -17,8 +18,8 @@ const copy = {
   fr: {
     home: "/",
     navBase: "",
-    formHref: "/formulaire",
-    form: "Accéder au formulaire",
+    formHref: "/espace",
+    form: "Accéder à l’espace artiste",
     back: "Revenir à l’accueil",
     backToSpace: "Revenir à l’espace",
     navLabel: "Navigation principale",
@@ -38,8 +39,8 @@ const copy = {
   en: {
     home: "/en",
     navBase: "/en",
-    formHref: "/en/formulaire",
-    form: "Access the form",
+    formHref: "/en/espace",
+    form: "Access the artist space",
     back: "Back to home",
     backToSpace: "Back to space",
     navLabel: "Primary navigation",
@@ -125,9 +126,9 @@ export function Topbar({ variant = "full", locale = "fr", languageLinks, backLin
               </span>
             ))}
           </div>
-          <Link href={t.formHref} className="pill dark">
+          <AccessCodeLink href={t.formHref} className="pill dark">
             {t.form} <span className="arr" />
-          </Link>
+          </AccessCodeLink>
         </div>
       ) : (
         <div className="right">

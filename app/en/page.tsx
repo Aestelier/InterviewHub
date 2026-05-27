@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { LandingMotion } from "@/components/LandingMotion";
 import { Topbar } from "@/components/Topbar";
+import { AccessCodeLink } from "@/components/AccessCodeLink";
 
 export const metadata: Metadata = {
   title: "Aestelier — Building tools with artists",
@@ -65,13 +65,13 @@ export default function EnglishHome() {
       <LandingMotion />
       <Topbar variant="full" locale="en" />
       <div className="mobile-quick-cta" aria-label="Quick actions">
-        <Link
+        <AccessCodeLink
           href="/en/espace"
           className="mobile-quick-primary"
-          aria-label="Access the artist space with a code"
+          ariaLabel="Access the artist space with a code"
         >
           I have a code
-        </Link>
+        </AccessCodeLink>
         <a
           href="mailto:contact@guillaumeschneider.fr?subject=Question%20about%20Aestelier"
           className="mobile-quick-secondary"
@@ -113,9 +113,9 @@ export default function EnglishHome() {
                   alignItems: "center"
                 }}
               >
-                <Link href="/en/espace" className="pill dark">
+                <AccessCodeLink href="/en/espace" className="pill dark">
                   I have a code, access the space <span className="arr" />
-                </Link>
+                </AccessCodeLink>
                 <a href="#demarche" className="pill">
                   Understand the approach
                 </a>
@@ -436,9 +436,9 @@ export default function EnglishHome() {
               join the call and fill in the consent form.
             </p>
             <div>
-              <Link href="/en/espace" className="pill dark">
+              <AccessCodeLink href="/en/espace" className="pill dark">
                 Access the space <span className="arr" />
-              </Link>
+              </AccessCodeLink>
               <div className="mono" style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}>
                 No account creation
               </div>

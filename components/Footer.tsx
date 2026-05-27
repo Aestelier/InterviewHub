@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AccessCodeLink } from "@/components/AccessCodeLink";
 
 type FooterProps = {
   locale?: "fr" | "en";
@@ -65,7 +66,7 @@ export function Footer({ locale = "fr" }: FooterProps) {
         </div>
         <div className="foot-col">
           <span className="mono dim">[ accès ]</span>
-          <Link href={t.formHref}>{t.access}</Link>
+          <AccessCodeLink href={t.formHref}>{t.access}</AccessCodeLink>
           <a href={`${t.base}/#participer`}>{t.participate}</a>
         </div>
       </div>

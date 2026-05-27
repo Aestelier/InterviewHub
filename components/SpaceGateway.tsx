@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { accessCodeStorageKey } from "@/lib/accessStorage";
 
 type Locale = "fr" | "en";
 
@@ -49,32 +50,64 @@ export function SpaceGateway({ locale = "fr" }: SpaceGatewayProps) {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasCheckedStoredCode, setHasCheckedStoredCode] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    const code = input.trim();
+  useEffect(() => {
+    const storedCode = window.localStorage.getItem(accessCodeStorageKey);
 
-    if (!code) {
+    if (!storedCode) {
+      setHasCheckedStoredCode(true);
+      return;
+    }
+
+    setInput(storedCode);
+    void loadAccess(storedCode, true);
+  }, []);
+
+  async function loadAccess(code: string, isStoredCode = false) {
+    const trimmedCode = code.trim();
+
+    if (!trimmedCode) {
       setError(t.errors.enter);
+      setHasCheckedStoredCode(true);
       return;
     }
 
     setIsLoading(true);
     setError("");
 
-    const response = await fetch(`/api/access/${encodeURIComponent(code)}`, {
+    const response = await fetch(`/api/access/${encodeURIComponent(trimmedCode)}`, {
       cache: "no-store"
     });
+    const body = (await response.json().catch(() => null)) as
+      | { access?: { code: string }; error?: string }
+      | null;
 
     setIsLoading(false);
+    setHasCheckedStoredCode(true);
 
-    if (!response.ok) {
-      setError(t.errors.invalid);
+    if (!response.ok || !body?.access) {
+      if (isStoredCode) {
+        window.localStorage.removeItem(accessCodeStorageKey);
+        setInput("");
+      }
+
+      setError(isStoredCode ? "" : t.errors.invalid);
       return;
     }
 
-    router.push(`${t.spacePath}?code=${encodeURIComponent(code)}`);
+    window.localStorage.setItem(accessCodeStorageKey, body.access.code);
+    router.push(`${t.spacePath}?code=${encodeURIComponent(body.access.code)}`);
+  }
+
+  async function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    await loadAccess(input);
+  }
+
+  if (!hasCheckedStoredCode) {
+    return null;
   }
 
   return (

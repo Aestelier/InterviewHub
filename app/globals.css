@@ -669,11 +669,6 @@ button:hover > .arr {
   display: grid;
   justify-items: start;
 }
-.form-loading {
-  min-height: 240px;
-  display: grid;
-  place-items: center;
-}
 .form-panel,
 .consent-document,
 .form-rail,

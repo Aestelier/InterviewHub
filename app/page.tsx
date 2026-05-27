@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { Footer } from "@/components/Footer";
 import { LandingMotion } from "@/components/LandingMotion";
 import { Topbar } from "@/components/Topbar";
+import { AccessCodeLink } from "@/components/AccessCodeLink";
 
 const parcours = [
   {
@@ -58,13 +58,13 @@ export default function Home() {
       <LandingMotion />
       <Topbar variant="full" />
       <div className="mobile-quick-cta" aria-label="Actions rapides">
-        <Link
+        <AccessCodeLink
           href="/espace"
           className="mobile-quick-primary"
-          aria-label="Accéder à l’espace artiste avec un code"
+          ariaLabel="Accéder à l’espace artiste avec un code"
         >
           J’ai un code
-        </Link>
+        </AccessCodeLink>
         <a
           href="mailto:contact@guillaumeschneider.fr?subject=Question%20sur%20Aestelier"
           className="mobile-quick-secondary"
@@ -109,9 +109,9 @@ export default function Home() {
                   alignItems: "center"
                 }}
               >
-                <Link href="/espace" className="pill dark">
+                <AccessCodeLink href="/espace" className="pill dark">
                   J’ai un code, accéder à l’espace <span className="arr" />
-                </Link>
+                </AccessCodeLink>
                 <a href="#demarche" className="pill">
                   Comprendre la démarche
                 </a>
@@ -445,9 +445,9 @@ export default function Home() {
               rejoindre la visio et remplir le formulaire de consentement.
             </p>
             <div>
-              <Link href="/espace" className="pill dark">
+              <AccessCodeLink href="/espace" className="pill dark">
                 Accéder à l’espace <span className="arr" />
-              </Link>
+              </AccessCodeLink>
               <div
                 className="mono"
                 style={{ marginTop: 16, color: "rgba(244,240,232,0.55)" }}

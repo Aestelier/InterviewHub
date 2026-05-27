@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { accessCodeStorageKey } from "@/lib/accessStorage";
 import {
   defaultConsentFormData,
   type ConsentFormData,
@@ -21,10 +22,6 @@ const copy: Record<
     consentGroups: ConsentGroup[];
     detailedConsentLabels: Record<ConsentKey, string>;
     status: Record<string, string>;
-    loading: {
-      tag: string;
-      checking: string;
-    };
     spacePath: string;
     access: {
       tag: string;
@@ -165,7 +162,6 @@ const copy: Record<
       codeMismatch: "Le code ne correspond pas.",
       trigger: "Supprimer cet accès"
     },
-    loading: { tag: "[ accès ]", checking: "Vérification de l'accès..." },
     spacePath: "/espace",
     access: {
       tag: "[ accès ]",
@@ -299,7 +295,6 @@ const copy: Record<
       codeMismatch: "The code does not match.",
       trigger: "Delete this access"
     },
-    loading: { tag: "[ access ]", checking: "Checking access..." },
     spacePath: "/en/espace",
     access: {
       tag: "[ access ]",
@@ -351,8 +346,6 @@ const copy: Record<
     }
   }
 };
-
-const accessCodeStorageKey = "aestelier:form-access-code";
 
 type ConsentFormProps = {
   initialAccessCode?: string;
@@ -406,7 +399,6 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
   useEffect(() => {
     if (initialAccessCode) {
-      // loadAccess (triggered by the effect above) will set both flags when done
       return;
     }
 
@@ -419,7 +411,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
     if (storedCode) {
       setAccessInput(storedCode);
-      void loadAccess(storedCode, false);
+      void loadAccess(storedCode, true);
     } else {
       setHasCheckedStoredAccess(true);
     }
@@ -430,6 +422,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
     if (!trimmedCode) {
       setStatus(t.status.enterCode);
+      setHasCheckedStoredAccess(true);
       return;
     }
 
@@ -620,14 +613,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
   }
 
   if (!isAccessReady && !hasCheckedStoredAccess) {
-    return (
-      <div className="form-loading">
-        <div className="form-panel form-panel-compact">
-          <span className="mono dim">{t.loading.tag}</span>
-          <p className="form-muted">{t.loading.checking}</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   if (!isAccessReady) {
