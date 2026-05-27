@@ -1379,36 +1379,94 @@ footer.foot {
 
   .landing-page.motion-enhanced .motion-target {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translate3d(0, 18px, 0);
     transition: opacity 680ms cubic-bezier(0.16, 1, 0.3, 1),
-      transform 680ms cubic-bezier(0.16, 1, 0.3, 1);
+      transform 680ms cubic-bezier(0.16, 1, 0.3, 1),
+      filter 680ms cubic-bezier(0.16, 1, 0.3, 1),
+      clip-path 760ms cubic-bezier(0.16, 1, 0.3, 1);
     transition-delay: var(--motion-delay, 0ms);
     will-change: opacity, transform;
   }
 
-  .landing-page.motion-enhanced .motion-target.is-visible {
-    opacity: 1;
-    transform: translateY(0);
+  .landing-page.motion-enhanced .motion-kicker {
+    transform: translate3d(-12px, 0, 0);
+    transition-duration: 520ms;
   }
 
-  .landing-page.motion-enhanced .cell {
+  .landing-page.motion-enhanced .motion-title {
+    transform: translate3d(0, 18px, 0);
+    filter: blur(4px);
+    transition-duration: 820ms;
+  }
+
+  .landing-page.motion-enhanced .motion-lead {
+    transform: translate3d(16px, 0, 0);
+    transition-duration: 720ms;
+  }
+
+  .landing-page.motion-enhanced .motion-copy {
+    transform: translate3d(0, 12px, 0);
+    transition-duration: 640ms;
+  }
+
+  .landing-page.motion-enhanced .motion-list {
+    transform: translate3d(-14px, 0, 0);
+    transition-duration: 560ms;
+  }
+
+  .landing-page.motion-enhanced .itemlist .motion-list:nth-child(2n),
+  .landing-page.motion-enhanced .human-promises .motion-list:nth-child(2n) {
+    transform: translate3d(14px, 0, 0);
+  }
+
+  .landing-page.motion-enhanced .motion-panel {
+    transform: translate3d(0, 30px, 0) scale(0.975);
+    clip-path: inset(0 0 14% 0);
+    transition-duration: 820ms;
+  }
+
+  .landing-page.motion-enhanced .motion-from-left {
+    transform: translate3d(-24px, 0, 0);
+    transition-duration: 820ms;
+  }
+
+  .landing-page.motion-enhanced .motion-from-right {
+    transform: translate3d(24px, 0, 0);
+    transition-duration: 820ms;
+  }
+
+  .landing-page.motion-enhanced .motion-footer {
+    transform: translate3d(0, 18px, 0);
+    transition-duration: 720ms;
+  }
+
+  .landing-page.motion-enhanced .motion-target.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    filter: blur(0);
+    clip-path: inset(0);
+  }
+
+  .landing-page.motion-enhanced .motion-lines {
     --line-scale-x: 0;
     --line-scale-y: 0;
   }
 
-  .landing-page.motion-enhanced .cell::before {
+  .landing-page.motion-enhanced .motion-lines::before {
     transform: scaleX(var(--line-scale-x));
     transform-origin: left center;
     transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--motion-delay, 0ms);
   }
 
-  .landing-page.motion-enhanced .cell::after {
+  .landing-page.motion-enhanced .motion-lines::after {
     transform: scaleY(var(--line-scale-y));
     transform-origin: center top;
     transition: transform 760ms cubic-bezier(0.16, 1, 0.3, 1);
+    transition-delay: var(--motion-delay, 0ms);
   }
 
-  .landing-page.motion-enhanced .cell.is-visible {
+  .landing-page.motion-enhanced .motion-lines.is-visible {
     --line-scale-x: 1;
     --line-scale-y: 1;
   }
