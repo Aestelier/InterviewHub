@@ -47,6 +47,7 @@ const copy = {
         "Aucun lien n'est encore associé à cet entretien. Choisissez le fournisseur que vous préférez.",
       modalCancel: "Annuler",
       modalSubmit: "Envoyer la demande",
+      modalSubmitDiscord: "Changer pour Discord",
       modalSubmitting: "Envoi…",
       modalSent: "Demande envoyée.",
       modalFailed: "Impossible d'envoyer la demande.",
@@ -125,6 +126,7 @@ const copy = {
         "No link is associated with this interview yet. Pick the provider you prefer.",
       modalCancel: "Cancel",
       modalSubmit: "Send request",
+      modalSubmitDiscord: "Switch to Discord",
       modalSubmitting: "Sending...",
       modalSent: "Request sent.",
       modalFailed: "Unable to send the request.",
@@ -191,9 +193,10 @@ export function ArtistSpace({
   const router = useRouter();
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
   const formattedExpiration = formatAccessDate(expiresAt, locale);
-  const visioProvider = getVisioProvider(visioUrl);
+  const [currentVisioUrl, setCurrentVisioUrl] = useState(visioUrl);
+  const visioProvider = getVisioProvider(currentVisioUrl);
   const isDiscordVisio = visioProvider?.name === "Discord";
-  const visioHref = isDiscordVisio ? discordProfileUrl : visioUrl;
+  const visioHref = isDiscordVisio ? discordProfileUrl : currentVisioUrl;
   const visioCta = isDiscordVisio ? t.visio.discordCta : t.visio.cta;
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
@@ -320,6 +323,12 @@ export function ArtistSpace({
       return;
     }
 
+    if (requestedProvider === "Discord") {
+      setCurrentVisioUrl(discordProfileUrl);
+      setIsProviderModalOpen(false);
+      return;
+    }
+
     setProviderRequestStatus(t.visio.modalSent);
   }
 
@@ -437,13 +446,13 @@ export function ArtistSpace({
                 className="section-title"
                 style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
               >
-                {visioUrl ? t.visio.title : t.visio.missingTitle}
+                {currentVisioUrl ? t.visio.title : t.visio.missingTitle}
               </h2>
               <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
-                {visioUrl ? t.visio.intro : t.visio.missingIntro}
+                {currentVisioUrl ? t.visio.intro : t.visio.missingIntro}
               </p>
             </div>
-            {visioUrl ? (
+            {currentVisioUrl ? (
               <div
                 style={{
                   display: "flex",
@@ -453,7 +462,7 @@ export function ArtistSpace({
                 }}
               >
                 <a
-                  href={visioHref ?? visioUrl}
+                  href={visioHref ?? currentVisioUrl ?? "#"}
                   target="_blank"
                   rel="noreferrer"
                   className="pill dark"
@@ -733,10 +742,10 @@ export function ArtistSpace({
               className="section-title"
               style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
             >
-              {visioUrl ? t.visio.modalTitle : t.visio.modalTitleMissing}
+              {currentVisioUrl ? t.visio.modalTitle : t.visio.modalTitleMissing}
             </h2>
             <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
-              {visioUrl ? t.visio.modalIntro : t.visio.modalIntroMissing}
+              {currentVisioUrl ? t.visio.modalIntro : t.visio.modalIntroMissing}
             </p>
             {visioProvider ? (
               <div
@@ -819,7 +828,11 @@ export function ArtistSpace({
                   disabled={!requestedProvider || isProviderRequestSending}
                   className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {isProviderRequestSending ? t.visio.modalSubmitting : t.visio.modalSubmit}
+                  {isProviderRequestSending
+                    ? t.visio.modalSubmitting
+                    : requestedProvider === "Discord"
+                      ? t.visio.modalSubmitDiscord
+                      : t.visio.modalSubmit}
                   <span className="arr" />
                 </button>
                 <button
