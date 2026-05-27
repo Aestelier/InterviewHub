@@ -57,6 +57,17 @@ export default function Home() {
     <main className="landing-page">
       <LandingMotion />
       <Topbar variant="full" />
+      <div className="mobile-quick-cta" aria-label="Actions rapides">
+        <Link href="/formulaire" className="mobile-quick-primary">
+          J’ai un code
+        </Link>
+        <a
+          href="mailto:contact@guillaumeschneider.fr?subject=Question%20sur%20Aestelier"
+          className="mobile-quick-secondary"
+        >
+          Me contacter
+        </a>
+      </div>
 
       {/* ─────────── HERO (flux linéaire) ─────────── */}
       <section className="hero">

@@ -64,6 +64,17 @@ export default function EnglishHome() {
     <main className="landing-page">
       <LandingMotion />
       <Topbar variant="full" locale="en" />
+      <div className="mobile-quick-cta" aria-label="Quick actions">
+        <Link href="/en/formulaire" className="mobile-quick-primary">
+          I have a code
+        </Link>
+        <a
+          href="mailto:contact@guillaumeschneider.fr?subject=Question%20about%20Aestelier"
+          className="mobile-quick-secondary"
+        >
+          Contact me
+        </a>
+      </div>
 
       <section className="hero">
         <div className="hero-inner">
