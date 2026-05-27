@@ -14,6 +14,7 @@ type ArtistSpaceProps = {
   interviewDate: string;
   expiresAt: string | null;
   visioUrl: string | null;
+  providerChangeRequestedProvider?: string | null;
   locale?: Locale;
 };
 
@@ -51,7 +52,10 @@ const copy = {
       modalSubmitting: "Envoi…",
       modalSent: "Demande envoyée.",
       modalFailed: "Impossible d'envoyer la demande.",
-      currentProvider: "Fournisseur actuel"
+      currentProvider: "Fournisseur actuel",
+      pendingTag: "[ en attente ]",
+      pendingLabel: "Changement demandé vers",
+      pendingHint: "L'organisateur vous transmettra le nouveau lien."
     },
     form: {
       tag: "[ consentement ]",
@@ -130,7 +134,10 @@ const copy = {
       modalSubmitting: "Sending...",
       modalSent: "Request sent.",
       modalFailed: "Unable to send the request.",
-      currentProvider: "Current provider"
+      currentProvider: "Current provider",
+      pendingTag: "[ pending ]",
+      pendingLabel: "Change requested to",
+      pendingHint: "The organiser will share the new link."
     },
     form: {
       tag: "[ consent ]",
@@ -187,6 +194,7 @@ export function ArtistSpace({
   interviewDate,
   expiresAt,
   visioUrl,
+  providerChangeRequestedProvider = null,
   locale = "fr"
 }: ArtistSpaceProps) {
   const t = copy[locale];
@@ -194,6 +202,10 @@ export function ArtistSpace({
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
   const formattedExpiration = formatAccessDate(expiresAt, locale);
   const [currentVisioUrl, setCurrentVisioUrl] = useState(visioUrl);
+  const [pendingProvider, setPendingProvider] = useState<string | null>(
+    providerChangeRequestedProvider ?? null
+  );
+  const pendingProviderInfo = pendingProvider ? getProviderInfo(pendingProvider) : null;
   const visioProvider = getVisioProvider(currentVisioUrl);
   const isDiscordVisio = visioProvider?.name === "Discord";
   const visioHref = isDiscordVisio ? discordProfileUrl : currentVisioUrl;
@@ -325,10 +337,12 @@ export function ArtistSpace({
 
     if (requestedProvider === "Discord") {
       setCurrentVisioUrl(discordProfileUrl);
+      setPendingProvider(null);
       setIsProviderModalOpen(false);
       return;
     }
 
+    setPendingProvider(requestedProvider);
     setProviderRequestStatus(t.visio.modalSent);
   }
 
@@ -451,6 +465,50 @@ export function ArtistSpace({
               <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
                 {currentVisioUrl ? t.visio.intro : t.visio.missingIntro}
               </p>
+              {pendingProviderInfo ? (
+                <div
+                  style={{
+                    marginTop: 16,
+                    padding: "12px 14px",
+                    border: "1px solid rgba(122, 96, 70, 0.45)",
+                    background: "rgba(139, 92, 54, 0.07)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 6
+                  }}
+                >
+                  <span className="mono dim" style={{ color: "var(--accent)" }}>
+                    {t.visio.pendingTag}
+                  </span>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 8,
+                      fontSize: 15,
+                      fontWeight: 500,
+                      color: "var(--encre)"
+                    }}
+                  >
+                    {t.visio.pendingLabel}
+                    <img
+                      src={pendingProviderInfo.iconUrl}
+                      alt=""
+                      aria-hidden="true"
+                      width={16}
+                      height={16}
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
+                      style={{ width: 16, height: 16, borderRadius: 3 }}
+                    />
+                    {pendingProviderInfo.name}
+                  </span>
+                  <span className="mono dim" style={{ fontSize: 12 }}>
+                    {t.visio.pendingHint}
+                  </span>
+                </div>
+              ) : null}
             </div>
             {currentVisioUrl ? (
               <div
@@ -914,13 +972,24 @@ function faviconUrl(domain: string) {
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`;
 }
 
+const providerCatalog = [
+  { name: "Google Meet", iconUrl: faviconUrl("meet.google.com") },
+  { name: "Brave Talk", iconUrl: faviconUrl("brave.com") },
+  { name: "Teams", iconUrl: faviconUrl("teams.microsoft.com") },
+  { name: "Proton Meet", iconUrl: faviconUrl("proton.me") },
+  { name: "Kmeet", iconUrl: faviconUrl("infomaniak.com") },
+  { name: "Discord", iconUrl: faviconUrl("discord.com") }
+];
+
 function getProviderOptions(currentProvider?: string) {
-  return [
-    { name: "Google Meet", iconUrl: faviconUrl("meet.google.com") },
-    { name: "Brave Talk", iconUrl: faviconUrl("brave.com") },
-    { name: "Teams", iconUrl: faviconUrl("teams.microsoft.com") },
-    { name: "Proton Meet", iconUrl: faviconUrl("proton.me") },
-    { name: "Kmeet", iconUrl: faviconUrl("infomaniak.com") },
-    { name: "Discord", iconUrl: faviconUrl("discord.com") }
-  ].filter((provider) => provider.name !== currentProvider);
+  return providerCatalog.filter((provider) => provider.name !== currentProvider);
+}
+
+function getProviderInfo(name: string) {
+  return (
+    providerCatalog.find((provider) => provider.name === name) ?? {
+      name,
+      iconUrl: faviconUrl(name)
+    }
+  );
 }

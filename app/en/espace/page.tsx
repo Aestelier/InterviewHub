@@ -67,6 +67,7 @@ export default async function EnEspacePage({
         interviewDate={access.interview_date}
         expiresAt={access.expires_at}
         visioUrl={access.visio_url}
+        providerChangeRequestedProvider={access.provider_change_requested_provider}
         locale="en"
       />
       <Footer locale="en" />
