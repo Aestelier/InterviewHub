@@ -117,6 +117,7 @@ export function ArtistSpace({
   const router = useRouter();
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
   const formattedExpiration = formatAccessDate(expiresAt, locale);
+  const visioProvider = getVisioProvider(visioUrl);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
@@ -225,7 +226,35 @@ export function ArtistSpace({
               style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
             >
               <div>
-                <span className="mono dim">{t.visio.tag}</span>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: 14
+                  }}
+                >
+                  <span className="mono dim">{t.visio.tag}</span>
+                  {visioProvider ? (
+                    <span
+                      className="mono dim"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 8 }}
+                    >
+                      <img
+                        src={visioProvider.iconUrl}
+                        alt=""
+                        aria-hidden="true"
+                        width={16}
+                        height={16}
+                        onError={(event) => {
+                          event.currentTarget.style.display = "none";
+                        }}
+                        style={{ width: 16, height: 16, borderRadius: 3 }}
+                      />
+                      {visioProvider.name}
+                    </span>
+                  ) : null}
+                </div>
                 <h2
                   className="section-title"
                   style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
@@ -384,4 +413,44 @@ function formatAccessDate(value: string | null, locale: Locale) {
   return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     dateStyle: "medium"
   }).format(date);
+}
+
+function getVisioProvider(value: string | null) {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const hostname = new URL(value).hostname.replace(/^www\./, "");
+    const providers = [
+      { match: "zoom.us", name: "Zoom", iconDomain: "zoom.us" },
+      { match: "meet.google.com", name: "Google Meet", iconDomain: "meet.google.com" },
+      { match: "teams.microsoft.com", name: "Microsoft Teams", iconDomain: "teams.microsoft.com" },
+      { match: "whereby.com", name: "Whereby", iconDomain: "whereby.com" },
+      { match: "meet.jit.si", name: "Jitsi Meet", iconDomain: "meet.jit.si" },
+      { match: "meet.proton.me", name: "Proton Meet", iconDomain: "proton.me" },
+      { match: "discord.com", name: "Discord", iconDomain: "discord.com" }
+    ];
+    const provider = providers.find(
+      ({ match }) => hostname === match || hostname.endsWith(`.${match}`)
+    );
+
+    if (!provider) {
+      return {
+        name: hostname,
+        iconUrl: faviconUrl(hostname)
+      };
+    }
+
+    return {
+      name: provider.name,
+      iconUrl: faviconUrl(provider.iconDomain)
+    };
+  } catch {
+    return null;
+  }
+}
+
+function faviconUrl(domain: string) {
+  return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`;
 }
