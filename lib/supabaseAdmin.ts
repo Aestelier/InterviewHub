@@ -8,6 +8,7 @@ export type InterviewAccessRow = {
   interview_date: string;
   interview_time: string;
   interview_duration_minutes: number;
+  language: "fr" | "en";
   status: "created" | "opened" | "pdf_generated" | "expired" | "revoked";
   expires_at: string | null;
   created_at: string;
@@ -27,6 +28,7 @@ export type InterviewAccessInsert = {
   interview_date: string;
   interview_time: string;
   interview_duration_minutes: number;
+  language?: "fr" | "en";
   expires_at?: string | null;
   visio_url?: string | null;
 };

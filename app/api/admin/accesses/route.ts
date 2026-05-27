@@ -31,12 +31,24 @@ function isValidDuration(value: number | undefined) {
   return typeof value === "number" && Number.isInteger(value) && value > 0 && value <= 24 * 60;
 }
 
-function formatDate(date: string) {
-  return new Date(`${date}T00:00:00`).toLocaleDateString("fr-FR", {
+function formatDate(date: string, locale: "fr" | "en" = "fr") {
+  return new Date(`${date}T00:00:00`).toLocaleDateString(locale === "en" ? "en-GB" : "fr-FR", {
     day: "2-digit",
     month: "long",
     year: "numeric"
   });
+}
+
+function formatTime(time: string, locale: "fr" | "en") {
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
+  if (!match || locale !== "en") {
+    return time;
+  }
+  const hours24 = Number(match[1]);
+  const minutes = match[2];
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hours12 = hours24 % 12 || 12;
+  return `${hours12}:${minutes} ${period}`;
 }
 
 function buildAccessLink(request: NextRequest, code: string) {
@@ -53,7 +65,8 @@ async function sendInterviewScheduleChangeEmail({
   newTime,
   oldDuration,
   newDuration,
-  accessLink
+  accessLink,
+  language
 }: {
   to: string;
   code: string;
@@ -64,12 +77,49 @@ async function sendInterviewScheduleChangeEmail({
   oldDuration: number;
   newDuration: number;
   accessLink: string;
+  language: "fr" | "en";
 }) {
   const resendApiKey = process.env.RESEND_API_KEY;
 
   if (!resendApiKey) {
     throw new Error("Service e-mail non configure.");
   }
+
+  const subject =
+    language === "en"
+      ? "Update to your interview schedule"
+      : "Mise a jour de l'horaire de votre entretien";
+
+  const text =
+    language === "en"
+      ? [
+          "Hello,",
+          "",
+          "Your Aestelier interview schedule has been updated.",
+          "",
+          `Previous slot: ${formatDate(oldDate, "en")} at ${formatTime(oldTime, "en")} (${oldDuration} min)`,
+          `New slot: ${formatDate(newDate, "en")} at ${formatTime(newTime, "en")} (${newDuration} min)`,
+          "",
+          `Artist space: ${accessLink}`,
+          `Access code: ${code}`,
+          "",
+          "See you soon,",
+          "Aestelier"
+        ].join("\n")
+      : [
+          "Bonjour,",
+          "",
+          "L'horaire de votre entretien Aestelier a ete mis a jour.",
+          "",
+          `Ancien creneau: ${formatDate(oldDate)} a ${oldTime} (${oldDuration} min)`,
+          `Nouveau creneau: ${formatDate(newDate)} a ${newTime} (${newDuration} min)`,
+          "",
+          `Espace artiste: ${accessLink}`,
+          `Code d'acces: ${code}`,
+          "",
+          "A bientot,",
+          "Aestelier"
+        ].join("\n");
 
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -83,21 +133,8 @@ async function sendInterviewScheduleChangeEmail({
         process.env.PROVIDER_CHANGE_EMAIL_FROM ||
         "Aestelier <onboarding@resend.dev>",
       to,
-      subject: "Mise a jour de l'horaire de votre entretien",
-      text: [
-        "Bonjour,",
-        "",
-        "L'horaire de votre entretien Aestelier a ete mis a jour.",
-        "",
-        `Ancien creneau: ${formatDate(oldDate)} a ${oldTime} (${oldDuration} min)`,
-        `Nouveau creneau: ${formatDate(newDate)} a ${newTime} (${newDuration} min)`,
-        "",
-        `Espace artiste: ${accessLink}`,
-        `Code d'acces: ${code}`,
-        "",
-        "A bientot,",
-        "Aestelier"
-      ].join("\n")
+      subject,
+      text
     })
   });
 
@@ -176,6 +213,7 @@ export async function PATCH(request: NextRequest) {
     interviewDate?: string;
     interviewTime?: string;
     interviewDurationMinutes?: number;
+    language?: "fr" | "en";
   };
 
   try {
@@ -196,12 +234,17 @@ export async function PATCH(request: NextRequest) {
     return Response.json({ error: "Durée invalide (en minutes)." }, { status: 400 });
   }
 
+  if ("language" in body && body.language !== "fr" && body.language !== "en") {
+    return Response.json({ error: "Langue invalide (fr ou en)." }, { status: 400 });
+  }
+
   try {
     const updates: {
       visio_url?: string | null;
       interview_date?: string;
       interview_time?: string;
       interview_duration_minutes?: number;
+      language?: "fr" | "en";
       provider_change_requested_at?: null;
       provider_change_requested_provider?: null;
     } = {};
@@ -222,6 +265,10 @@ export async function PATCH(request: NextRequest) {
 
     if (typeof body.interviewDurationMinutes === "number") {
       updates.interview_duration_minutes = body.interviewDurationMinutes;
+    }
+
+    if (body.language) {
+      updates.language = body.language;
     }
 
     if (Object.keys(updates).length === 0) {
@@ -271,7 +318,8 @@ export async function PATCH(request: NextRequest) {
           newTime: updatedAccess.interview_time,
           oldDuration: previousAccess.interview_duration_minutes,
           newDuration: updatedAccess.interview_duration_minutes,
-          accessLink: buildAccessLink(request, updatedAccess.code)
+          accessLink: buildAccessLink(request, updatedAccess.code),
+          language: updatedAccess.language ?? "fr"
         });
       } catch (emailError) {
         warning =
@@ -299,6 +347,7 @@ export async function POST(request: NextRequest) {
     interviewDate?: string;
     interviewTime?: string;
     interviewDurationMinutes?: number;
+    language?: "fr" | "en";
     expiresAt?: string;
     visioUrl?: string;
   };
@@ -327,6 +376,10 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  if (body.language && body.language !== "fr" && body.language !== "en") {
+    return Response.json({ error: "Langue invalide (fr ou en)." }, { status: 400 });
+  }
+
   const insert: InterviewAccessInsert = {
     code: normalizeAccessCode(generateAccessCode()),
     participant_name: body.participantName || null,
@@ -334,6 +387,7 @@ export async function POST(request: NextRequest) {
     interview_date: body.interviewDate,
     interview_time: body.interviewTime as string,
     interview_duration_minutes: body.interviewDurationMinutes as number,
+    language: body.language ?? "fr",
     expires_at: body.expiresAt || null,
     visio_url: body.visioUrl || null
   };

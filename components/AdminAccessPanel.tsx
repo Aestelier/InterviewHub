@@ -10,6 +10,7 @@ type AccessRow = {
   interview_date: string;
   interview_time: string;
   interview_duration_minutes: number;
+  language: "fr" | "en";
   status: string;
   expires_at: string | null;
   created_at: string;
@@ -79,6 +80,9 @@ const copy = {
       date: "Date d'entretien",
       time: "Horaire (HH:MM)",
       duration: "Durée (minutes)",
+      language: "Langue des e-mails",
+      languageFr: "Français",
+      languageEn: "Anglais",
       artist: "Artiste (optionnel)",
       contact: "Contact (optionnel)",
       expiry: "Expiration optionnelle",
@@ -95,6 +99,11 @@ const copy = {
       duration: "Durée",
       time: "Heure",
       durationSuffix: "min",
+      language: "Langue",
+      languageEdit: "Modifier la langue",
+      languageSave: "Enregistrer",
+      languageFr: "Français",
+      languageEn: "Anglais",
       editDate: "Modifier",
       saveDate: "Enregistrer",
       emailWarning: "Un e-mail sera envoyé au contact après enregistrement.",
@@ -155,6 +164,9 @@ const copy = {
       date: "Interview date",
       time: "Time (HH:MM)",
       duration: "Duration (minutes)",
+      language: "Email language",
+      languageFr: "French",
+      languageEn: "English",
       artist: "Artist (optional)",
       contact: "Contact (optional)",
       expiry: "Optional expiry",
@@ -171,6 +183,11 @@ const copy = {
       duration: "Duration",
       time: "Time",
       durationSuffix: "min",
+      language: "Language",
+      languageEdit: "Change language",
+      languageSave: "Save",
+      languageFr: "French",
+      languageEn: "English",
       editDate: "Edit",
       saveDate: "Save",
       emailWarning: "An email will be sent to the contact after saving.",
@@ -238,6 +255,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [interviewDate, setInterviewDate] = useState("");
   const [interviewTime, setInterviewTime] = useState("14:00");
   const [interviewDurationMinutes, setInterviewDurationMinutes] = useState(60);
+  const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [expiresAt, setExpiresAt] = useState("");
   const [visioUrl, setVisioUrl] = useState("");
   const [status, setStatus] = useState("");
@@ -300,6 +318,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           interviewDate,
           interviewTime,
           interviewDurationMinutes,
+          language,
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
           visioUrl: visioUrl || undefined
         })
@@ -314,6 +333,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       setInterviewDate("");
       setInterviewTime("14:00");
       setInterviewDurationMinutes(60);
+      setLanguage("fr");
       setExpiresAt("");
       setVisioUrl("");
       setStatus(t.status.created);
@@ -367,6 +387,23 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       setEditingVisioCode(null);
       setEditingVisioUrl("");
       setStatus(t.status.updatedVisio);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t.status.unknown);
+    }
+  }
+
+  async function updateLanguage(code: string, nextLanguage: "fr" | "en") {
+    try {
+      const body = await fetchAdmin("/api/admin/accesses", {
+        method: "PATCH",
+        body: JSON.stringify({ code, language: nextLanguage })
+      });
+
+      if (body.access) {
+        setAccesses((current) =>
+          current.map((access) => (access.code === code ? (body.access as AccessRow) : access))
+        );
+      }
     } catch (error) {
       setStatus(error instanceof Error ? error.message : t.status.unknown);
     }
@@ -517,6 +554,17 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             />
           </label>
           <label className="grid gap-2">
+            <span className="text-sm font-semibold text-ink">{t.create.language}</span>
+            <select
+              value={language}
+              onChange={(event) => setLanguage(event.target.value as "fr" | "en")}
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            >
+              <option value="fr">{t.create.languageFr}</option>
+              <option value="en">{t.create.languageEn}</option>
+            </select>
+          </label>
+          <label className="grid gap-2">
             <span className="text-sm font-semibold text-ink">{t.create.expiry}</span>
             <input
               type="datetime-local"
@@ -564,6 +612,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                 <th className="py-3 pr-4">{t.list.artist}</th>
                 <th className="py-3 pr-4">{t.list.contact}</th>
                 <th className="py-3 pr-4">{t.list.date}</th>
+                <th className="py-3 pr-4">{t.list.language}</th>
                 <th className="py-3 pr-4">{t.list.status}</th>
                 <th className="py-3 pr-4">{t.list.expiry}</th>
                 <th className="py-3 pr-4">{t.list.visio}</th>
@@ -722,6 +771,18 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                       </div>
                     )}
                   </td>
+                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 110 }}>
+                    <select
+                      value={access.language}
+                      onChange={(event) =>
+                        updateLanguage(access.code, event.target.value as "fr" | "en")
+                      }
+                      className="min-h-9 border border-line bg-paper px-2 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                    >
+                      <option value="fr">{t.list.languageFr}</option>
+                      <option value="en">{t.list.languageEn}</option>
+                    </select>
+                  </td>
                   <td className="py-3 pr-4 text-muted">{access.status}</td>
                   <td className="py-3 pr-4 text-muted" style={{ minWidth: 80 }}>
                     {access.expires_at
@@ -835,7 +896,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
               ))}
               {accesses.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-6 text-center text-muted">
+                  <td colSpan={9} className="py-6 text-center text-muted">
                     {t.list.empty}
                   </td>
                 </tr>
