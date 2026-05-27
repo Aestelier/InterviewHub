@@ -367,9 +367,7 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
   const [accessInput, setAccessInput] = useState(initialAccessCode);
   const [isAccessReady, setIsAccessReady] = useState(false);
   const [isAccessLoading, setIsAccessLoading] = useState(false);
-  const [hasCheckedStoredAccess, setHasCheckedStoredAccess] = useState(
-    Boolean(initialAccessCode)
-  );
+  const [hasCheckedStoredAccess, setHasCheckedStoredAccess] = useState(false);
   const [editedConsentSets, setEditedConsentSets] = useState<Record<string, boolean>>({});
   const [pdfPreviewUrl, setPdfPreviewUrl] = useState("");
   const [previewSignature, setPreviewSignature] = useState("");
@@ -407,7 +405,12 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
   }, [initialAccessCode]);
 
   useEffect(() => {
-    if (initialAccessCode || isAccessReady) {
+    if (initialAccessCode) {
+      // loadAccess (triggered by the effect above) will set both flags when done
+      return;
+    }
+
+    if (isAccessReady) {
       setHasCheckedStoredAccess(true);
       return;
     }
