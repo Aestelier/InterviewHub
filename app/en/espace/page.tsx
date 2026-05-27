@@ -63,6 +63,7 @@ export default async function EnEspacePage({
       <ArtistSpace
         code={access.code}
         participantName={access.participant_name ?? ""}
+        participantContact={access.participant_contact ?? ""}
         interviewDate={access.interview_date}
         expiresAt={access.expires_at}
         visioUrl={access.visio_url}

@@ -10,6 +10,7 @@ type Locale = "fr" | "en";
 type ArtistSpaceProps = {
   code: string;
   participantName: string;
+  participantContact?: string;
   interviewDate: string;
   expiresAt: string | null;
   visioUrl: string | null;
@@ -33,10 +34,17 @@ const copy = {
       cta: "Rejoindre la visio",
       discordCta: "Ajouter en ami sur Discord",
       changeProvider: "Demander un autre fournisseur",
+      missingTitle: "Pas encore de lien",
+      missingIntro:
+        "Il semble que vous n'avez pas de lien de visio pour cet entretien.",
+      missingCta: "Demander un lien",
       modalTag: "[ fournisseur ]",
       modalTitle: "Changer de fournisseur visio.",
+      modalTitleMissing: "Demander un lien de visio.",
       modalIntro:
         "La visio actuelle reste disponible. Cette demande sert à proposer une alternative.",
+      modalIntroMissing:
+        "Aucun lien n'est encore associé à cet entretien. Choisissez le fournisseur que vous préférez.",
       modalCancel: "Annuler",
       modalSubmit: "Envoyer la demande",
       modalSubmitting: "Envoi…",
@@ -55,6 +63,23 @@ const copy = {
     spacePath: "/espace",
     signOut: "Se déconnecter",
     signOutHint: "Retire ce code de ce navigateur.",
+    profile: {
+      tag: "[ profil ]",
+      trigger: "Voir mon profil",
+      title: "Mon profil",
+      intro:
+        "Mettez à jour le nom et le contact transmis à l'organisateur pour cet entretien.",
+      nameLabel: "Nom d'artiste",
+      contactLabel: "Contact (e-mail)",
+      namePlaceholder: "Votre nom",
+      contactPlaceholder: "vous@exemple.com",
+      save: "Enregistrer",
+      saving: "Enregistrement…",
+      cancel: "Fermer",
+      saved: "Profil mis à jour.",
+      failed: "Impossible de mettre à jour le profil.",
+      empty: "Non renseigné"
+    },
     deleteAccess: {
       tag: "[ suppression ]",
       trigger: "Supprimer cet accès",
@@ -110,6 +135,22 @@ const copy = {
     spacePath: "/en/espace",
     signOut: "Sign out",
     signOutHint: "Removes this code from this browser.",
+    profile: {
+      tag: "[ profile ]",
+      trigger: "View my profile",
+      title: "My profile",
+      intro: "Update the name and contact shared with the organiser for this interview.",
+      nameLabel: "Artist name",
+      contactLabel: "Contact (email)",
+      namePlaceholder: "Your name",
+      contactPlaceholder: "you@example.com",
+      save: "Save",
+      saving: "Saving…",
+      cancel: "Close",
+      saved: "Profile updated.",
+      failed: "Unable to update the profile.",
+      empty: "Not provided"
+    },
     deleteAccess: {
       tag: "[ deletion ]",
       trigger: "Delete this access",
@@ -134,6 +175,7 @@ const copy = {
 export function ArtistSpace({
   code,
   participantName,
+  participantContact = "",
   interviewDate,
   expiresAt,
   visioUrl,
@@ -156,6 +198,14 @@ export function ArtistSpace({
   const [requestedProvider, setRequestedProvider] = useState(providerOptions[0]?.name ?? "");
   const [isProviderRequestSending, setIsProviderRequestSending] = useState(false);
   const [providerRequestStatus, setProviderRequestStatus] = useState("");
+  const [profileName, setProfileName] = useState(participantName);
+  const [profileContact, setProfileContact] = useState(participantContact);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [profileDraftName, setProfileDraftName] = useState(participantName);
+  const [profileDraftContact, setProfileDraftContact] = useState(participantContact);
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [profileStatus, setProfileStatus] = useState("");
+  const [profileError, setProfileError] = useState("");
 
   function signOut() {
     window.localStorage.removeItem(accessCodeStorageKey);
@@ -185,6 +235,49 @@ export function ArtistSpace({
     window.localStorage.removeItem(accessCodeStorageKey);
     setIsDeleteOpen(false);
     router.replace(t.spacePath);
+  }
+
+  function openProfileModal() {
+    setProfileDraftName(profileName);
+    setProfileDraftContact(profileContact);
+    setProfileStatus("");
+    setProfileError("");
+    setIsProfileOpen(true);
+  }
+
+  async function saveProfile() {
+    setIsProfileSaving(true);
+    setProfileStatus("");
+    setProfileError("");
+
+    const response = await fetch(`/api/access/${encodeURIComponent(code)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        participantName: profileDraftName,
+        participantContact: profileDraftContact
+      })
+    });
+
+    setIsProfileSaving(false);
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      setProfileError(body?.error ?? t.profile.failed);
+      return;
+    }
+
+    const body = (await response.json().catch(() => null)) as {
+      access?: { participantName?: string; participantContact?: string };
+    } | null;
+
+    const nextName = body?.access?.participantName ?? profileDraftName.trim();
+    const nextContact = body?.access?.participantContact ?? profileDraftContact.trim();
+    setProfileName(nextName);
+    setProfileContact(nextContact);
+    setProfileDraftName(nextName);
+    setProfileDraftContact(nextContact);
+    setProfileStatus(t.profile.saved);
   }
 
   function openProviderModal() {
@@ -247,12 +340,17 @@ export function ArtistSpace({
               {t.titleAfter}
             </h1>
           </div>
-          <button type="button" onClick={signOut} className="pill" title={t.signOutHint}>
-            {t.signOut} <span className="arr" />
-          </button>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button type="button" onClick={openProfileModal} className="pill">
+              {t.profile.trigger} <span className="arr" />
+            </button>
+            <button type="button" onClick={signOut} className="pill" title={t.signOutHint}>
+              {t.signOut} <span className="arr" />
+            </button>
+          </div>
         </div>
 
-        {participantName || interviewDate || formattedExpiration ? (
+        {profileName || profileContact || interviewDate || formattedExpiration ? (
           <div
             className="mono dim"
             style={{
@@ -264,9 +362,14 @@ export function ArtistSpace({
               paddingTop: 16
             }}
           >
-            {participantName ? (
+            {profileName ? (
               <span>
-                <span className="accent">Artiste</span> · {participantName}
+                <span className="accent">Artiste</span> · {profileName}
+              </span>
+            ) : null}
+            {profileContact ? (
+              <span>
+                <span className="accent">Contact</span> · {profileContact}
               </span>
             ) : null}
             {interviewDate ? (
@@ -404,6 +507,132 @@ export function ArtistSpace({
           </button>
         </div>
       </div>
+
+      {isProfileOpen ? (
+        <div
+          className="preview-backdrop"
+          onClick={() => {
+            if (!isProfileSaving) setIsProfileOpen(false);
+          }}
+        >
+          <div
+            className="form-panel"
+            style={{
+              maxWidth: 460,
+              background: "var(--papier)",
+              boxShadow: "0 24px 60px rgba(12, 10, 8, 0.28)",
+              position: "relative"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                if (!isProfileSaving) setIsProfileOpen(false);
+              }}
+              aria-label={t.profile.cancel}
+              disabled={isProfileSaving}
+              style={{
+                position: "absolute",
+                top: 14,
+                right: 14,
+                width: 28,
+                height: 28,
+                display: "grid",
+                placeItems: "center",
+                border: "1px solid var(--hair)",
+                background: "transparent",
+                color: "var(--encre-2)",
+                cursor: isProfileSaving ? "not-allowed" : "pointer",
+                fontSize: 16,
+                lineHeight: 1
+              }}
+            >
+              ×
+            </button>
+            <span className="mono dim">{t.profile.tag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
+            >
+              {t.profile.title}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.profile.intro}
+            </p>
+            <div className="form-divider">
+              <div className="field-stack">
+                <label className="form-field">
+                  <span className="form-label">{t.profile.nameLabel}</span>
+                  <input
+                    value={profileDraftName}
+                    onChange={(event) => {
+                      setProfileDraftName(event.target.value);
+                      setProfileStatus("");
+                      setProfileError("");
+                    }}
+                    className="form-input"
+                    autoComplete="name"
+                    spellCheck={false}
+                    placeholder={t.profile.namePlaceholder}
+                    disabled={isProfileSaving}
+                  />
+                </label>
+                <label className="form-field">
+                  <span className="form-label">{t.profile.contactLabel}</span>
+                  <input
+                    value={profileDraftContact}
+                    onChange={(event) => {
+                      setProfileDraftContact(event.target.value);
+                      setProfileStatus("");
+                      setProfileError("");
+                    }}
+                    className="form-input"
+                    type="email"
+                    autoComplete="email"
+                    spellCheck={false}
+                    placeholder={t.profile.contactPlaceholder}
+                    disabled={isProfileSaving}
+                  />
+                </label>
+              </div>
+              {profileError ? (
+                <p className="form-status is-warning" style={{ marginTop: 14 }}>
+                  {profileError}
+                </p>
+              ) : null}
+              {profileStatus ? (
+                <p className="form-status" style={{ marginTop: 14 }}>
+                  {profileStatus}
+                </p>
+              ) : null}
+              <div className="form-action-row" style={{ marginTop: 20 }}>
+                <button
+                  type="button"
+                  onClick={() => void saveProfile()}
+                  disabled={
+                    isProfileSaving ||
+                    (profileDraftName.trim() === profileName.trim() &&
+                      profileDraftContact.trim() === profileContact.trim())
+                  }
+                  className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isProfileSaving ? t.profile.saving : t.profile.save}
+                  <span className="arr" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(false)}
+                  disabled={isProfileSaving}
+                  className="text-link"
+                >
+                  {t.profile.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {isDeleteOpen ? (
         <div

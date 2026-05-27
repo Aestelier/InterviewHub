@@ -45,6 +45,80 @@ export async function DELETE(
   }
 }
 
+export async function PATCH(
+  request: NextRequest,
+  context: { params: Promise<{ code: string }> }
+) {
+  const { code } = await context.params;
+  const normalizedCode = normalizeAccessCode(code);
+
+  let body: { participantName?: string; participantContact?: string };
+
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return Response.json({ error: "JSON invalide." }, { status: 400 });
+  }
+
+  if (!("participantName" in body) && !("participantContact" in body)) {
+    return Response.json({ error: "Aucune modification fournie." }, { status: 400 });
+  }
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: existing, error: fetchError } = await supabase
+      .from("interview_accesses")
+      .select("id, status, expires_at")
+      .eq("code", normalizedCode)
+      .single();
+
+    if (fetchError || !existing) {
+      return Response.json({ error: "Code inconnu." }, { status: 404 });
+    }
+
+    const access = existing as Pick<InterviewAccessRow, "id" | "status" | "expires_at">;
+
+    if (access.status === "revoked" || isExpired(access.expires_at)) {
+      return Response.json({ error: "Accès invalide." }, { status: 403 });
+    }
+
+    const updates: { participant_name?: string | null; participant_contact?: string | null } = {};
+
+    if ("participantName" in body) {
+      const trimmed = (body.participantName ?? "").trim();
+      updates.participant_name = trimmed ? trimmed : null;
+    }
+
+    if ("participantContact" in body) {
+      const trimmed = (body.participantContact ?? "").trim();
+      updates.participant_contact = trimmed ? trimmed : null;
+    }
+
+    const { data, error } = await supabase
+      .from("interview_accesses")
+      .update(updates)
+      .eq("id", access.id)
+      .select("participant_name, participant_contact")
+      .single();
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    const updated = data as Pick<InterviewAccessRow, "participant_name" | "participant_contact">;
+
+    return Response.json({
+      access: {
+        participantName: updated.participant_name ?? "",
+        participantContact: updated.participant_contact ?? ""
+      }
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ code: string }> }
