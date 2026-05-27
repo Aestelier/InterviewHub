@@ -1277,14 +1277,14 @@ function formatTime(value: string, locale: Locale) {
   if (!match) {
     return value;
   }
-  if (locale !== "en") {
-    return value;
-  }
   const hours24 = Number(match[1]);
   const minutes = match[2];
-  const period = hours24 >= 12 ? "PM" : "AM";
-  const hours12 = hours24 % 12 || 12;
-  return `${hours12}:${minutes} ${period}`;
+  if (locale === "en") {
+    const period = hours24 >= 12 ? "PM" : "AM";
+    const hours12 = hours24 % 12 || 12;
+    return `${hours12}:${minutes} ${period}`;
+  }
+  return `${hours24}h${minutes}`;
 }
 
 function getVisioProvider(value: string | null) {

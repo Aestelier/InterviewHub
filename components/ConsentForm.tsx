@@ -44,6 +44,7 @@ const copy: Record<
       nameLabel: string;
       contactLabel: string;
       dateLabel: string;
+      timeLabel: string;
       consentTitle: string;
       hide: string;
       details: string;
@@ -160,6 +161,7 @@ const copy: Record<
       nameLabel: "Nom, pseudonyme ou handle du/de la participant(e)",
       contactLabel: "Adresse e-mail ou moyen de contact",
       dateLabel: "Date de l'entretien",
+      timeLabel: "Horaire de l'entretien",
       consentTitle: "Consentements",
       hide: "Masquer",
       details: "Détails",
@@ -279,6 +281,7 @@ const copy: Record<
       nameLabel: "Participant name, pseudonym, or handle",
       contactLabel: "Email address or contact method",
       dateLabel: "Interview date",
+      timeLabel: "Interview time",
       consentTitle: "Consent",
       hide: "Hide",
       details: "Details",
@@ -394,6 +397,8 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
             participantName: string;
             participantContact: string;
             interviewDate: string;
+            interviewTime: string;
+            interviewDurationMinutes: number;
             visioUrl: string | null;
           };
           error?: string;
@@ -422,7 +427,8 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
       ...current,
       participantName: body.access?.participantName ?? current.participantName,
       participantContact: body.access?.participantContact ?? current.participantContact,
-      interviewDate: body.access?.interviewDate ?? current.interviewDate
+      interviewDate: body.access?.interviewDate ?? current.interviewDate,
+      interviewTime: body.access?.interviewTime ?? current.interviewTime
     }));
     setIsAccessReady(true);
     setHasCheckedStoredAccess(true);
@@ -660,6 +666,16 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
                     type="date"
                     value={formData.interviewDate}
                     onChange={(event) => updateField("interviewDate", event.target.value)}
+                    className="form-input"
+                  />
+                </label>
+
+                <label className="form-field">
+                  <span className="form-label">{t.workspace.timeLabel}</span>
+                  <input
+                    type="time"
+                    value={formData.interviewTime}
+                    onChange={(event) => updateField("interviewTime", event.target.value)}
                     className="form-input"
                   />
                 </label>

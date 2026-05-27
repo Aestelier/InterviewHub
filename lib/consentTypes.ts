@@ -18,6 +18,7 @@ export type ConsentFormData = {
   participantName: string;
   participantContact: string;
   interviewDate: string;
+  interviewTime: string;
   interviewType: InterviewType;
   consents: Record<ConsentKey, boolean>;
 };
@@ -41,6 +42,7 @@ export const defaultConsentFormData: ConsentFormData = {
   participantName: "",
   participantContact: "",
   interviewDate: "",
+  interviewTime: "",
   interviewType: "notes",
   consents: {
     participation: false,

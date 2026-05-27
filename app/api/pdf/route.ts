@@ -28,40 +28,59 @@ export async function POST(request: NextRequest) {
 
   try {
     const formData = normalizeData(body);
-    const pdf = await generateConsentPdf(formData);
+
+    let access:
+      | { id: string; language: "fr" | "en"; status: string; expires_at: string | null }
+      | null = null;
 
     if (body.accessCode && isSupabaseConfigured()) {
       const supabase = getSupabaseAdmin();
       const accessCode = normalizeAccessCode(body.accessCode);
       const { data } = await supabase
         .from("interview_accesses")
-        .select("id, expires_at, status")
+        .select("id, language, status, expires_at")
         .eq("code", accessCode)
         .single();
 
-      if (
-        data &&
-        data.status !== "revoked" &&
-        !isExpired(data.expires_at as string | null)
-      ) {
-        await supabase
-          .from("interview_accesses")
-          .update({
-            participant_name: formData.participantName || null,
-            participant_contact: formData.participantContact || null,
-            status: "pdf_generated",
-            pdf_generated_at: new Date().toISOString(),
-            consent_snapshot: formData.consents,
-            template_version: consentTemplateVersion
-          })
-          .eq("id", data.id as string);
+      if (data) {
+        access = {
+          id: data.id as string,
+          language: (data.language as "fr" | "en") ?? "fr",
+          status: data.status as string,
+          expires_at: data.expires_at as string | null
+        };
       }
     }
+
+    const locale = access?.language ?? "fr";
+    const pdf = await generateConsentPdf(formData, locale);
+
+    if (
+      access &&
+      access.status !== "revoked" &&
+      !isExpired(access.expires_at)
+    ) {
+      const supabase = getSupabaseAdmin();
+      await supabase
+        .from("interview_accesses")
+        .update({
+          participant_name: formData.participantName || null,
+          participant_contact: formData.participantContact || null,
+          status: "pdf_generated",
+          pdf_generated_at: new Date().toISOString(),
+          consent_snapshot: formData.consents,
+          template_version: consentTemplateVersion
+        })
+        .eq("id", access.id);
+    }
+
+    const filename =
+      locale === "en" ? "aestelier-consent.pdf" : "aestelier-consentement.pdf";
 
     return new Response(new Uint8Array(pdf), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": 'attachment; filename="aestelier-consentement.pdf"',
+        "Content-Disposition": `attachment; filename="${filename}"`,
         "Cache-Control": "no-store"
       }
     });
