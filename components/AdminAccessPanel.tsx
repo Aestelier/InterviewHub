@@ -73,6 +73,8 @@ const copy = {
       titleAccent: "entretien",
       titleAfter: ".",
       date: "Date d'entretien",
+      artist: "Artiste (optionnel)",
+      contact: "Contact (optionnel)",
       expiry: "Expiration optionnelle",
       visioUrl: "Lien visio (optionnel)",
       submit: "Générer un accès"
@@ -139,6 +141,8 @@ const copy = {
       titleAccent: "interview",
       titleAfter: " link.",
       date: "Interview date",
+      artist: "Artist (optional)",
+      contact: "Contact (optional)",
       expiry: "Optional expiry",
       visioUrl: "Visio link (optional)",
       submit: "Generate access"
@@ -211,6 +215,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [token, setToken] = useState("");
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [accesses, setAccesses] = useState<AccessRow[]>([]);
+  const [participantName, setParticipantName] = useState("");
+  const [participantContact, setParticipantContact] = useState("");
   const [interviewDate, setInterviewDate] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [visioUrl, setVisioUrl] = useState("");
@@ -267,6 +273,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       const body = await fetchAdmin("/api/admin/accesses", {
         method: "POST",
         body: JSON.stringify({
+          participantName: participantName || undefined,
+          participantContact: participantContact || undefined,
           interviewDate,
           expiresAt: expiresAt ? new Date(expiresAt).toISOString() : undefined,
           visioUrl: visioUrl || undefined
@@ -277,6 +285,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         setAccesses((current) => [body.access as AccessRow, ...current]);
       }
 
+      setParticipantName("");
+      setParticipantContact("");
       setInterviewDate("");
       setExpiresAt("");
       setVisioUrl("");
@@ -424,6 +434,26 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           {t.create.titleAfter}
         </h3>
         <div className="mt-5 grid gap-5 md:grid-cols-2">
+          <label className="grid gap-2">
+            <span className="text-sm font-semibold text-ink">{t.create.artist}</span>
+            <input
+              type="text"
+              value={participantName}
+              onChange={(event) => setParticipantName(event.target.value)}
+              placeholder={locale === "fr" ? "Nom de l'artiste" : "Artist name"}
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="text-sm font-semibold text-ink">{t.create.contact}</span>
+            <input
+              type="text"
+              value={participantContact}
+              onChange={(event) => setParticipantContact(event.target.value)}
+              placeholder={locale === "fr" ? "E-mail ou contact" : "Email or contact"}
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
           <label className="grid gap-2">
             <span className="text-sm font-semibold text-ink">{t.create.date}</span>
             <input

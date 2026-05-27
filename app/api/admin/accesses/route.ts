@@ -253,6 +253,8 @@ export async function POST(request: NextRequest) {
   }
 
   let body: {
+    participantName?: string;
+    participantContact?: string;
     interviewDate?: string;
     expiresAt?: string;
     visioUrl?: string;
@@ -270,6 +272,8 @@ export async function POST(request: NextRequest) {
 
   const insert: InterviewAccessInsert = {
     code: normalizeAccessCode(generateAccessCode()),
+    participant_name: body.participantName || null,
+    participant_contact: body.participantContact || null,
     interview_date: body.interviewDate,
     expires_at: body.expiresAt || null,
     visio_url: body.visioUrl || null
