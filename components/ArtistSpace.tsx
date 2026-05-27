@@ -31,7 +31,7 @@ const copy = {
       title: "Rejoindre l'entretien",
       intro: "Lien transmis par l'organisateur pour cette session.",
       cta: "Rejoindre la visio",
-      discordCta: "Ajoute-moi sur Discord",
+      discordCta: "Ajouter en ami sur Discord",
       changeProvider: "Demander un autre fournisseur",
       modalTag: "[ fournisseur ]",
       modalTitle: "Changer de fournisseur visio.",
@@ -39,6 +39,9 @@ const copy = {
         "La visio actuelle reste disponible. Cette demande sert à proposer une alternative.",
       modalCancel: "Annuler",
       modalSubmit: "Envoyer la demande",
+      modalSubmitting: "Envoi…",
+      modalSent: "Demande envoyée.",
+      modalFailed: "Impossible d'envoyer la demande.",
       currentProvider: "Fournisseur actuel"
     },
     form: {
@@ -91,6 +94,9 @@ const copy = {
         "The current call link stays available. This request only proposes an alternative.",
       modalCancel: "Cancel",
       modalSubmit: "Send request",
+      modalSubmitting: "Sending...",
+      modalSent: "Request sent.",
+      modalFailed: "Unable to send the request.",
       currentProvider: "Current provider"
     },
     form: {
@@ -148,6 +154,8 @@ export function ArtistSpace({
   const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
   const providerOptions = getProviderOptions(visioProvider?.name);
   const [requestedProvider, setRequestedProvider] = useState(providerOptions[0]?.name ?? "");
+  const [isProviderRequestSending, setIsProviderRequestSending] = useState(false);
+  const [providerRequestStatus, setProviderRequestStatus] = useState("");
 
   function signOut() {
     window.localStorage.removeItem(accessCodeStorageKey);
@@ -182,43 +190,38 @@ export function ArtistSpace({
   function openProviderModal() {
     const options = getProviderOptions(visioProvider?.name);
     setRequestedProvider(options[0]?.name ?? "");
+    setProviderRequestStatus("");
     setIsProviderModalOpen(true);
   }
 
-  function requestProviderChange() {
+  async function requestProviderChange() {
     if (!requestedProvider) {
       return;
     }
 
-    const subject =
-      locale === "fr"
-        ? `Demande de changement de fournisseur visio - ${code}`
-        : `Video provider change request - ${code}`;
-    const body =
-      locale === "fr"
-        ? [
-            `Code d'accès : ${code}`,
-            `Fournisseur actuel : ${visioProvider?.name ?? "Non identifié"}`,
-            `Fournisseur demandé : ${requestedProvider}`,
-            ...(requestedProvider === "Discord"
-              ? [`Lien Discord à utiliser : ${discordProfileUrl}`]
-              : []),
-            "",
-            "Merci de mettre à jour le lien visio depuis le panel admin."
-          ].join("\n")
-        : [
-            `Access code: ${code}`,
-            `Current provider: ${visioProvider?.name ?? "Unknown"}`,
-            `Requested provider: ${requestedProvider}`,
-            ...(requestedProvider === "Discord"
-              ? [`Discord link to use: ${discordProfileUrl}`]
-              : []),
-            "",
-            "Please update the video link from the admin panel."
-          ].join("\n");
+    setIsProviderRequestSending(true);
+    setProviderRequestStatus("");
 
-    window.location.href = `mailto:aestelier@horidus.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setIsProviderModalOpen(false);
+    const response = await fetch("/api/provider-change", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        currentProvider: visioProvider?.name,
+        requestedProvider,
+        locale
+      })
+    });
+
+    setIsProviderRequestSending(false);
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      setProviderRequestStatus(body?.error ?? t.visio.modalFailed);
+      return;
+    }
+
+    setProviderRequestStatus(t.visio.modalSent);
   }
 
   return (
@@ -570,10 +573,11 @@ export function ArtistSpace({
                 <button
                   type="button"
                   onClick={requestProviderChange}
-                  disabled={!requestedProvider}
+                  disabled={!requestedProvider || isProviderRequestSending}
                   className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
                 >
-                  {t.visio.modalSubmit} <span className="arr" />
+                  {isProviderRequestSending ? t.visio.modalSubmitting : t.visio.modalSubmit}
+                  <span className="arr" />
                 </button>
                 <button
                   type="button"
@@ -583,6 +587,11 @@ export function ArtistSpace({
                   {t.visio.modalCancel}
                 </button>
               </div>
+              {providerRequestStatus ? (
+                <p className="form-status" style={{ marginTop: 12 }}>
+                  {providerRequestStatus}
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
