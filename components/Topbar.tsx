@@ -7,6 +7,10 @@ type TopbarProps = {
     fr: string;
     en: string;
   };
+  backLink?: {
+    href: string;
+    label: string;
+  };
 };
 
 const copy = {
@@ -16,6 +20,7 @@ const copy = {
     formHref: "/formulaire",
     form: "Accéder au formulaire",
     back: "Revenir à l’accueil",
+    backToSpace: "Revenir à l’espace",
     navLabel: "Navigation principale",
     links: [
       ["Démarche", "demarche"],
@@ -36,6 +41,7 @@ const copy = {
     formHref: "/en/formulaire",
     form: "Access the form",
     back: "Back to home",
+    backToSpace: "Back to space",
     navLabel: "Primary navigation",
     links: [
       ["Approach", "demarche"],
@@ -52,7 +58,7 @@ const copy = {
   }
 } as const;
 
-export function Topbar({ variant = "full", locale = "fr", languageLinks }: TopbarProps) {
+export function Topbar({ variant = "full", locale = "fr", languageLinks, backLink }: TopbarProps) {
   const t = copy[locale];
   const languages = languageLinks
     ? [
@@ -152,8 +158,8 @@ export function Topbar({ variant = "full", locale = "fr", languageLinks }: Topba
               ))}
             </div>
           ) : null}
-          <Link href={t.home} className="pill dark">
-            {t.back} <span className="arr" />
+          <Link href={backLink?.href ?? t.home} className="pill dark">
+            {backLink?.label ?? t.back} <span className="arr" />
           </Link>
         </div>
       )}

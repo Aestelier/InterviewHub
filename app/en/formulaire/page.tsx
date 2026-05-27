@@ -18,6 +18,7 @@ export default async function EnglishFormPage({
           fr: code ? `/formulaire?code=${encodeURIComponent(code)}` : "/formulaire",
           en: code ? `/en/formulaire?code=${encodeURIComponent(code)}` : "/en/formulaire"
         }}
+        backLink={code ? { href: `/en/espace?code=${encodeURIComponent(code)}`, label: "Back to space" } : undefined}
       />
 
       <section className="form-intro">
