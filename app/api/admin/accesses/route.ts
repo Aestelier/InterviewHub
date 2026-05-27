@@ -44,17 +44,25 @@ function buildAccessLink(request: NextRequest, code: string) {
   return `${origin}/espace?code=${encodeURIComponent(code)}`;
 }
 
-async function sendInterviewDateChangeEmail({
+async function sendInterviewScheduleChangeEmail({
   to,
   code,
   oldDate,
   newDate,
+  oldTime,
+  newTime,
+  oldDuration,
+  newDuration,
   accessLink
 }: {
   to: string;
   code: string;
   oldDate: string;
   newDate: string;
+  oldTime: string;
+  newTime: string;
+  oldDuration: number;
+  newDuration: number;
   accessLink: string;
 }) {
   const resendApiKey = process.env.RESEND_API_KEY;
@@ -75,14 +83,14 @@ async function sendInterviewDateChangeEmail({
         process.env.PROVIDER_CHANGE_EMAIL_FROM ||
         "Aestelier <onboarding@resend.dev>",
       to,
-      subject: "Mise a jour de la date de votre entretien",
+      subject: "Mise a jour de l'horaire de votre entretien",
       text: [
         "Bonjour,",
         "",
-        "La date de votre entretien Aestelier a ete mise a jour.",
+        "L'horaire de votre entretien Aestelier a ete mis a jour.",
         "",
-        `Ancienne date: ${formatDate(oldDate)}`,
-        `Nouvelle date: ${formatDate(newDate)}`,
+        `Ancien creneau: ${formatDate(oldDate)} a ${oldTime} (${oldDuration} min)`,
+        `Nouveau creneau: ${formatDate(newDate)} a ${newTime} (${newDuration} min)`,
         "",
         `Espace artiste: ${accessLink}`,
         `Code d'acces: ${code}`,
@@ -247,24 +255,29 @@ export async function PATCH(request: NextRequest) {
     const previousAccess = currentAccess as InterviewAccessRow;
     const updatedAccess = data as InterviewAccessRow;
 
-    if (
-      body.interviewDate &&
-      previousAccess.interview_date !== body.interviewDate &&
-      isValidEmail(previousAccess.participant_contact)
-    ) {
+    const scheduleChanged =
+      previousAccess.interview_date !== updatedAccess.interview_date ||
+      previousAccess.interview_time !== updatedAccess.interview_time ||
+      previousAccess.interview_duration_minutes !== updatedAccess.interview_duration_minutes;
+
+    if (scheduleChanged && isValidEmail(previousAccess.participant_contact)) {
       try {
-        await sendInterviewDateChangeEmail({
+        await sendInterviewScheduleChangeEmail({
           to: previousAccess.participant_contact as string,
           code: updatedAccess.code,
           oldDate: previousAccess.interview_date,
           newDate: updatedAccess.interview_date,
+          oldTime: previousAccess.interview_time,
+          newTime: updatedAccess.interview_time,
+          oldDuration: previousAccess.interview_duration_minutes,
+          newDuration: updatedAccess.interview_duration_minutes,
           accessLink: buildAccessLink(request, updatedAccess.code)
         });
       } catch (emailError) {
         warning =
           emailError instanceof Error
-            ? `Date mise a jour, mais e-mail non envoye: ${emailError.message}`
-            : "Date mise a jour, mais e-mail non envoye.";
+            ? `Horaire mis a jour, mais e-mail non envoye: ${emailError.message}`
+            : "Horaire mis a jour, mais e-mail non envoye.";
       }
     }
 
