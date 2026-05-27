@@ -65,12 +65,17 @@ export default function EnglishHome() {
       <LandingMotion />
       <Topbar variant="full" locale="en" />
       <div className="mobile-quick-cta" aria-label="Quick actions">
-        <Link href="/en/formulaire" className="mobile-quick-primary">
+        <Link
+          href="/en/formulaire"
+          className="mobile-quick-primary"
+          aria-label="Access the form with a code"
+        >
           I have a code
         </Link>
         <a
           href="mailto:contact@guillaumeschneider.fr?subject=Question%20about%20Aestelier"
           className="mobile-quick-secondary"
+          aria-label="Contact Guillaume Schneider by email"
         >
           Contact me
         </a>

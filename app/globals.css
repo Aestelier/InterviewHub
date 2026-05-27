@@ -61,6 +61,43 @@ textarea {
   font: inherit;
 }
 
+:where(a, button, input, select, textarea, [tabindex]):focus {
+  outline: none;
+}
+
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.solid-accent :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+.solid-encre :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+.cta-band :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+.human-band :where(a, button, input, select, textarea, [tabindex]):focus-visible,
+.research-pulse :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline-color: var(--papier);
+  box-shadow: 0 0 0 6px rgba(244, 240, 232, 0.18);
+}
+
+#main-content:focus {
+  outline: none;
+}
+
+.skip-link {
+  position: fixed;
+  left: 16px;
+  top: 16px;
+  z-index: 100;
+  padding: 10px 14px;
+  background: var(--encre);
+  color: var(--papier);
+  transform: translateY(-140%);
+  transition: transform 180ms ease;
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 /* ─── tokens ─── */
 .mono {
   font-family: var(--font-stack-mono);
@@ -246,7 +283,7 @@ section.bloc.tight {
 }
 .solid-encre .mono,
 .solid-encre .mono.dim {
-  color: rgba(244, 240, 232, 0.6);
+  color: rgba(244, 240, 232, 0.82);
 }
 .solid-encre .prose {
   color: var(--papier);
@@ -265,7 +302,7 @@ section.bloc.tight {
   border-color: rgba(244, 240, 232, 0.18);
 }
 .solid-encre .itemlist .num {
-  color: rgba(244, 240, 232, 0.55);
+  color: rgba(244, 240, 232, 0.78);
 }
 
 .tinted {
@@ -282,7 +319,7 @@ section.bloc.tight {
 }
 .solid-accent .mono,
 .solid-accent .mono.dim {
-  color: rgba(244, 240, 232, 0.78);
+  color: rgba(244, 240, 232, 0.9);
 }
 .solid-accent .section-title {
   color: var(--papier);
@@ -293,7 +330,7 @@ section.bloc.tight {
 }
 .solid-accent .itemlist .num,
 .solid-accent .itemlist.deny .num {
-  color: rgba(244, 240, 232, 0.6);
+  color: rgba(244, 240, 232, 0.8);
 }
 
 /* responsive grille éditoriale */

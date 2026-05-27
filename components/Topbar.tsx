@@ -16,6 +16,7 @@ const copy = {
     formHref: "/formulaire",
     form: "Accéder au formulaire",
     back: "Revenir à l’accueil",
+    navLabel: "Navigation principale",
     links: [
       ["Démarche", "demarche"],
       ["Entretiens", "entretiens"],
@@ -35,6 +36,7 @@ const copy = {
     formHref: "/en/formulaire",
     form: "Access the form",
     back: "Back to home",
+    navLabel: "Primary navigation",
     links: [
       ["Approach", "demarche"],
       ["Interviews", "entretiens"],
@@ -65,7 +67,8 @@ export function Topbar({ variant = "full", locale = "fr", languageLinks }: Topba
         <Link href={t.home} className="brand-link" style={{ color: "inherit" }}>
           <img
             src="/aestelier_logo_accent.svg"
-            alt="Aestelier"
+            alt=""
+            aria-hidden="true"
             width={22}
             height={19}
             style={{ display: "block", height: 22, width: "auto" }}
@@ -78,7 +81,7 @@ export function Topbar({ variant = "full", locale = "fr", languageLinks }: Topba
       </div>
 
       {variant === "full" ? (
-        <nav>
+        <nav aria-label={t.navLabel}>
           {t.links.map(([label, id]) => (
             <Link key={id} href={`${t.navBase}/#${id}`}>
               {label}
@@ -95,11 +98,16 @@ export function Topbar({ variant = "full", locale = "fr", languageLinks }: Topba
             {languages.map((language, index) => (
               <span key={language.label} className="language-option-wrap">
                 {language.active ? (
-                  <span className="language-option is-active" aria-current="true">
-                    {language.label}
+                  <span className="language-option is-active" aria-current="page">
+                    <span lang={language.label === "FR" ? "fr" : "en"}>{language.label}</span>
                   </span>
                 ) : (
-                  <Link href={language.href} className="language-option">
+                  <Link
+                    href={language.href}
+                    className="language-option"
+                    hrefLang={language.label === "FR" ? "fr" : "en"}
+                    lang={language.label === "FR" ? "fr" : "en"}
+                  >
                     {language.label}
                   </Link>
                 )}
@@ -122,11 +130,16 @@ export function Topbar({ variant = "full", locale = "fr", languageLinks }: Topba
               {languages.map((language, index) => (
                 <span key={language.label} className="language-option-wrap">
                   {language.active ? (
-                    <span className="language-option is-active" aria-current="true">
-                      {language.label}
+                    <span className="language-option is-active" aria-current="page">
+                      <span lang={language.label === "FR" ? "fr" : "en"}>{language.label}</span>
                     </span>
                   ) : (
-                    <Link href={language.href} className="language-option">
+                    <Link
+                      href={language.href}
+                      className="language-option"
+                      hrefLang={language.label === "FR" ? "fr" : "en"}
+                      lang={language.label === "FR" ? "fr" : "en"}
+                    >
                       {language.label}
                     </Link>
                   )}

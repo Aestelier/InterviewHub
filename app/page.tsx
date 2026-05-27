@@ -58,12 +58,17 @@ export default function Home() {
       <LandingMotion />
       <Topbar variant="full" />
       <div className="mobile-quick-cta" aria-label="Actions rapides">
-        <Link href="/formulaire" className="mobile-quick-primary">
+        <Link
+          href="/formulaire"
+          className="mobile-quick-primary"
+          aria-label="Accéder au formulaire avec un code"
+        >
           J’ai un code
         </Link>
         <a
           href="mailto:contact@guillaumeschneider.fr?subject=Question%20sur%20Aestelier"
           className="mobile-quick-secondary"
+          aria-label="Contacter Guillaume Schneider par e-mail"
         >
           Me contacter
         </a>
