@@ -70,6 +70,7 @@ const copy = {
       copy: "Copier le lien",
       delete: "Supprimer",
       confirmDelete: "Confirmer la suppression de",
+      expiry: "Expiration",
       empty: "Aucun accès chargé."
     },
     formPath: "/formulaire"
@@ -120,6 +121,7 @@ const copy = {
       copy: "Copy link",
       delete: "Delete",
       confirmDelete: "Confirm deletion of",
+      expiry: "Expiry",
       empty: "No access loaded."
     },
     formPath: "/en/formulaire"
@@ -329,6 +331,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                 <th className="py-3 pr-4">{t.list.contact}</th>
                 <th className="py-3 pr-4">{t.list.date}</th>
                 <th className="py-3 pr-4">{t.list.status}</th>
+                <th className="py-3 pr-4">{t.list.expiry}</th>
                 <th className="py-3 pr-4">{t.list.action}</th>
               </tr>
             </thead>
@@ -344,6 +347,14 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                   </td>
                   <td className="py-3 pr-4 text-muted">{access.interview_date}</td>
                   <td className="py-3 pr-4 text-muted">{access.status}</td>
+                  <td className="py-3 pr-4 text-muted">
+                    {access.expires_at
+                      ? new Date(access.expires_at).toLocaleDateString(
+                          locale === "fr" ? "fr-FR" : "en-GB",
+                          { day: "2-digit", month: "2-digit", year: "numeric" }
+                        )
+                      : "—"}
+                  </td>
                   <td className="py-3 pr-4">
                     <div className="flex flex-wrap items-center gap-3">
                       <button
@@ -387,7 +398,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
               ))}
               {accesses.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-6 text-center text-muted">
+                  <td colSpan={7} className="py-6 text-center text-muted">
                     {t.list.empty}
                   </td>
                 </tr>
