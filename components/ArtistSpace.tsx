@@ -35,6 +35,7 @@ const copy = {
       cta: "Rejoindre la visio",
       discordCta: "Ajouter en ami sur Discord",
       changeProvider: "Demander un autre fournisseur",
+      addToCalendar: "Ajouter au calendrier",
       missingTitle: "Pas encore de lien",
       missingIntro:
         "Il semble que vous n'avez pas de lien de visio pour cet entretien.",
@@ -118,6 +119,7 @@ const copy = {
       cta: "Join the call",
       discordCta: "Add me on Discord",
       changeProvider: "Request another provider",
+      addToCalendar: "Add to calendar",
       missingTitle: "No link yet",
       missingIntro: "It looks like you don't have a video link for this interview.",
       missingCta: "Request a link",
@@ -526,6 +528,12 @@ export function ArtistSpace({
                   className="pill dark"
                 >
                   {visioCta} <span className="arr" />
+                </a>
+                <a
+                  href={`/api/calendar/${encodeURIComponent(code)}?locale=${locale}`}
+                  className="pill"
+                >
+                  {t.visio.addToCalendar} <span className="arr" />
                 </a>
                 <button type="button" onClick={openProviderModal} className="text-link">
                   {t.visio.changeProvider}
