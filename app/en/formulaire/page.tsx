@@ -59,6 +59,14 @@ export default async function EnglishFormPage({
         <ConsentForm initialAccessCode={code} locale="en" />
       </section>
 
+      {code ? (
+        <section style={{ padding: "0 28px 56px", display: "flex", justifyContent: "center" }}>
+          <a href={`/en/espace?code=${encodeURIComponent(code)}`} className="pill">
+            Back to space <span className="arr" />
+          </a>
+        </section>
+      ) : null}
+
       <Footer locale="en" />
     </main>
   );

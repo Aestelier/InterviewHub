@@ -58,6 +58,14 @@ export default async function FormulairePage({
         <ConsentForm initialAccessCode={code} />
       </section>
 
+      {code ? (
+        <section style={{ padding: "0 28px 56px", display: "flex", justifyContent: "center" }}>
+          <a href={`/espace?code=${encodeURIComponent(code)}`} className="pill">
+            Revenir à l'espace <span className="arr" />
+          </a>
+        </section>
+      ) : null}
+
       <Footer />
     </main>
   );

@@ -420,7 +420,7 @@ export function ArtistSpace({
             ) : null}
             {interviewTime ? (
               <span>
-                <span className="accent">{t.schedule}</span> · {interviewTime}
+                <span className="accent">{t.schedule}</span> · {formatTime(interviewTime, locale)}
               </span>
             ) : null}
             {interviewDurationMinutes ? (
@@ -957,6 +957,21 @@ function formatAccessDate(value: string | null, locale: Locale) {
   return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     dateStyle: "medium"
   }).format(date);
+}
+
+function formatTime(value: string, locale: Locale) {
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(value);
+  if (!match) {
+    return value;
+  }
+  if (locale !== "en") {
+    return value;
+  }
+  const hours24 = Number(match[1]);
+  const minutes = match[2];
+  const period = hours24 >= 12 ? "PM" : "AM";
+  const hours12 = hours24 % 12 || 12;
+  return `${hours12}:${minutes} ${period}`;
 }
 
 function getVisioProvider(value: string | null) {
