@@ -73,8 +73,7 @@ textarea {
 .solid-accent :where(a, button, input, select, textarea, [tabindex]):focus-visible,
 .solid-encre :where(a, button, input, select, textarea, [tabindex]):focus-visible,
 .cta-band :where(a, button, input, select, textarea, [tabindex]):focus-visible,
-.human-band :where(a, button, input, select, textarea, [tabindex]):focus-visible,
-.research-pulse :where(a, button, input, select, textarea, [tabindex]):focus-visible {
+.human-band :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline-color: var(--papier);
   box-shadow: 0 0 0 6px rgba(244, 240, 232, 0.18);
 }
@@ -223,6 +222,26 @@ section.bloc {
 }
 section.bloc.tight {
   padding: 48px 0;
+}
+
+.section-color-shift {
+  position: relative;
+  background: var(--papier-2);
+}
+.section-color-shift::before,
+.section-color-shift::after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: var(--hair);
+}
+
+.landing-page #entretiens .grid-ed:last-child > .cell::before {
+  display: none;
+}
+
+.landing-page #cadre .grid-ed:last-child > .cell::before {
+  display: none;
 }
 
 /* ─── grille éditoriale (pour les sections d'explication) ─── */

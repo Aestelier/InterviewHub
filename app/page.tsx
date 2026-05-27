@@ -269,7 +269,7 @@ export default function Home() {
       </section>
 
       {/* ─────────── § 04 — Cadre ─────────── */}
-      <section id="cadre">
+      <section id="cadre" className="section-color-shift">
         <div className="grid-ed">
           <div className="cell h-sm span2 col between">
             <span className="mono dim">§ 04 — Cadre</span>
