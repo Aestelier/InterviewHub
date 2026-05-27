@@ -22,6 +22,7 @@ type AccessResponse = {
   accesses?: AccessRow[];
   access?: AccessRow;
   error?: string;
+  warning?: string | null;
 };
 
 type Locale = "fr" | "en";
@@ -47,6 +48,8 @@ const copy = {
       copied: "Lien copié.",
       deleting: "Suppression...",
       deleted: "Accès supprimé.",
+      updatingDate: "Mise à jour de la date...",
+      updatedDate: "Date mise à jour.",
       updatingVisio: "Mise à jour du lien visio...",
       updatedVisio: "Lien visio mis à jour."
     },
@@ -80,6 +83,8 @@ const copy = {
       artist: "Artiste",
       contact: "Contact",
       date: "Date",
+      editDate: "Modifier",
+      saveDate: "Enregistrer",
       status: "Statut",
       action: "Action",
       copy: "Copier le lien",
@@ -107,6 +112,8 @@ const copy = {
       copied: "Link copied.",
       deleting: "Deleting...",
       deleted: "Access deleted.",
+      updatingDate: "Updating date...",
+      updatedDate: "Date updated.",
       updatingVisio: "Updating visio link...",
       updatedVisio: "Visio link updated."
     },
@@ -140,6 +147,8 @@ const copy = {
       artist: "Artist",
       contact: "Contact",
       date: "Date",
+      editDate: "Edit",
+      saveDate: "Save",
       status: "Status",
       action: "Action",
       copy: "Copy link",
@@ -199,6 +208,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [visioUrl, setVisioUrl] = useState("");
   const [status, setStatus] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [editingDateCode, setEditingDateCode] = useState<string | null>(null);
+  const [editingDate, setEditingDate] = useState("");
   const [editingVisioCode, setEditingVisioCode] = useState<string | null>(null);
   const [editingVisioUrl, setEditingVisioUrl] = useState("");
 
@@ -312,6 +323,32 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       setEditingVisioCode(null);
       setEditingVisioUrl("");
       setStatus(t.status.updatedVisio);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t.status.unknown);
+    }
+  }
+
+  async function updateInterviewDate(code: string) {
+    setStatus(t.status.updatingDate);
+
+    try {
+      const body = await fetchAdmin("/api/admin/accesses", {
+        method: "PATCH",
+        body: JSON.stringify({
+          code,
+          interviewDate: editingDate
+        })
+      });
+
+      if (body.access) {
+        setAccesses((current) =>
+          current.map((access) => (access.code === code ? (body.access as AccessRow) : access))
+        );
+      }
+
+      setEditingDateCode(null);
+      setEditingDate("");
+      setStatus(body.warning ?? t.status.updatedDate);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : t.status.unknown);
     }
@@ -491,7 +528,52 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                   <td className="py-3 pr-4 text-muted">
                     {access.participant_contact || "-"}
                   </td>
-                  <td className="py-3 pr-4 text-muted">{access.interview_date}</td>
+                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 160 }}>
+                    {editingDateCode === access.code ? (
+                      <div className="grid gap-2">
+                        <input
+                          type="date"
+                          value={editingDate}
+                          onChange={(event) => setEditingDate(event.target.value)}
+                          className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                        />
+                        <div className="flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => updateInterviewDate(access.code)}
+                            disabled={!editingDate}
+                            className="mono hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {t.list.saveDate} →
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingDateCode(null);
+                              setEditingDate("");
+                            }}
+                            className="mono dim hover:text-ink"
+                          >
+                            {t.list.cancel}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span>{access.interview_date}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingDateCode(access.code);
+                            setEditingDate(access.interview_date);
+                          }}
+                          className="mono dim hover:text-ink"
+                        >
+                          {t.list.editDate}
+                        </button>
+                      </div>
+                    )}
+                  </td>
                   <td className="py-3 pr-4 text-muted">{access.status}</td>
                   <td className="py-3 pr-4 text-muted" style={{ minWidth: 80 }}>
                     {access.expires_at
