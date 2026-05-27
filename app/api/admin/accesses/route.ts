@@ -77,6 +77,46 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
+export async function PATCH(request: NextRequest) {
+  if (!isAuthorized(request)) {
+    return unauthorized();
+  }
+
+  let body: {
+    code?: string;
+    visioUrl?: string | null;
+  };
+
+  try {
+    body = (await request.json()) as typeof body;
+  } catch {
+    return Response.json({ error: "JSON invalide." }, { status: 400 });
+  }
+
+  if (!body.code) {
+    return Response.json({ error: "Le code est requis." }, { status: 400 });
+  }
+
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("interview_accesses")
+      .update({ visio_url: body.visioUrl || null })
+      .eq("code", normalizeAccessCode(body.code))
+      .select("*")
+      .single();
+
+    if (error) {
+      return Response.json({ error: error.message }, { status: 500 });
+    }
+
+    return Response.json({ access: data as InterviewAccessRow });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erreur inconnue.";
+    return Response.json({ error: message }, { status: 500 });
+  }
+}
+
 export async function POST(request: NextRequest) {
   if (!isAuthorized(request)) {
     return unauthorized();

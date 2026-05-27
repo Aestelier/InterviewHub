@@ -16,6 +16,8 @@ type ArtistSpaceProps = {
   locale?: Locale;
 };
 
+const discordProfileUrl = "https://discord.com/users/306005027552755713";
+
 const copy = {
   fr: {
     tag: "[ espace artiste ]",
@@ -28,7 +30,16 @@ const copy = {
       tag: "[ visio ]",
       title: "Rejoindre l'entretien",
       intro: "Lien transmis par l'organisateur pour cette session.",
-      cta: "Rejoindre la visio"
+      cta: "Rejoindre la visio",
+      discordCta: "Ajoute-moi sur Discord",
+      changeProvider: "Demander un autre fournisseur",
+      modalTag: "[ fournisseur ]",
+      modalTitle: "Changer de fournisseur visio.",
+      modalIntro:
+        "La visio actuelle reste disponible. Cette demande sert à proposer une alternative.",
+      modalCancel: "Annuler",
+      modalSubmit: "Envoyer la demande",
+      currentProvider: "Fournisseur actuel"
     },
     form: {
       tag: "[ consentement ]",
@@ -71,7 +82,16 @@ const copy = {
       tag: "[ visio ]",
       title: "Join the interview",
       intro: "Link shared by the organiser for this session.",
-      cta: "Join the call"
+      cta: "Join the call",
+      discordCta: "Add me on Discord",
+      changeProvider: "Request another provider",
+      modalTag: "[ provider ]",
+      modalTitle: "Change video provider.",
+      modalIntro:
+        "The current call link stays available. This request only proposes an alternative.",
+      modalCancel: "Cancel",
+      modalSubmit: "Send request",
+      currentProvider: "Current provider"
     },
     form: {
       tag: "[ consent ]",
@@ -118,10 +138,16 @@ export function ArtistSpace({
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
   const formattedExpiration = formatAccessDate(expiresAt, locale);
   const visioProvider = getVisioProvider(visioUrl);
+  const isDiscordVisio = visioProvider?.name === "Discord";
+  const visioHref = isDiscordVisio ? discordProfileUrl : visioUrl;
+  const visioCta = isDiscordVisio ? t.visio.discordCta : t.visio.cta;
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleteInput, setDeleteInput] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [isProviderModalOpen, setIsProviderModalOpen] = useState(false);
+  const providerOptions = getProviderOptions(visioProvider?.name);
+  const [requestedProvider, setRequestedProvider] = useState(providerOptions[0]?.name ?? "");
 
   function signOut() {
     window.localStorage.removeItem(accessCodeStorageKey);
@@ -151,6 +177,48 @@ export function ArtistSpace({
     window.localStorage.removeItem(accessCodeStorageKey);
     setIsDeleteOpen(false);
     router.replace(t.spacePath);
+  }
+
+  function openProviderModal() {
+    const options = getProviderOptions(visioProvider?.name);
+    setRequestedProvider(options[0]?.name ?? "");
+    setIsProviderModalOpen(true);
+  }
+
+  function requestProviderChange() {
+    if (!requestedProvider) {
+      return;
+    }
+
+    const subject =
+      locale === "fr"
+        ? `Demande de changement de fournisseur visio - ${code}`
+        : `Video provider change request - ${code}`;
+    const body =
+      locale === "fr"
+        ? [
+            `Code d'accès : ${code}`,
+            `Fournisseur actuel : ${visioProvider?.name ?? "Non identifié"}`,
+            `Fournisseur demandé : ${requestedProvider}`,
+            ...(requestedProvider === "Discord"
+              ? [`Lien Discord à utiliser : ${discordProfileUrl}`]
+              : []),
+            "",
+            "Merci de mettre à jour le lien visio depuis le panel admin."
+          ].join("\n")
+        : [
+            `Access code: ${code}`,
+            `Current provider: ${visioProvider?.name ?? "Unknown"}`,
+            `Requested provider: ${requestedProvider}`,
+            ...(requestedProvider === "Discord"
+              ? [`Discord link to use: ${discordProfileUrl}`]
+              : []),
+            "",
+            "Please update the video link from the admin panel."
+          ].join("\n");
+
+    window.location.href = `mailto:aestelier@horidus.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setIsProviderModalOpen(false);
   }
 
   return (
@@ -265,15 +333,26 @@ export function ArtistSpace({
                   {t.visio.intro}
                 </p>
               </div>
-              <a
-                href={visioUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="pill dark"
-                style={{ alignSelf: "flex-start" }}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  flexWrap: "wrap"
+                }}
               >
-                {t.visio.cta} <span className="arr" />
-              </a>
+                <a
+                  href={visioHref ?? visioUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="pill dark"
+                >
+                  {visioCta} <span className="arr" />
+                </a>
+                <button type="button" onClick={openProviderModal} className="text-link">
+                  {t.visio.changeProvider}
+                </button>
+              </div>
             </div>
           ) : null}
 
@@ -395,6 +474,119 @@ export function ArtistSpace({
           </div>
         </div>
       ) : null}
+
+      {isProviderModalOpen ? (
+        <div className="preview-backdrop" onClick={() => setIsProviderModalOpen(false)}>
+          <div
+            className="form-panel"
+            style={{ maxWidth: 520, background: "var(--papier)" }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <span className="mono dim">{t.visio.modalTag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
+            >
+              {t.visio.modalTitle}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.visio.modalIntro}
+            </p>
+            {visioProvider ? (
+              <div
+                className="mono dim"
+                style={{
+                  marginTop: 16,
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 8
+                }}
+              >
+                <span>{t.visio.currentProvider} ·</span>
+                <img
+                  src={visioProvider.iconUrl}
+                  alt=""
+                  aria-hidden="true"
+                  width={16}
+                  height={16}
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
+                  style={{ width: 16, height: 16, borderRadius: 3 }}
+                />
+                <span>{visioProvider.name}</span>
+              </div>
+            ) : null}
+            <div className="form-divider">
+              <div className="field-stack" style={{ gap: 8 }}>
+                {providerOptions.map((provider) => (
+                  <button
+                    key={provider.name}
+                    type="button"
+                    onClick={() => setRequestedProvider(provider.name)}
+                    style={{
+                      cursor: "pointer",
+                      minHeight: 54,
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      width: "100%",
+                      padding: "12px 14px",
+                      border: "1px solid var(--hair)",
+                      borderColor:
+                        requestedProvider === provider.name ? "var(--accent)" : "var(--hair)",
+                      background:
+                        requestedProvider === provider.name
+                          ? "rgba(139, 92, 54, 0.07)"
+                          : "transparent",
+                      color: "var(--encre)",
+                      textAlign: "left"
+                    }}
+                  >
+                    <img
+                      src={provider.iconUrl}
+                      alt=""
+                      aria-hidden="true"
+                      width={22}
+                      height={22}
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
+                      style={{ width: 22, height: 22, borderRadius: 4, flex: "0 0 auto" }}
+                    />
+                    <span
+                      style={{
+                        fontFamily: "var(--font-stack-sans)",
+                        fontSize: 16,
+                        fontWeight: 500
+                      }}
+                    >
+                      {provider.name}
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <div className="form-action-row" style={{ marginTop: 16 }}>
+                <button
+                  type="button"
+                  onClick={requestProviderChange}
+                  disabled={!requestedProvider}
+                  className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {t.visio.modalSubmit} <span className="arr" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsProviderModalOpen(false)}
+                  className="text-link"
+                >
+                  {t.visio.modalCancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
@@ -425,10 +617,12 @@ function getVisioProvider(value: string | null) {
     const providers = [
       { match: "zoom.us", name: "Zoom", iconDomain: "zoom.us" },
       { match: "meet.google.com", name: "Google Meet", iconDomain: "meet.google.com" },
-      { match: "teams.microsoft.com", name: "Microsoft Teams", iconDomain: "teams.microsoft.com" },
+      { match: "teams.microsoft.com", name: "Teams", iconDomain: "teams.microsoft.com" },
       { match: "whereby.com", name: "Whereby", iconDomain: "whereby.com" },
       { match: "meet.jit.si", name: "Jitsi Meet", iconDomain: "meet.jit.si" },
       { match: "meet.proton.me", name: "Proton Meet", iconDomain: "proton.me" },
+      { match: "talk.brave.com", name: "Brave Talk", iconDomain: "brave.com" },
+      { match: "kmeet.infomaniak.com", name: "Kmeet", iconDomain: "infomaniak.com" },
       { match: "discord.com", name: "Discord", iconDomain: "discord.com" }
     ];
     const provider = providers.find(
@@ -453,4 +647,15 @@ function getVisioProvider(value: string | null) {
 
 function faviconUrl(domain: string) {
   return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`;
+}
+
+function getProviderOptions(currentProvider?: string) {
+  return [
+    { name: "Google Meet", iconUrl: faviconUrl("meet.google.com") },
+    { name: "Brave Talk", iconUrl: faviconUrl("brave.com") },
+    { name: "Teams", iconUrl: faviconUrl("teams.microsoft.com") },
+    { name: "Proton Meet", iconUrl: faviconUrl("proton.me") },
+    { name: "Kmeet", iconUrl: faviconUrl("infomaniak.com") },
+    { name: "Discord", iconUrl: faviconUrl("discord.com") }
+  ].filter((provider) => provider.name !== currentProvider);
 }

@@ -35,7 +35,9 @@ const copy = {
       created: "Accès créé.",
       copied: "Lien copié.",
       deleting: "Suppression...",
-      deleted: "Accès supprimé."
+      deleted: "Accès supprimé.",
+      updatingVisio: "Mise à jour du lien visio...",
+      updatedVisio: "Lien visio mis à jour."
     },
     gateway: {
       tag: "[ gateway ]",
@@ -74,6 +76,9 @@ const copy = {
       confirmDelete: "Confirmer la suppression de",
       expiry: "Expiration",
       visio: "Visio",
+      editVisio: "Modifier",
+      saveVisio: "Enregistrer",
+      cancel: "Annuler",
       empty: "Aucun accès chargé."
     },
     formPath: "/formulaire"
@@ -88,7 +93,9 @@ const copy = {
       created: "Access created.",
       copied: "Link copied.",
       deleting: "Deleting...",
-      deleted: "Access deleted."
+      deleted: "Access deleted.",
+      updatingVisio: "Updating visio link...",
+      updatedVisio: "Visio link updated."
     },
     gateway: {
       tag: "[ gateway ]",
@@ -127,6 +134,9 @@ const copy = {
       confirmDelete: "Confirm deletion of",
       expiry: "Expiry",
       visio: "Visio",
+      editVisio: "Edit",
+      saveVisio: "Save",
+      cancel: "Cancel",
       empty: "No access loaded."
     },
     formPath: "/en/formulaire"
@@ -147,6 +157,8 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [visioUrl, setVisioUrl] = useState("");
   const [status, setStatus] = useState("");
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const [editingVisioCode, setEditingVisioCode] = useState<string | null>(null);
+  const [editingVisioUrl, setEditingVisioUrl] = useState("");
 
   const origin = useMemo(() => {
     if (typeof window === "undefined") {
@@ -232,6 +244,32 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       });
       setAccesses((current) => current.filter((a) => a.code !== code));
       setStatus(t.status.deleted);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : t.status.unknown);
+    }
+  }
+
+  async function updateVisioUrl(code: string) {
+    setStatus(t.status.updatingVisio);
+
+    try {
+      const body = await fetchAdmin("/api/admin/accesses", {
+        method: "PATCH",
+        body: JSON.stringify({
+          code,
+          visioUrl: editingVisioUrl || null
+        })
+      });
+
+      if (body.access) {
+        setAccesses((current) =>
+          current.map((access) => (access.code === code ? (body.access as AccessRow) : access))
+        );
+      }
+
+      setEditingVisioCode(null);
+      setEditingVisioUrl("");
+      setStatus(t.status.updatedVisio);
     } catch (error) {
       setStatus(error instanceof Error ? error.message : t.status.unknown);
     }
@@ -374,18 +412,63 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                         )
                       : "—"}
                   </td>
-                  <td className="py-3 pr-4 text-muted">
-                    {access.visio_url ? (
-                      <a
-                        href={access.visio_url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mono dim hover:text-ink"
-                        style={{ fontSize: 11 }}
-                      >
-                        lien →
-                      </a>
-                    ) : "—"}
+                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 260 }}>
+                    {editingVisioCode === access.code ? (
+                      <div className="grid gap-2">
+                        <input
+                          type="url"
+                          value={editingVisioUrl}
+                          onChange={(event) => setEditingVisioUrl(event.target.value)}
+                          placeholder="https://meet.example.com/..."
+                          className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                        />
+                        <div className="flex flex-wrap gap-3">
+                          <button
+                            type="button"
+                            onClick={() => updateVisioUrl(access.code)}
+                            className="mono hover:text-ink"
+                          >
+                            {t.list.saveVisio} →
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingVisioCode(null);
+                              setEditingVisioUrl("");
+                            }}
+                            className="mono dim hover:text-ink"
+                          >
+                            {t.list.cancel}
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap items-center gap-3">
+                        {access.visio_url ? (
+                          <a
+                            href={access.visio_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mono dim hover:text-ink"
+                            style={{ fontSize: 11 }}
+                          >
+                            lien →
+                          </a>
+                        ) : (
+                          <span>—</span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingVisioCode(access.code);
+                            setEditingVisioUrl(access.visio_url ?? "");
+                          }}
+                          className="mono dim hover:text-ink"
+                        >
+                          {t.list.editVisio}
+                        </button>
+                      </div>
+                    )}
                   </td>
                   <td className="py-3 pr-4">
                     <div className="flex flex-wrap items-center gap-3">
