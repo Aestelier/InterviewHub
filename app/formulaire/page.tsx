@@ -59,7 +59,14 @@ export default async function FormulairePage({
       </section>
 
       {code ? (
-        <section style={{ padding: "0 28px 56px", display: "flex", justifyContent: "center" }}>
+        <section
+          style={{
+            padding: "0 28px 32px",
+            marginTop: -32,
+            display: "flex",
+            justifyContent: "center"
+          }}
+        >
           <a href={`/espace?code=${encodeURIComponent(code)}`} className="pill">
             Revenir à l'espace <span className="arr" />
           </a>

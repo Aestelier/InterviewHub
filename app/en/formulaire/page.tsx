@@ -60,7 +60,14 @@ export default async function EnglishFormPage({
       </section>
 
       {code ? (
-        <section style={{ padding: "0 28px 56px", display: "flex", justifyContent: "center" }}>
+        <section
+          style={{
+            padding: "0 28px 32px",
+            marginTop: -32,
+            display: "flex",
+            justifyContent: "center"
+          }}
+        >
           <a href={`/en/espace?code=${encodeURIComponent(code)}`} className="pill">
             Back to space <span className="arr" />
           </a>
