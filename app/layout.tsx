@@ -1,26 +1,45 @@
 import type { Metadata } from "next";
-import { Geist, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import { headers } from "next/headers";
 import "./globals.css";
 
-const geist = Geist({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
+const geist = localFont({
+  src: [
+    {
+      path: "./fonts/geist-latin.woff2",
+      weight: "300 600",
+      style: "normal"
+    }
+  ],
   variable: "--font-sans",
   display: "swap"
 });
 
-const instrument = Instrument_Serif({
-  subsets: ["latin"],
-  weight: ["400"],
-  style: ["normal", "italic"],
+const instrument = localFont({
+  src: [
+    {
+      path: "./fonts/InstrumentSerif-Regular.ttf",
+      weight: "400",
+      style: "normal"
+    },
+    {
+      path: "./fonts/InstrumentSerif-Italic.ttf",
+      weight: "400",
+      style: "italic"
+    }
+  ],
   variable: "--font-italic",
   display: "swap"
 });
 
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+const mono = localFont({
+  src: [
+    {
+      path: "./fonts/JetBrainsMono-wght.ttf",
+      weight: "400 500",
+      style: "normal"
+    }
+  ],
   variable: "--font-mono",
   display: "swap"
 });
