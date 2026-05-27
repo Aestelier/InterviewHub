@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { accessCodeStorageKey } from "@/lib/accessStorage";
 
 type Locale = "fr" | "en";
 
@@ -30,7 +34,10 @@ const copy = {
         "Lisez le cadre, choisissez vos consentements séparément et générez votre document PDF.",
       cta: "Accéder au formulaire"
     },
-    formPath: "/formulaire"
+    formPath: "/formulaire",
+    spacePath: "/espace",
+    signOut: "Se déconnecter",
+    signOutHint: "Retire ce code de ce navigateur."
   },
   en: {
     tag: "[ artist space ]",
@@ -51,7 +58,10 @@ const copy = {
         "Read the framework, choose your consent options separately and generate your PDF document.",
       cta: "Access the form"
     },
-    formPath: "/en/formulaire"
+    formPath: "/en/formulaire",
+    spacePath: "/en/espace",
+    signOut: "Sign out",
+    signOutHint: "Removes this code from this browser."
   }
 } as const;
 
@@ -63,26 +73,47 @@ export function ArtistSpace({
   locale = "fr"
 }: ArtistSpaceProps) {
   const t = copy[locale];
+  const router = useRouter();
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
+
+  function signOut() {
+    window.localStorage.removeItem(accessCodeStorageKey);
+    router.replace(t.spacePath);
+  }
 
   return (
     <section style={{ padding: "48px 28px 80px" }}>
       <div style={{ maxWidth: "var(--wide)", margin: "0 auto" }}>
-        <span className="mono dim">{t.tag}</span>
-        <h1
-          className="section-title"
-          style={{ fontSize: "clamp(28px, 3.2vw, 42px)", marginTop: 14 }}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-end",
+            justifyContent: "space-between",
+            gap: 24,
+            flexWrap: "wrap"
+          }}
         >
-          {t.titleBefore}
-          <span className="it">{t.titleAccent}</span>
-          {t.titleAfter}
-        </h1>
+          <div>
+            <span className="mono dim">{t.tag}</span>
+            <h1
+              className="section-title"
+              style={{ fontSize: "clamp(28px, 3.2vw, 42px)", marginTop: 14 }}
+            >
+              {t.titleBefore}
+              <span className="it">{t.titleAccent}</span>
+              {t.titleAfter}
+            </h1>
+          </div>
+          <button type="button" onClick={signOut} className="pill" title={t.signOutHint}>
+            {t.signOut} <span className="arr" />
+          </button>
+        </div>
 
         {participantName || interviewDate ? (
           <div
             className="mono dim"
             style={{
-              marginTop: 20,
+              marginTop: 12,
               display: "flex",
               gap: 24,
               flexWrap: "wrap",
