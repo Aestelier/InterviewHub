@@ -1624,23 +1624,23 @@ footer.foot {
   }
 
   .hero {
-    padding: 38px 20px 46px;
+    padding: 44px 20px 54px;
   }
   .hero h1 {
     font-size: clamp(38px, 13vw, 50px);
     max-width: 9ch;
   }
   .hero-grid {
-    gap: 26px;
-    margin-top: 30px;
+    gap: 32px;
+    margin-top: 34px;
   }
   .hero-copy .prose {
-    margin-top: 20px !important;
+    margin-top: 24px !important;
   }
   .hero-actions {
     display: grid !important;
     grid-template-columns: 1fr;
-    margin-top: 28px !important;
+    margin-top: 34px !important;
   }
   .hero-actions .pill {
     width: 100%;
@@ -1648,16 +1648,20 @@ footer.foot {
   }
   .hero-meta {
     grid-template-columns: 1fr;
-    margin-top: 28px !important;
+    margin-top: 34px !important;
+    padding-top: 22px !important;
   }
   .card {
-    padding: 20px;
+    padding: 22px;
   }
   .hero-steps li,
   .card li {
     gap: 12px;
-    padding: 12px 0;
+    padding: 14px 0;
     font-size: 14px;
+  }
+  .hero-steps p {
+    margin-top: 22px !important;
   }
 
   .landing-page .grid-ed {
@@ -1669,7 +1673,7 @@ footer.foot {
   .landing-page .cell.h-md,
   .landing-page .cell.h-lg {
     min-height: auto;
-    padding: 24px 20px;
+    padding: 32px 20px;
   }
   .landing-page .cell::before {
     left: 20px;
@@ -1679,7 +1683,7 @@ footer.foot {
     display: none;
   }
   .landing-page .cell.between {
-    gap: 18px;
+    gap: 24px;
   }
   .landing-page .cell .section-title {
     max-width: 12ch;
@@ -1691,19 +1695,19 @@ footer.foot {
     max-width: none !important;
   }
   .landing-page .cell .prose p + p {
-    margin-top: 14px;
+    margin-top: 20px;
   }
   .landing-page .itemlist {
-    margin-top: 16px !important;
+    margin-top: 22px !important;
   }
   .landing-page .itemlist li {
     display: grid;
     grid-template-columns: 30px minmax(0, 1fr);
-    gap: 12px;
+    gap: 14px;
     align-items: start;
-    padding: 15px 0;
+    padding: 18px 0;
     font-size: 15px;
-    line-height: 1.48;
+    line-height: 1.56;
     border-top-color: rgba(12, 10, 8, 0.14);
   }
   .landing-page .itemlist li:first-child {
@@ -1729,16 +1733,16 @@ footer.foot {
 
   .cta-band {
     margin-top: 0;
-    padding: 48px 20px 54px;
+    padding: 56px 20px 62px;
   }
   .cta-inner {
-    gap: 34px;
+    gap: 40px;
   }
   .cta-col {
-    gap: 24px;
+    gap: 30px;
   }
   .cta-col + .cta-col {
-    padding-top: 34px;
+    padding-top: 40px;
   }
   .cta-band h3 {
     font-size: clamp(28px, 9vw, 34px);
@@ -1793,10 +1797,10 @@ footer.foot {
     justify-content: flex-start;
   }
   .human-band {
-    padding: 48px 20px 56px;
+    padding: 56px 20px 64px;
   }
   .human-grid {
-    padding-top: 32px;
+    padding-top: 38px;
   }
   .human-note h2 {
     max-width: 12ch;
@@ -1804,15 +1808,18 @@ footer.foot {
   }
   .human-note p:not(.human-overline) {
     font-size: 16px;
-    line-height: 1.7;
+    line-height: 1.76;
+    margin-top: 26px;
   }
   .human-signature {
     display: grid;
+    gap: 10px;
+    margin-top: 34px;
   }
   .human-promises li {
     grid-template-columns: 28px minmax(0, 1fr);
-    gap: 12px;
-    padding: 15px 0;
+    gap: 14px;
+    padding: 18px 0;
   }
   .human-link {
     width: 100%;
