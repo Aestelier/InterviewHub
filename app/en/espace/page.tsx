@@ -70,6 +70,9 @@ export default async function EnEspacePage({
         expiresAt={access.expires_at}
         visioUrl={access.visio_url}
         providerChangeRequestedProvider={access.provider_change_requested_provider}
+        dateChangeRequestedDate={access.date_change_requested_date}
+        dateChangeRequestedTime={access.date_change_requested_time}
+        dateChangeRequestedDurationMinutes={access.date_change_requested_duration_minutes}
         locale="en"
       />
       <Footer locale="en" />

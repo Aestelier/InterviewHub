@@ -247,6 +247,10 @@ export async function PATCH(request: NextRequest) {
       language?: "fr" | "en";
       provider_change_requested_at?: null;
       provider_change_requested_provider?: null;
+      date_change_requested_at?: null;
+      date_change_requested_date?: null;
+      date_change_requested_time?: null;
+      date_change_requested_duration_minutes?: null;
     } = {};
 
     if ("visioUrl" in body) {
@@ -254,6 +258,11 @@ export async function PATCH(request: NextRequest) {
       updates.provider_change_requested_at = null;
       updates.provider_change_requested_provider = null;
     }
+
+    const scheduleTouched =
+      Boolean(body.interviewDate) ||
+      Boolean(body.interviewTime) ||
+      typeof body.interviewDurationMinutes === "number";
 
     if (body.interviewDate) {
       updates.interview_date = body.interviewDate;
@@ -265,6 +274,13 @@ export async function PATCH(request: NextRequest) {
 
     if (typeof body.interviewDurationMinutes === "number") {
       updates.interview_duration_minutes = body.interviewDurationMinutes;
+    }
+
+    if (scheduleTouched) {
+      updates.date_change_requested_at = null;
+      updates.date_change_requested_date = null;
+      updates.date_change_requested_time = null;
+      updates.date_change_requested_duration_minutes = null;
     }
 
     if (body.language) {

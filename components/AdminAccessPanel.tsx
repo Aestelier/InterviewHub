@@ -19,6 +19,10 @@ type AccessRow = {
   visio_url: string | null;
   provider_change_requested_at: string | null;
   provider_change_requested_provider: string | null;
+  date_change_requested_at: string | null;
+  date_change_requested_date: string | null;
+  date_change_requested_time: string | null;
+  date_change_requested_duration_minutes: number | null;
 };
 
 type AccessResponse = {
@@ -117,6 +121,8 @@ const copy = {
       visio: "Visio",
       changeRequested: "Changer le lien",
       requestedProvider: "Demande",
+      dateChangeRequested: "Nouveau créneau demandé",
+      dateChangeBadge: "Demande créneau",
       editVisio: "Modifier",
       saveVisio: "Enregistrer",
       cancel: "Annuler",
@@ -201,6 +207,8 @@ const copy = {
       visio: "Visio",
       changeRequested: "Change link",
       requestedProvider: "Request",
+      dateChangeRequested: "New slot requested",
+      dateChangeBadge: "Slot request",
       editVisio: "Edit",
       saveVisio: "Save",
       cancel: "Cancel",
@@ -749,20 +757,52 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                       </div>
                     ) : (
                       <div className="flex flex-wrap items-center gap-3">
-                        <span>
-                          {access.interview_date} · {access.interview_time}
-                          <span className="text-muted">
-                            {" "}
-                            ({access.interview_duration_minutes} {t.list.durationSuffix})
+                        <div className="grid gap-1">
+                          <span>
+                            {access.interview_date} · {access.interview_time}
+                            <span className="text-muted">
+                              {" "}
+                              ({access.interview_duration_minutes} {t.list.durationSuffix})
+                            </span>
                           </span>
-                        </span>
+                          {access.date_change_requested_at &&
+                          access.date_change_requested_date &&
+                          access.date_change_requested_time &&
+                          access.date_change_requested_duration_minutes ? (
+                            <div
+                              className="inline-flex flex-col gap-1 border px-2 py-1 text-[11px]"
+                              style={{
+                                borderColor: "rgba(184, 112, 44, 0.45)",
+                                background: "rgba(184, 112, 44, 0.12)",
+                                color: "rgb(142, 77, 26)"
+                              }}
+                            >
+                              <span className="font-semibold uppercase tracking-[0.14em] text-[10px]">
+                                {t.list.dateChangeBadge}
+                              </span>
+                              <span>
+                                {access.date_change_requested_date} ·{" "}
+                                {access.date_change_requested_time} ·{" "}
+                                {access.date_change_requested_duration_minutes}{" "}
+                                {t.list.durationSuffix}
+                              </span>
+                            </div>
+                          ) : null}
+                        </div>
                         <button
                           type="button"
                           onClick={() => {
                             setEditingDateCode(access.code);
-                            setEditingDate(access.interview_date);
-                            setEditingTime(access.interview_time);
-                            setEditingDuration(access.interview_duration_minutes);
+                            setEditingDate(
+                              access.date_change_requested_date ?? access.interview_date
+                            );
+                            setEditingTime(
+                              access.date_change_requested_time ?? access.interview_time
+                            );
+                            setEditingDuration(
+                              access.date_change_requested_duration_minutes ??
+                                access.interview_duration_minutes
+                            );
                           }}
                           className="mono dim hover:text-ink"
                         >

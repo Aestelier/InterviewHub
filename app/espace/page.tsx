@@ -69,6 +69,9 @@ export default async function EspacePage({
         expiresAt={access.expires_at}
         visioUrl={access.visio_url}
         providerChangeRequestedProvider={access.provider_change_requested_provider}
+        dateChangeRequestedDate={access.date_change_requested_date}
+        dateChangeRequestedTime={access.date_change_requested_time}
+        dateChangeRequestedDurationMinutes={access.date_change_requested_duration_minutes}
         locale="fr"
       />
       <Footer />

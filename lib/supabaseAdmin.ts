@@ -19,6 +19,10 @@ export type InterviewAccessRow = {
   visio_url: string | null;
   provider_change_requested_at: string | null;
   provider_change_requested_provider: string | null;
+  date_change_requested_at: string | null;
+  date_change_requested_date: string | null;
+  date_change_requested_time: string | null;
+  date_change_requested_duration_minutes: number | null;
 };
 
 export type InterviewAccessInsert = {
