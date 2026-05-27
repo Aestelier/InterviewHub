@@ -394,6 +394,13 @@ export function ArtistSpace({
     setProfileContact(nextContact);
     setProfileDraftName(nextName);
     setProfileDraftContact(nextContact);
+
+    if (isProfileFirstPrompt) {
+      setIsProfileOpen(false);
+      setIsProfileFirstPrompt(false);
+      return;
+    }
+
     setProfileStatus(t.profile.saved);
   }
 
@@ -492,7 +499,7 @@ export function ArtistSpace({
             flexWrap: "wrap"
           }}
         >
-          <div>
+          <div style={{ flex: "1 1 320px", minWidth: 0 }}>
             <span className="mono dim">{t.tag}</span>
             <h1
               className="section-title"
@@ -503,7 +510,15 @@ export function ArtistSpace({
               {t.titleAfter}
             </h1>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <div
+            style={{
+              display: "flex",
+              gap: 10,
+              flexWrap: "wrap",
+              marginLeft: "auto",
+              justifyContent: "flex-end"
+            }}
+          >
             <button type="button" onClick={openProfileModal} className="pill">
               {t.profile.trigger} <span className="arr" />
             </button>
