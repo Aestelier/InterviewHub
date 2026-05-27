@@ -13,10 +13,26 @@ export async function DELETE(
 
   try {
     const supabase = getSupabaseAdmin();
+    const { data, error: fetchError } = await supabase
+      .from("interview_accesses")
+      .select("id, expires_at")
+      .eq("code", normalizedCode)
+      .single();
+
+    if (fetchError || !data) {
+      return Response.json({ error: "Code inconnu." }, { status: 404 });
+    }
+
+    const fallbackDeleteAfter = new Date();
+    fallbackDeleteAfter.setDate(fallbackDeleteAfter.getDate() + 30);
+
     const { error } = await supabase
       .from("interview_accesses")
-      .delete()
-      .eq("code", normalizedCode);
+      .update({
+        status: "revoked",
+        expires_at: data.expires_at ?? fallbackDeleteAfter.toISOString()
+      })
+      .eq("id", data.id);
 
     if (error) {
       return Response.json({ error: error.message }, { status: 500 });
@@ -49,6 +65,15 @@ export async function GET(
     }
 
     const access = data as InterviewAccessRow;
+
+    if (access.status === "revoked") {
+      if (isExpired(access.expires_at)) {
+        await supabase.from("interview_accesses").delete().eq("id", access.id);
+        return Response.json({ error: "Code inconnu." }, { status: 404 });
+      }
+
+      return Response.json({ error: "Cet accès a été supprimé." }, { status: 403 });
+    }
 
     if (isExpired(access.expires_at)) {
       await supabase

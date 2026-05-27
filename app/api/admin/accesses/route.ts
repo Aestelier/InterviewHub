@@ -26,6 +26,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = getSupabaseAdmin();
+    await supabase
+      .from("interview_accesses")
+      .delete()
+      .eq("status", "revoked")
+      .lte("expires_at", new Date().toISOString());
+
     const { data, error } = await supabase
       .from("interview_accesses")
       .select("*")

@@ -99,11 +99,15 @@ export async function POST(request: NextRequest) {
       const accessCode = normalizeAccessCode(body.accessCode);
       const { data } = await supabase
         .from("interview_accesses")
-        .select("id, expires_at")
+        .select("id, expires_at, status")
         .eq("code", accessCode)
         .single();
 
-      if (data && !isExpired(data.expires_at as string | null)) {
+      if (
+        data &&
+        data.status !== "revoked" &&
+        !isExpired(data.expires_at as string | null)
+      ) {
         await supabase
           .from("interview_accesses")
           .update({

@@ -5,7 +5,7 @@ create table if not exists public.interview_accesses (
   participant_contact text,
   interview_date date not null,
   status text not null default 'created'
-    check (status in ('created', 'opened', 'pdf_generated', 'expired')),
+    check (status in ('created', 'opened', 'pdf_generated', 'expired', 'revoked')),
   expires_at timestamptz,
   created_at timestamptz not null default now(),
   last_opened_at timestamptz,

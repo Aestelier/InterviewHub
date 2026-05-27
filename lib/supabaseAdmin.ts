@@ -6,7 +6,7 @@ export type InterviewAccessRow = {
   participant_name: string | null;
   participant_contact: string | null;
   interview_date: string;
-  status: "created" | "opened" | "pdf_generated" | "expired";
+  status: "created" | "opened" | "pdf_generated" | "expired" | "revoked";
   expires_at: string | null;
   created_at: string;
   last_opened_at: string | null;

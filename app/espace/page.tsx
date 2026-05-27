@@ -33,7 +33,12 @@ export default async function EspacePage({
     .eq("code", normalizedCode)
     .single();
 
-  if (error || !data || isExpired((data as InterviewAccessRow).expires_at)) {
+  if (
+    error ||
+    !data ||
+    (data as InterviewAccessRow).status === "revoked" ||
+    isExpired((data as InterviewAccessRow).expires_at)
+  ) {
     return (
       <main>
         <Topbar variant="minimal" languageLinks={{ fr: "/espace", en: "/en/espace" }} />
@@ -58,6 +63,7 @@ export default async function EspacePage({
         code={access.code}
         participantName={access.participant_name ?? ""}
         interviewDate={access.interview_date}
+        expiresAt={access.expires_at}
         visioUrl={access.visio_url}
         locale="fr"
       />
