@@ -128,7 +128,8 @@ const copy = {
       cancel: "Annuler",
       empty: "Aucun accès chargé."
     },
-    formPath: "/formulaire"
+    formPath: "/formulaire",
+    spacePath: "/espace"
   },
   en: {
     status: {
@@ -214,7 +215,8 @@ const copy = {
       cancel: "Cancel",
       empty: "No access loaded."
     },
-    formPath: "/en/formulaire"
+    formPath: "/en/formulaire",
+    spacePath: "/en/espace"
   }
 } as const;
 
@@ -351,7 +353,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   }
 
   function buildLink(code: string) {
-    return `${origin}${t.formPath}?code=${encodeURIComponent(code)}`;
+    return `${origin}${t.spacePath}?code=${encodeURIComponent(code)}`;
   }
 
   async function copyLink(code: string) {
