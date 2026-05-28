@@ -5,7 +5,7 @@ import { Topbar } from "@/components/Topbar";
 import { AccessCodeLink } from "@/components/AccessCodeLink";
 
 export const metadata: Metadata = {
-  title: "Aestelier — Building tools with artists",
+  title: "Aestelier, building tools with artists",
   description:
     "Aestelier is a research phase for digital tools built with visual artists, designed to support their workflow without taking control of their work."
 };

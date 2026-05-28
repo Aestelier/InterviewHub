@@ -45,7 +45,7 @@ const mono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Aestelier — Construire des outils avec les artistes",
+  title: "Aestelier, construire des outils avec les artistes",
   description:
     "Aestelier est une suite d’outils numériques construits avec les artistes visuels pour augmenter leur workflow, sans rien prendre sur leurs œuvres. Phase de recherche en cours."
 };
