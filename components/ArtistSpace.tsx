@@ -105,6 +105,26 @@ const copy = {
         "Un repère pour savoir comment l'échange se déroule, ce qui pourra être demandé et ce qui reste hors champ.",
       cta: "Voir le déroulé"
     },
+    support: {
+      tag: "[ contact ]",
+      title: "Un doute, une limite à poser, un problème technique ?",
+      intro:
+        "Vous pouvez écrire avant l'entretien si un point bloque, si une limite doit être clarifiée ou si la visio ne fonctionne pas.",
+      cta: "Écrire un message",
+      modalTag: "[ message ]",
+      modalTitle: "Écrire avant l'entretien.",
+      modalIntro:
+        "Le message sera envoyé à contact@guillaumeschneider.fr avec votre code d'accès.",
+      subjectLabel: "Sujet",
+      subjectPlaceholder: "Ex. Problème de visio",
+      messageLabel: "Message",
+      messagePlaceholder: "Décrivez votre question, limite ou problème technique.",
+      submit: "Envoyer le message",
+      submitting: "Envoi...",
+      sent: "Message envoyé à contact@guillaumeschneider.fr.",
+      failed: "Impossible d'envoyer le message.",
+      cancel: "Fermer"
+    },
     formPath: "/formulaire",
     preparationPath: "/preparation",
     spacePath: "/espace",
@@ -226,6 +246,26 @@ const copy = {
         "A reference page to understand how the exchange works, what may be asked, and what remains out of scope.",
       cta: "View the outline"
     },
+    support: {
+      tag: "[ contact ]",
+      title: "A question, a boundary to raise, or a technical issue?",
+      intro:
+        "You can write before the interview if something is blocking, if a boundary needs clarifying, or if the call link does not work.",
+      cta: "Write a message",
+      modalTag: "[ message ]",
+      modalTitle: "Write before the interview.",
+      modalIntro:
+        "The message will be sent to contact@guillaumeschneider.fr with your access code.",
+      subjectLabel: "Subject",
+      subjectPlaceholder: "E.g. Video call issue",
+      messageLabel: "Message",
+      messagePlaceholder: "Describe your question, boundary, or technical issue.",
+      submit: "Send message",
+      submitting: "Sending...",
+      sent: "Message sent to contact@guillaumeschneider.fr.",
+      failed: "Unable to send the message.",
+      cancel: "Close"
+    },
     formPath: "/en/formulaire",
     preparationPath: "/en/preparation",
     spacePath: "/en/espace",
@@ -340,6 +380,12 @@ export function ArtistSpace({
   const [profileStatus, setProfileStatus] = useState("");
   const [profileError, setProfileError] = useState("");
   const [isProfileFirstPrompt, setIsProfileFirstPrompt] = useState(false);
+  const [isSupportOpen, setIsSupportOpen] = useState(false);
+  const [supportSubject, setSupportSubject] = useState("");
+  const [supportMessage, setSupportMessage] = useState("");
+  const [isSupportSending, setIsSupportSending] = useState(false);
+  const [supportStatus, setSupportStatus] = useState("");
+  const [supportError, setSupportError] = useState("");
 
   useEffect(() => {
     if (!profileName.trim() || !profileContact.trim()) {
@@ -515,6 +561,43 @@ export function ArtistSpace({
 
     setPendingProvider(requestedProvider);
     setProviderRequestStatus(t.visio.modalSent);
+  }
+
+  function openSupportModal() {
+    setSupportSubject("");
+    setSupportMessage("");
+    setSupportStatus("");
+    setSupportError("");
+    setIsSupportOpen(true);
+  }
+
+  async function sendSupportMessage() {
+    setIsSupportSending(true);
+    setSupportStatus("");
+    setSupportError("");
+
+    const response = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code,
+        subject: supportSubject,
+        message: supportMessage,
+        locale
+      })
+    });
+
+    setIsSupportSending(false);
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      setSupportError(body?.error ?? t.support.failed);
+      return;
+    }
+
+    setSupportStatus(t.support.sent);
+    setSupportSubject("");
+    setSupportMessage("");
   }
 
   return (
@@ -836,6 +919,27 @@ export function ArtistSpace({
             <Link href={formUrl} className="pill dark" style={{ alignSelf: "flex-start" }}>
               {formattedPdfGeneratedAt ? t.form.regenerateCta : t.form.cta} <span className="arr" />
             </Link>
+          </div>
+
+          <div
+            className="form-panel artist-space-card"
+            style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
+          >
+            <div>
+              <span className="mono dim">{t.support.tag}</span>
+              <h2
+                className="section-title"
+                style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
+              >
+                {t.support.title}
+              </h2>
+              <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+                {t.support.intro}
+              </p>
+            </div>
+            <button type="button" onClick={openSupportModal} className="pill" style={{ alignSelf: "flex-start" }}>
+              {t.support.cta} <span className="arr" />
+            </button>
           </div>
         </div>
 
@@ -1205,6 +1309,113 @@ export function ArtistSpace({
                   className="text-link"
                 >
                   {t.deleteAccess.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isSupportOpen ? (
+        <div
+          className="preview-backdrop"
+          onClick={() => {
+            if (!isSupportSending) setIsSupportOpen(false);
+          }}
+        >
+          <div
+            className="form-panel"
+            style={{
+              maxWidth: 520,
+              background: "var(--papier)",
+              boxShadow: "0 24px 60px rgba(12, 10, 8, 0.28)",
+              position: "relative"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                if (!isSupportSending) setIsSupportOpen(false);
+              }}
+              aria-label={t.support.cancel}
+              disabled={isSupportSending}
+              className="modal-close-button"
+            >
+              ×
+            </button>
+            <span className="mono dim">{t.support.modalTag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
+            >
+              {t.support.modalTitle}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.support.modalIntro}
+            </p>
+            <div className="form-divider">
+              <div className="field-stack">
+                <label className="form-field">
+                  <span className="form-label">{t.support.subjectLabel}</span>
+                  <input
+                    value={supportSubject}
+                    onChange={(event) => {
+                      setSupportSubject(event.target.value);
+                      setSupportStatus("");
+                      setSupportError("");
+                    }}
+                    className="form-input"
+                    placeholder={t.support.subjectPlaceholder}
+                    disabled={isSupportSending}
+                  />
+                </label>
+                <label className="form-field">
+                  <span className="form-label">{t.support.messageLabel}</span>
+                  <textarea
+                    value={supportMessage}
+                    onChange={(event) => {
+                      setSupportMessage(event.target.value);
+                      setSupportStatus("");
+                      setSupportError("");
+                    }}
+                    className="form-input"
+                    placeholder={t.support.messagePlaceholder}
+                    disabled={isSupportSending}
+                    rows={6}
+                    style={{ resize: "vertical", lineHeight: 1.55 }}
+                  />
+                </label>
+              </div>
+              {supportError ? (
+                <p className="form-status is-warning" style={{ marginTop: 14 }}>
+                  {supportError}
+                </p>
+              ) : null}
+              {supportStatus ? (
+                <p className="form-status" style={{ marginTop: 14 }}>
+                  {supportStatus}
+                </p>
+              ) : null}
+              <div className="form-action-row" style={{ marginTop: 20 }}>
+                <button
+                  type="button"
+                  onClick={() => void sendSupportMessage()}
+                  disabled={
+                    isSupportSending || !supportSubject.trim() || !supportMessage.trim()
+                  }
+                  className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isSupportSending ? t.support.submitting : t.support.submit}
+                  <span className="arr" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsSupportOpen(false)}
+                  disabled={isSupportSending}
+                  className="text-link"
+                >
+                  {t.support.cancel}
                 </button>
               </div>
             </div>
