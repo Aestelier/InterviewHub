@@ -676,10 +676,21 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         </button>
       </section>
 
-      <section className="border border-line bg-paper-2/40 p-5 md:p-7">
+      <section className="admin-table-card border border-line bg-paper-2/40 p-5 md:p-7">
         <span className="mono dim">{t.list.tag}</span>
-        <div className="mt-5 overflow-x-auto">
-          <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+        <div className="admin-table-scroll mt-5 overflow-x-auto">
+          <table className="admin-access-table w-full min-w-[1120px] border-collapse text-left text-sm">
+            <colgroup>
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "12%" }} />
+              <col style={{ width: "16%" }} />
+              <col style={{ width: "18%" }} />
+              <col style={{ width: "11%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "8%" }} />
+              <col style={{ width: "8%" }} />
+              <col style={{ width: "7%" }} />
+            </colgroup>
             <thead className="border-b border-line text-xs uppercase tracking-[0.12em] text-ochre">
               <tr>
                 <th className="py-3 pr-4">{t.list.code}</th>
@@ -696,7 +707,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             <tbody>
               {accesses.map((access) => (
                 <tr key={access.id} className="border-b border-line">
-                  <td className="py-3 pr-4 font-semibold text-ink">
+                  <td className="py-4 pr-4 align-top font-semibold text-ink">
                     <div className="flex flex-wrap items-center gap-2">
                       <span>{access.code}</span>
                       {access.provider_change_requested_at ? (
@@ -741,26 +752,26 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                       </div>
                     ) : null}
                   </td>
-                  <td className="py-3 pr-4 text-muted">
+                  <td className="py-4 pr-4 align-top text-muted">
                     {access.participant_name || "-"}
                   </td>
-                  <td className="py-3 pr-4 text-muted">
+                  <td className="py-4 pr-4 align-top text-muted">
                     {access.participant_contact || "-"}
                   </td>
-                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 200 }}>
+                  <td className="py-4 pr-4 align-top text-muted">
                     {editingDateCode === access.code ? (
                       <div className="grid gap-2">
                         <input
                           type="date"
                           value={editingDate}
                           onChange={(event) => setEditingDate(event.target.value)}
-                          className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                          className="admin-input min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                         />
                         <input
                           type="time"
                           value={editingTime}
                           onChange={(event) => setEditingTime(event.target.value)}
-                          className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                          className="admin-input min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                         />
                         <div className="flex items-center gap-2">
                           <input
@@ -772,7 +783,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                             onChange={(event) =>
                               setEditingDuration(Number(event.target.value) || 0)
                             }
-                            className="min-h-10 w-24 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                            className="admin-input min-h-10 w-24 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                           />
                           <span className="text-xs text-muted">{t.list.durationSuffix}</span>
                         </div>
@@ -791,7 +802,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                               updateInterviewDate(access.code);
                             }}
                             disabled={!editingDate || !editingTime || !editingDuration}
-                            className="mono hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
+                            className="admin-table-action mono hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed"
                           >
                             {t.list.saveDate} →
                           </button>
@@ -803,7 +814,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                               setEditingTime("");
                               setEditingDuration(60);
                             }}
-                            className="mono dim hover:text-ink"
+                            className="admin-table-action mono dim hover:text-ink"
                           >
                             {t.list.cancel}
                           </button>
@@ -870,27 +881,29 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                                 access.interview_duration_minutes
                             );
                           }}
-                          className="mono dim hover:text-ink"
+                          className="admin-table-action mono dim hover:text-ink"
                         >
                           {t.list.editDate}
                         </button>
                       </div>
                     )}
                   </td>
-                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 110 }}>
+                  <td className="py-4 pr-4 align-top text-muted">
                     <select
                       value={access.language}
                       onChange={(event) =>
                         updateLanguage(access.code, event.target.value as "fr" | "en")
                       }
-                      className="min-h-9 border border-line bg-paper px-2 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                      className="admin-select min-h-9 border border-line bg-paper px-2 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                     >
                       <option value="fr">{t.list.languageFr}</option>
                       <option value="en">{t.list.languageEn}</option>
                     </select>
                   </td>
-                  <td className="py-3 pr-4 text-muted">{access.status}</td>
-                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 80 }}>
+                  <td className="py-4 pr-4 align-top text-muted">
+                    <span className="admin-status-badge">{access.status}</span>
+                  </td>
+                  <td className="py-4 pr-4 align-top text-muted">
                     {access.expires_at
                       ? new Date(access.expires_at).toLocaleDateString(
                           locale === "fr" ? "fr-FR" : "en-GB",
@@ -898,7 +911,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                         )
                       : "—"}
                   </td>
-                  <td className="py-3 pr-4 text-muted" style={{ minWidth: 260 }}>
+                  <td className="py-4 pr-4 align-top text-muted">
                     {editingVisioCode === access.code ? (
                       <div className="grid gap-2">
                         <div className="flex justify-end">
@@ -909,13 +922,13 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                           value={editingVisioUrl}
                           onChange={(event) => setEditingVisioUrl(event.target.value)}
                           placeholder="https://meet.example.com/..."
-                          className="min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+                          className="admin-input min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
                         />
                         <div className="flex flex-wrap gap-3">
                           <button
                             type="button"
                             onClick={() => updateVisioUrl(access.code)}
-                            className="mono hover:text-ink"
+                            className="admin-table-action mono hover:text-ink"
                           >
                             {t.list.saveVisio} →
                           </button>
@@ -925,7 +938,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                               setEditingVisioCode(null);
                               setEditingVisioUrl("");
                             }}
-                            className="mono dim hover:text-ink"
+                            className="admin-table-action mono dim hover:text-ink"
                           >
                             {t.list.cancel}
                           </button>
@@ -938,7 +951,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                             href={access.visio_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="mono dim hover:text-ink"
+                            className="admin-table-action mono dim hover:text-ink"
                             style={{ fontSize: 11 }}
                           >
                             lien →
@@ -952,15 +965,15 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                             setEditingVisioCode(access.code);
                             setEditingVisioUrl(access.visio_url ?? "");
                           }}
-                          className="mono dim hover:text-ink"
+                          className="admin-table-action mono dim hover:text-ink"
                         >
                           {t.list.editVisio}
                         </button>
                       </div>
                     )}
                   </td>
-                  <td className="py-3 pr-4">
-                    <div className="flex flex-wrap items-center gap-3">
+                  <td className="py-4 pr-0 align-top">
+                    <div className="admin-action-stack">
                       <button
                         type="button"
                         onClick={() => setSelectedConsentAccess(access)}
@@ -970,14 +983,14 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                             ? t.list.consent
                             : t.list.consentUnavailable
                         }
-                        className="mono dim hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+                        className="admin-table-action mono dim hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         {t.list.consent} →
                       </button>
                       <button
                         type="button"
                         onClick={() => copyLink(access.code)}
-                        className="mono dim hover:text-ink"
+                        className="admin-table-action mono dim hover:text-ink"
                       >
                         {t.list.copy} →
                       </button>
@@ -986,7 +999,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                           <button
                             type="button"
                             onClick={() => deleteAccess(access.code)}
-                            className="mono hover:text-ink"
+                            className="admin-table-action mono hover:text-ink"
                             style={{ color: "var(--accent)" }}
                           >
                             {t.list.confirmDelete} {access.code} →
@@ -994,7 +1007,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                           <button
                             type="button"
                             onClick={() => setPendingDelete(null)}
-                            className="mono dim hover:text-ink"
+                            className="admin-table-action mono dim hover:text-ink"
                           >
                             ✕
                           </button>
@@ -1003,7 +1016,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                         <button
                           type="button"
                           onClick={() => setPendingDelete(access.code)}
-                          className="mono dim hover:text-ink"
+                          className="admin-table-action mono dim hover:text-ink"
                           style={{ opacity: 0.5 }}
                         >
                           {t.list.delete}
