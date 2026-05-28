@@ -92,7 +92,15 @@ const copy = {
         "Lisez le cadre, choisissez vos consentements séparément et générez votre document PDF.",
       cta: "Accéder au formulaire"
     },
+    preparation: {
+      tag: "[ préparation ]",
+      title: "Préparer l'entretien",
+      intro:
+        "Un repère pour savoir comment l'échange se déroule, ce qui pourra être demandé et ce qui reste hors champ.",
+      cta: "Voir le déroulé"
+    },
     formPath: "/formulaire",
+    preparationPath: "/preparation",
     spacePath: "/espace",
     signOut: "Se déconnecter",
     signOutHint: "Retire ce code de ce navigateur.",
@@ -200,7 +208,15 @@ const copy = {
         "Read the framework, choose your consent options separately and generate your PDF document.",
       cta: "Access the form"
     },
+    preparation: {
+      tag: "[ preparation ]",
+      title: "Prepare the interview",
+      intro:
+        "A reference page to understand how the exchange works, what may be asked, and what remains out of scope.",
+      cta: "View the outline"
+    },
     formPath: "/en/formulaire",
+    preparationPath: "/en/preparation",
     spacePath: "/en/espace",
     signOut: "Sign out",
     signOutHint: "Removes this code from this browser.",
@@ -262,6 +278,7 @@ export function ArtistSpace({
   const t = copy[locale];
   const router = useRouter();
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
+  const preparationUrl = `${t.preparationPath}?code=${encodeURIComponent(code)}`;
   const formattedExpiration = formatAccessDate(expiresAt, locale);
   const [currentVisioUrl, setCurrentVisioUrl] = useState(visioUrl);
   const [pendingProvider, setPendingProvider] = useState<string | null>(
@@ -613,6 +630,27 @@ export function ArtistSpace({
             marginTop: 36
           }}
         >
+          <div
+            className="form-panel artist-space-card"
+            style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
+          >
+            <div>
+              <span className="mono dim">{t.preparation.tag}</span>
+              <h2
+                className="section-title"
+                style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12 }}
+              >
+                {t.preparation.title}
+              </h2>
+              <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+                {t.preparation.intro}
+              </p>
+            </div>
+            <Link href={preparationUrl} className="pill dark" style={{ alignSelf: "flex-start" }}>
+              {t.preparation.cta} <span className="arr" />
+            </Link>
+          </div>
+
           <div
             className="form-panel artist-space-card"
             style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
