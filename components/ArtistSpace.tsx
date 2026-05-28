@@ -15,6 +15,7 @@ type ArtistSpaceProps = {
   interviewTime: string;
   interviewDurationMinutes: number;
   expiresAt: string | null;
+  pdfGeneratedAt?: string | null;
   visioUrl: string | null;
   providerChangeRequestedProvider?: string | null;
   dateChangeRequestedDate?: string | null;
@@ -90,7 +91,12 @@ const copy = {
       title: "Formulaire de consentement",
       intro:
         "Lisez le cadre, choisissez vos consentements séparément et générez votre document PDF.",
-      cta: "Accéder au formulaire"
+      cta: "Accéder au formulaire",
+      regenerateCta: "Modifier et regénérer",
+      generatedTag: "[ finalisé ]",
+      generatedLabel: "Document généré",
+      missingTag: "[ à compléter ]",
+      missingLabel: "Aucun document généré pour le moment."
     },
     preparation: {
       tag: "[ préparation ]",
@@ -206,7 +212,12 @@ const copy = {
       title: "Consent form",
       intro:
         "Read the framework, choose your consent options separately and generate your PDF document.",
-      cta: "Access the form"
+      cta: "Access the form",
+      regenerateCta: "Edit and regenerate",
+      generatedTag: "[ completed ]",
+      generatedLabel: "Document generated",
+      missingTag: "[ to complete ]",
+      missingLabel: "No document generated yet."
     },
     preparation: {
       tag: "[ preparation ]",
@@ -268,6 +279,7 @@ export function ArtistSpace({
   interviewTime,
   interviewDurationMinutes,
   expiresAt,
+  pdfGeneratedAt = null,
   visioUrl,
   providerChangeRequestedProvider = null,
   dateChangeRequestedDate = null,
@@ -280,6 +292,7 @@ export function ArtistSpace({
   const formUrl = `${t.formPath}?code=${encodeURIComponent(code)}`;
   const preparationUrl = `${t.preparationPath}?code=${encodeURIComponent(code)}`;
   const formattedExpiration = formatAccessDate(expiresAt, locale);
+  const formattedPdfGeneratedAt = formatAccessDateTime(pdfGeneratedAt, locale);
   const [currentVisioUrl, setCurrentVisioUrl] = useState(visioUrl);
   const [pendingProvider, setPendingProvider] = useState<string | null>(
     providerChangeRequestedProvider ?? null
@@ -796,9 +809,32 @@ export function ArtistSpace({
               <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
                 {t.form.intro}
               </p>
+              <div
+                className={`artist-space-alert${formattedPdfGeneratedAt ? " is-complete" : ""}`}
+                style={{
+                  marginTop: 16,
+                  padding: "12px 14px",
+                  border: "1px solid rgba(122, 96, 70, 0.28)",
+                  background: formattedPdfGeneratedAt
+                    ? "rgba(104, 117, 103, 0.12)"
+                    : "rgba(139, 92, 54, 0.07)",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 6
+                }}
+              >
+                <span className="mono dim" style={{ color: "var(--accent)" }}>
+                  {formattedPdfGeneratedAt ? t.form.generatedTag : t.form.missingTag}
+                </span>
+                <span style={{ fontSize: 15, fontWeight: 500, color: "var(--encre)" }}>
+                  {formattedPdfGeneratedAt
+                    ? `${t.form.generatedLabel} · ${formattedPdfGeneratedAt}`
+                    : t.form.missingLabel}
+                </span>
+              </div>
             </div>
             <Link href={formUrl} className="pill dark" style={{ alignSelf: "flex-start" }}>
-              {t.form.cta} <span className="arr" />
+              {formattedPdfGeneratedAt ? t.form.regenerateCta : t.form.cta} <span className="arr" />
             </Link>
           </div>
         </div>
@@ -1315,6 +1351,23 @@ function formatAccessDate(value: string | null, locale: Locale) {
 
   return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
     dateStyle: "medium"
+  }).format(date);
+}
+
+function formatAccessDateTime(value: string | null, locale: Locale) {
+  if (!value) {
+    return "";
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", {
+    dateStyle: "medium",
+    timeStyle: "short"
   }).format(date);
 }
 

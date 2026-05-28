@@ -67,6 +67,7 @@ export default async function EspacePage({
         interviewTime={access.interview_time}
         interviewDurationMinutes={access.interview_duration_minutes}
         expiresAt={access.expires_at}
+        pdfGeneratedAt={access.pdf_generated_at}
         visioUrl={access.visio_url}
         providerChangeRequestedProvider={access.provider_change_requested_provider}
         dateChangeRequestedDate={access.date_change_requested_date}
