@@ -1184,6 +1184,12 @@ button:hover > .arr {
 .admin-select {
   max-width: 100%;
 }
+.admin-mobile-card {
+  transition: background 0.1s;
+}
+.admin-mobile-card + .admin-mobile-card {
+  border-top: none;
+}
 .admin-input {
   width: 100%;
 }

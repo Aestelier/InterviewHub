@@ -872,6 +872,129 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
       <section className="admin-table-card border border-line bg-paper-2/40 p-5 md:p-7">
         <span className="mono dim">{t.list.tag}</span>
+
+        {/* Mobile: cartes */}
+        <div className="mt-5 grid gap-3 md:hidden">
+          {accesses.length === 0 ? (
+            <p className="text-sm text-muted">{t.list.empty}</p>
+          ) : accesses.map((access) => (
+            <div key={access.id} className="admin-mobile-card border border-line bg-paper p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-ink">{access.code}</span>
+                    <span className="admin-status-badge">{access.status}</span>
+                  </div>
+                  {access.participant_name ? (
+                    <div className="mt-1 text-sm text-muted">{access.participant_name}</div>
+                  ) : null}
+                  {access.participant_contact ? (
+                    <div className="break-all text-xs text-muted">{access.participant_contact}</div>
+                  ) : null}
+                </div>
+                <div className="relative shrink-0" style={openMenuCode === access.code ? { zIndex: 30 } : undefined}>
+                  <ActionMenu
+                    access={access}
+                    label={t.list.action}
+                    consentLabel={t.list.consent}
+                    copyLabel={t.list.copy}
+                    calendarLabel={t.list.addToCalendar}
+                    deleteLabel={t.list.delete}
+                    calendarLocale={access.language ?? locale}
+                    isOpen={openMenuCode === access.code}
+                    onToggle={() => setOpenMenuCode((prev) => (prev === access.code ? null : access.code))}
+                    onClose={() => setOpenMenuCode(null)}
+                    onConsent={setSelectedConsentAccess}
+                    onCopy={copyLink}
+                    onDelete={setPendingDelete}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3 grid gap-3 border-t border-line pt-3 text-sm">
+                {/* Date */}
+                {editingDateCode === access.code ? (
+                  <div className="grid gap-2">
+                    <input type="date" value={editingDate} onChange={(e) => setEditingDate(e.target.value)} className="admin-input min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20" />
+                    <input type="time" value={editingTime} onChange={(e) => setEditingTime(e.target.value)} className="admin-input min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20" />
+                    <div className="flex items-center gap-2">
+                      <input type="number" min={5} max={1440} step={5} value={editingDuration} onChange={(e) => setEditingDuration(Number(e.target.value) || 0)} className="admin-input min-h-10 w-24 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20" />
+                      <span className="text-xs text-muted">{t.list.durationSuffix}</span>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                      <button type="button" onClick={() => { if (isValidEmail(access.participant_contact) && editingDate !== access.interview_date && !window.confirm(t.list.confirmDateEmail)) return; updateInterviewDate(access.code); }} disabled={!editingDate || !editingTime || !editingDuration} className="admin-table-action mono hover:text-ink disabled:cursor-not-allowed disabled:opacity-40">{t.list.saveDate} →</button>
+                      <button type="button" onClick={() => { setEditingDateCode(null); setEditingDate(""); setEditingTime(""); setEditingDuration(60); }} className="admin-table-action mono dim hover:text-ink">{t.list.cancel}</button>
+                    </div>
+                    {isValidEmail(access.participant_contact) ? (
+                      <p className="border px-2 py-1 text-[11px]" style={{ borderColor: "rgba(184, 112, 44, 0.35)", background: "rgba(184, 112, 44, 0.10)", color: "rgb(142, 77, 26)" }}>{t.list.emailWarning}</p>
+                    ) : null}
+                  </div>
+                ) : (
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="grid gap-1">
+                      <span className="text-ink">
+                        {access.interview_date} · {access.interview_time}
+                        <span className="text-muted"> ({access.interview_duration_minutes} {t.list.durationSuffix})</span>
+                      </span>
+                      {access.date_change_requested_at && access.date_change_requested_date && access.date_change_requested_time && access.date_change_requested_duration_minutes ? (
+                        <div className="inline-flex flex-col gap-1 border px-2 py-1 text-[11px]" style={{ borderColor: "rgba(184, 112, 44, 0.45)", background: "rgba(184, 112, 44, 0.12)", color: "rgb(142, 77, 26)" }}>
+                          <span className="text-[10px] font-semibold uppercase tracking-[0.14em]">{t.list.dateChangeBadge}</span>
+                          <span>{access.date_change_requested_date} · {access.date_change_requested_time} · {access.date_change_requested_duration_minutes} {t.list.durationSuffix}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                    <button type="button" onClick={() => { setEditingDateCode(access.code); setEditingDate(access.date_change_requested_date ?? access.interview_date); setEditingTime(access.date_change_requested_time ?? access.interview_time); setEditingDuration(access.date_change_requested_duration_minutes ?? access.interview_duration_minutes); }} className="admin-table-action mono dim shrink-0 hover:text-ink">{t.list.editDate}</button>
+                  </div>
+                )}
+
+                {/* Langue + Visio */}
+                <div className="flex flex-wrap items-start gap-3">
+                  <select value={access.language} onChange={(e) => updateLanguage(access.code, e.target.value as "fr" | "en")} className="admin-select min-h-9 border border-line bg-paper px-2 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20">
+                    <option value="fr">{t.list.languageFr}</option>
+                    <option value="en">{t.list.languageEn}</option>
+                  </select>
+                  {editingVisioCode === access.code ? (
+                    <div className="grid flex-1 gap-2">
+                      <div className="flex justify-end">
+                        <ProviderToolsButton label={locale === "fr" ? "Outils" : "Tools"} onDiscordSelect={setEditingVisioUrl} />
+                      </div>
+                      <input type="url" value={editingVisioUrl} onChange={(e) => setEditingVisioUrl(e.target.value)} placeholder="https://meet.example.com/..." className="admin-input min-h-10 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20" />
+                      <div className="flex flex-wrap gap-3">
+                        <button type="button" onClick={() => updateVisioUrl(access.code)} className="admin-table-action mono hover:text-ink">{t.list.saveVisio} →</button>
+                        <button type="button" onClick={() => { setEditingVisioCode(null); setEditingVisioUrl(""); }} className="admin-table-action mono dim hover:text-ink">{t.list.cancel}</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-3">
+                      {access.visio_url ? (
+                        <a href={access.visio_url} target="_blank" rel="noreferrer" className="admin-table-action mono dim hover:text-ink" style={{ fontSize: 11 }}>lien →</a>
+                      ) : (
+                        <span className="text-muted">—</span>
+                      )}
+                      <button type="button" onClick={() => { setEditingVisioCode(access.code); setEditingVisioUrl(access.visio_url ?? ""); }} className="admin-table-action mono dim hover:text-ink">{t.list.editVisio}</button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Badge changement de lien provider */}
+                {access.provider_change_requested_at ? (
+                  <span className="inline-flex items-center gap-1 self-start border px-2 py-1 text-[10px] uppercase tracking-[0.14em]" style={{ borderColor: "rgba(184, 112, 44, 0.45)", background: "rgba(184, 112, 44, 0.12)", color: "rgb(142, 77, 26)" }}>
+                    <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />
+                      <path d="M12 9v4" />
+                      <path d="M12 17h.01" />
+                    </svg>
+                    {t.list.changeRequested}
+                    {access.provider_change_requested_provider ? ` — ${access.provider_change_requested_provider}` : null}
+                  </span>
+                ) : null}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop: tableau */}
+        <div className="hidden md:block">
         <div className="admin-table-shell mt-5">
           <div className="admin-table-scroll admin-table-main">
             <table className="admin-access-table w-full min-w-[1100px] border-collapse text-left text-sm">
@@ -1205,6 +1328,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           </table>
         </div>
         </div>
+        </div>{/* fin hidden md:block */}
       </section>
 
       {pendingDeleteAccess ? (
