@@ -110,6 +110,7 @@ export async function GET(
   const { code } = await context.params;
   const normalizedCode = normalizeAccessCode(code);
   const locale = request.nextUrl.searchParams.get("locale") === "en" ? "en" : "fr";
+  const isAdmin = request.nextUrl.searchParams.get("view") === "admin";
 
   try {
     const supabase = getSupabaseAdmin();
@@ -129,8 +130,20 @@ export async function GET(
       return new Response("Forbidden", { status: 403 });
     }
 
-    const summary = locale === "en" ? "Aestelier interview" : "Entretien Aestelier";
-    const description = locale === "en" ? "Aestelier interview." : "Entretien Aestelier.";
+    let summary: string;
+    let description: string;
+
+    if (isAdmin) {
+      const artistPart = access.participant_name ? ` — ${access.participant_name}` : "";
+      summary = `Entretien${artistPart} [${access.code}]`;
+      const lines: string[] = [`Code : ${access.code}`];
+      if (access.participant_name) lines.push(`Artiste : ${access.participant_name}`);
+      if (access.participant_contact) lines.push(`Contact : ${access.participant_contact}`);
+      description = lines.join("\n");
+    } else {
+      summary = locale === "en" ? "Aestelier interview" : "Entretien Aestelier";
+      description = locale === "en" ? "Aestelier interview." : "Entretien Aestelier.";
+    }
 
     const ics = buildIcs({
       code: access.code,

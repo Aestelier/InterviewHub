@@ -447,7 +447,7 @@ function ActionMenu({
             <span className="arr" />
           </button>
           <a
-            href={`/api/calendar/${encodeURIComponent(access.code)}?locale=${calendarLocale}`}
+            href={`/api/calendar/${encodeURIComponent(access.code)}?locale=${calendarLocale}&view=admin`}
             onClick={onClose}
             className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
           >
