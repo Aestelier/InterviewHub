@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+type ConsentSnapshot = Partial<Record<string, boolean>>;
+
 type AccessRow = {
   id: string;
   code: string;
@@ -16,6 +18,8 @@ type AccessRow = {
   created_at: string;
   last_opened_at: string | null;
   pdf_generated_at: string | null;
+  consent_snapshot: ConsentSnapshot | null;
+  template_version: string | null;
   visio_url: string | null;
   provider_change_requested_at: string | null;
   provider_change_requested_provider: string | null;
@@ -42,6 +46,37 @@ const providerTools = [
   { name: "Kmeet", href: "https://kmeet.infomaniak.com/" },
   { name: "Discord", href: "https://discord.com/users/306005027552755713" }
 ];
+
+const consentLabels = {
+  fr: {
+    participation: "Participer à l'entretien",
+    writtenNotes: "Prise de notes écrites",
+    recording: "Enregistrement audio ou vidéo",
+    transcription: "Transcription",
+    internalNotes: "Notes internes de recherche produit",
+    anonymousTrends: "Tendances ou observations anonymisées",
+    recontact: "Recontact",
+    wizardOfOz: "Test manuel anonymisé Wizard-of-Oz",
+    futureAnonymousQuotes: "Validation future de citations anonymisées",
+    futureAttributedQuotes: "Validation future de citations attribuées",
+    adult: "Déclaration 18 ans ou plus",
+    separateAgreement: "Accord écrit séparé pour tout usage hors entretien"
+  },
+  en: {
+    participation: "Take part in the interview",
+    writtenNotes: "Written notes",
+    recording: "Audio or video recording",
+    transcription: "Transcription",
+    internalNotes: "Internal product research notes",
+    anonymousTrends: "Anonymized trends or observations",
+    recontact: "Follow-up contact",
+    wizardOfOz: "Anonymized Wizard-of-Oz manual test",
+    futureAnonymousQuotes: "Future approval of anonymized quotes",
+    futureAttributedQuotes: "Future approval of attributed quotes",
+    adult: "18 or older declaration",
+    separateAgreement: "Separate written agreement for any use outside the interview"
+  }
+} as const;
 
 const copy = {
   fr: {
@@ -84,7 +119,7 @@ const copy = {
       date: "Date d'entretien",
       time: "Horaire (HH:MM)",
       duration: "Durée (minutes)",
-      language: "Langue des e-mails",
+      language: "Langue de l'artiste",
       languageFr: "Français",
       languageEn: "Anglais",
       artist: "Artiste (optionnel)",
@@ -103,7 +138,7 @@ const copy = {
       duration: "Durée",
       time: "Heure",
       durationSuffix: "min",
-      language: "Langue",
+      language: "Langue artiste",
       languageEdit: "Modifier la langue",
       languageSave: "Enregistrer",
       languageFr: "Français",
@@ -116,6 +151,18 @@ const copy = {
       action: "Action",
       copy: "Copier le lien",
       delete: "Supprimer",
+      consent: "Consentements",
+      consentUnavailable: "Aucun PDF téléchargé",
+      consentModalTag: "[ consentements ]",
+      consentModalTitle: "Dernier document téléchargé.",
+      consentModalIntro:
+        "État des cases cochées lors du dernier téléchargement du document de consentement.",
+      consentYes: "Coché",
+      consentNo: "Non coché",
+      consentUnknown: "Aucun consentement enregistré pour cet accès.",
+      templateVersion: "Version du modèle",
+      pdfGeneratedAt: "Téléchargé le",
+      close: "Fermer",
       confirmDelete: "Confirmer la suppression de",
       expiry: "Expiration",
       visio: "Visio",
@@ -171,7 +218,7 @@ const copy = {
       date: "Interview date",
       time: "Time (HH:MM)",
       duration: "Duration (minutes)",
-      language: "Email language",
+      language: "Artist language",
       languageFr: "French",
       languageEn: "English",
       artist: "Artist (optional)",
@@ -190,7 +237,7 @@ const copy = {
       duration: "Duration",
       time: "Time",
       durationSuffix: "min",
-      language: "Language",
+      language: "Artist language",
       languageEdit: "Change language",
       languageSave: "Save",
       languageFr: "French",
@@ -203,6 +250,18 @@ const copy = {
       action: "Action",
       copy: "Copy link",
       delete: "Delete",
+      consent: "Consent",
+      consentUnavailable: "No PDF downloaded",
+      consentModalTag: "[ consent ]",
+      consentModalTitle: "Last downloaded document.",
+      consentModalIntro:
+        "State of the checkboxes when the consent document was last downloaded.",
+      consentYes: "Checked",
+      consentNo: "Not checked",
+      consentUnknown: "No consent snapshot recorded for this access.",
+      templateVersion: "Template version",
+      pdfGeneratedAt: "Downloaded on",
+      close: "Close",
       confirmDelete: "Confirm deletion of",
       expiry: "Expiry",
       visio: "Visio",
@@ -255,6 +314,10 @@ function isValidEmail(value: string | null) {
   return Boolean(value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim()));
 }
 
+function hasConsentSnapshot(access: AccessRow) {
+  return Boolean(access.consent_snapshot && Object.keys(access.consent_snapshot).length > 0);
+}
+
 export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const t = copy[locale];
   const [token, setToken] = useState("");
@@ -276,6 +339,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [editingDuration, setEditingDuration] = useState(60);
   const [editingVisioCode, setEditingVisioCode] = useState<string | null>(null);
   const [editingVisioUrl, setEditingVisioUrl] = useState("");
+  const [selectedConsentAccess, setSelectedConsentAccess] = useState<AccessRow | null>(null);
 
   const origin = useMemo(() => {
     if (typeof window === "undefined") {
@@ -899,6 +963,19 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                     <div className="flex flex-wrap items-center gap-3">
                       <button
                         type="button"
+                        onClick={() => setSelectedConsentAccess(access)}
+                        disabled={!hasConsentSnapshot(access)}
+                        title={
+                          hasConsentSnapshot(access)
+                            ? t.list.consent
+                            : t.list.consentUnavailable
+                        }
+                        className="mono dim hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        {t.list.consent} →
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => copyLink(access.code)}
                         className="mono dim hover:text-ink"
                       >
@@ -947,6 +1024,93 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           </table>
         </div>
       </section>
+
+      {selectedConsentAccess ? (
+        <div
+          className="preview-backdrop"
+          onClick={() => setSelectedConsentAccess(null)}
+        >
+          <div
+            className="form-panel"
+            style={{
+              maxWidth: 620,
+              background: "var(--papier)",
+              boxShadow: "0 24px 60px rgba(12, 10, 8, 0.28)",
+              position: "relative"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setSelectedConsentAccess(null)}
+              aria-label={t.list.close}
+              className="modal-close-button"
+            >
+              ×
+            </button>
+            <span className="mono dim">{t.list.consentModalTag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
+            >
+              {t.list.consentModalTitle}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.list.consentModalIntro}
+            </p>
+            <div className="form-divider">
+              <div className="grid gap-2 text-sm text-muted">
+                <span>
+                  <strong className="text-ink">{t.list.code}</strong> ·{" "}
+                  {selectedConsentAccess.code}
+                </span>
+                <span>
+                  <strong className="text-ink">{t.list.pdfGeneratedAt}</strong> ·{" "}
+                  {selectedConsentAccess.pdf_generated_at
+                    ? new Date(selectedConsentAccess.pdf_generated_at).toLocaleString(
+                        locale === "fr" ? "fr-FR" : "en-GB"
+                      )
+                    : "—"}
+                </span>
+                {selectedConsentAccess.template_version ? (
+                  <span>
+                    <strong className="text-ink">{t.list.templateVersion}</strong> ·{" "}
+                    {selectedConsentAccess.template_version}
+                  </span>
+                ) : null}
+              </div>
+              {hasConsentSnapshot(selectedConsentAccess) ? (
+                <ul className="mt-5 grid gap-0 border-t border-line">
+                  {Object.entries(consentLabels[selectedConsentAccess.language ?? locale]).map(
+                    ([key, label]) => {
+                      const checked = Boolean(selectedConsentAccess.consent_snapshot?.[key]);
+
+                      return (
+                        <li
+                          key={key}
+                          className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 border-b border-line py-3 text-sm"
+                        >
+                          <span className="text-ink">{label}</span>
+                          <span
+                            className="mono"
+                            style={{
+                              color: checked ? "var(--accent)" : "var(--pierre)"
+                            }}
+                          >
+                            {checked ? t.list.consentYes : t.list.consentNo}
+                          </span>
+                        </li>
+                      );
+                    }
+                  )}
+                </ul>
+              ) : (
+                <p className="form-status">{t.list.consentUnknown}</p>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {status ? <p className="text-sm text-muted">{status}</p> : null}
         </>
