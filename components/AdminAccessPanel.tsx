@@ -38,13 +38,15 @@ type AccessResponse = {
 
 type Locale = "fr" | "en";
 
+const discordProfileUrl = "https://discord.com/users/306005027552755713";
+
 const providerTools = [
   { name: "Google Meet", href: "https://meet.google.com/" },
   { name: "Brave Talk", href: "https://talk.brave.com/" },
   { name: "Teams", href: "https://teams.microsoft.com/" },
   { name: "Proton Meet", href: "https://meet.proton.me/" },
   { name: "Kmeet", href: "https://kmeet.infomaniak.com/" },
-  { name: "Discord", href: "https://discord.com/users/306005027552755713" }
+  { name: "Discord", href: discordProfileUrl }
 ];
 
 const consentLabels = {
@@ -283,7 +285,13 @@ type AdminAccessPanelProps = {
   locale?: Locale;
 };
 
-function ProviderToolsButton({ label }: { label: string }) {
+function ProviderToolsButton({
+  label,
+  onDiscordSelect
+}: {
+  label: string;
+  onDiscordSelect?: (href: string) => void;
+}) {
   return (
     <details className="relative inline-block">
       <summary className="mono dim cursor-pointer list-none hover:text-ink">
@@ -293,18 +301,30 @@ function ProviderToolsButton({ label }: { label: string }) {
         className="absolute right-0 z-20 mt-2 grid min-w-48 border border-line bg-paper p-2 shadow-sm"
         style={{ boxShadow: "0 16px 40px rgba(0, 0, 0, 0.12)" }}
       >
-        {providerTools.map((provider) => (
-          <a
-            key={provider.name}
-            href={provider.href}
-            target="_blank"
-            rel="noreferrer"
-            className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
-          >
-            <span>{provider.name}</span>
-            <span className="arr" />
-          </a>
-        ))}
+        {providerTools.map((provider) =>
+          provider.name === "Discord" && onDiscordSelect ? (
+            <button
+              key={provider.name}
+              type="button"
+              onClick={() => onDiscordSelect(provider.href)}
+              className="flex items-center justify-between gap-4 px-3 py-2 text-left text-sm text-ink hover:bg-paper-2"
+            >
+              <span>{provider.name}</span>
+              <span className="arr" />
+            </button>
+          ) : (
+            <a
+              key={provider.name}
+              href={provider.href}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
+            >
+              <span>{provider.name}</span>
+              <span className="arr" />
+            </a>
+          )
+        )}
       </div>
     </details>
   );
@@ -650,7 +670,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           <label className="grid gap-2 md:col-span-2">
             <span className="flex items-center justify-between gap-3 text-sm font-semibold text-ink">
               <span>{t.create.visioUrl}</span>
-              <ProviderToolsButton label={locale === "fr" ? "Outils" : "Tools"} />
+              <ProviderToolsButton
+                label={locale === "fr" ? "Outils" : "Tools"}
+                onDiscordSelect={setVisioUrl}
+              />
             </span>
             <input
               type="url"
@@ -915,7 +938,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                     {editingVisioCode === access.code ? (
                       <div className="grid gap-2">
                         <div className="flex justify-end">
-                          <ProviderToolsButton label={locale === "fr" ? "Outils" : "Tools"} />
+                          <ProviderToolsButton
+                            label={locale === "fr" ? "Outils" : "Tools"}
+                            onDiscordSelect={setEditingVisioUrl}
+                          />
                         </div>
                         <input
                           type="url"
