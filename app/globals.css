@@ -767,6 +767,8 @@ button:hover > .arr {
 .form-panel {
   width: 100%;
   max-width: 620px;
+  max-height: calc(100vh - 48px);
+  overflow-y: auto;
   padding: 28px;
 }
 .form-panel-compact {
@@ -1109,10 +1111,14 @@ button:hover > .arr {
 
 /* admin */
 .admin-table-card {
-  overflow: hidden;
+  overflow: visible;
+}
+.admin-table-shell {
+  border-top: 1px solid var(--hair);
+  overflow: visible;
 }
 .admin-table-scroll {
-  border-top: 1px solid var(--hair);
+  overflow-x: auto;
 }
 .admin-access-table {
   table-layout: fixed;
@@ -1137,9 +1143,6 @@ button:hover > .arr {
 .admin-access-table td:nth-child(4) {
   overflow-wrap: anywhere;
 }
-.admin-access-table td:nth-child(9) {
-  text-align: right;
-}
 .admin-table-action {
   display: inline-flex;
   align-items: center;
@@ -1147,11 +1150,22 @@ button:hover > .arr {
   min-height: 24px;
   white-space: nowrap;
 }
-.admin-action-stack {
-  display: inline-grid;
-  justify-items: end;
-  gap: 7px;
-  min-width: 96px;
+.admin-action-rail-col {
+  position: sticky;
+  right: 0;
+  z-index: 10;
+  background: var(--papier);
+  border-left: 1px solid var(--hair);
+  box-shadow: -8px 0 16px rgba(12, 10, 8, 0.04);
+  text-align: right;
+  vertical-align: top;
+  white-space: nowrap;
+}
+.admin-access-table tbody tr:nth-child(even) .admin-action-rail-col {
+  background: rgba(255, 253, 247, 0.97);
+}
+.admin-access-table tbody tr:hover .admin-action-rail-col {
+  background: rgba(237, 232, 222, 0.97);
 }
 .admin-status-badge {
   display: inline-flex;
@@ -1172,6 +1186,36 @@ button:hover > .arr {
 }
 .admin-input {
   width: 100%;
+}
+.admin-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 200;
+  max-width: 320px;
+  padding: 12px 18px;
+  border: 1px solid rgba(12, 10, 8, 0.14);
+  background: var(--encre);
+  color: var(--papier);
+  font-family: var(--font-stack-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  box-shadow: 0 8px 32px rgba(12, 10, 8, 0.22);
+  animation: toast-in 0.18s ease forwards;
+}
+.admin-toast[data-type="error"] {
+  background: rgb(142, 77, 26);
+  border-color: rgba(184, 112, 44, 0.4);
+}
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .preview-panel {
   display: flex;

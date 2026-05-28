@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type ConsentSnapshot = Partial<Record<string, boolean>>;
 
@@ -97,7 +97,8 @@ const copy = {
       updatingSchedule: "Mise à jour de l'horaire...",
       updatedSchedule: "Horaire mis à jour.",
       updatingVisio: "Mise à jour du lien visio...",
-      updatedVisio: "Lien visio mis à jour."
+      updatedVisio: "Lien visio mis à jour.",
+      updatedLanguage: "Langue mise à jour."
     },
     gateway: {
       tag: "[ gateway ]",
@@ -124,10 +125,11 @@ const copy = {
       language: "Langue de l'artiste",
       languageFr: "Français",
       languageEn: "Anglais",
-      artist: "Artiste (optionnel)",
-      contact: "Contact (optionnel)",
-      expiry: "Expiration optionnelle",
-      visioUrl: "Lien visio (optionnel)",
+      artist: "Artiste",
+      contact: "Contact",
+      expiry: "Expiration",
+      visioUrl: "Lien visio",
+      optional: "optionnel",
       submit: "Générer un accès"
     },
     list: {
@@ -152,6 +154,7 @@ const copy = {
       status: "Statut",
       action: "Action",
       copy: "Copier le lien",
+      addToCalendar: "Ajouter au calendrier",
       delete: "Supprimer",
       consent: "Consentements",
       consentUnavailable: "Aucun PDF téléchargé",
@@ -159,6 +162,10 @@ const copy = {
       consentModalTitle: "Dernier document téléchargé.",
       consentModalIntro:
         "État des cases cochées lors du dernier téléchargement du document de consentement.",
+      deleteModalTag: "[ suppression ]",
+      deleteModalTitle: "Supprimer cet accès ?",
+      deleteModalIntro:
+        "Cette action supprime le record admin et rend le code d'accès inutilisable.",
       consentYes: "Coché",
       consentNo: "Non coché",
       consentUnknown: "Aucun consentement enregistré pour cet accès.",
@@ -196,7 +203,8 @@ const copy = {
       updatingSchedule: "Updating schedule...",
       updatedSchedule: "Schedule updated.",
       updatingVisio: "Updating visio link...",
-      updatedVisio: "Visio link updated."
+      updatedVisio: "Visio link updated.",
+      updatedLanguage: "Language updated."
     },
     gateway: {
       tag: "[ gateway ]",
@@ -223,10 +231,11 @@ const copy = {
       language: "Artist language",
       languageFr: "French",
       languageEn: "English",
-      artist: "Artist (optional)",
-      contact: "Contact (optional)",
-      expiry: "Optional expiry",
-      visioUrl: "Visio link (optional)",
+      artist: "Artist",
+      contact: "Contact",
+      expiry: "Expiry",
+      visioUrl: "Visio link",
+      optional: "optional",
       submit: "Generate access"
     },
     list: {
@@ -251,6 +260,7 @@ const copy = {
       status: "Status",
       action: "Action",
       copy: "Copy link",
+      addToCalendar: "Add to calendar",
       delete: "Delete",
       consent: "Consent",
       consentUnavailable: "No PDF downloaded",
@@ -258,6 +268,10 @@ const copy = {
       consentModalTitle: "Last downloaded document.",
       consentModalIntro:
         "State of the checkboxes when the consent document was last downloaded.",
+      deleteModalTag: "[ deletion ]",
+      deleteModalTitle: "Delete this access?",
+      deleteModalIntro:
+        "This action deletes the admin record and makes the access code unusable.",
       consentYes: "Checked",
       consentNo: "Not checked",
       consentUnknown: "No consent snapshot recorded for this access.",
@@ -292,41 +306,166 @@ function ProviderToolsButton({
   label: string;
   onDiscordSelect?: (href: string) => void;
 }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleOutsideClick(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen]);
+
   return (
-    <details className="relative inline-block">
-      <summary className="mono dim cursor-pointer list-none hover:text-ink">
-        {label} <span className="arr" />
-      </summary>
-      <div
-        className="absolute right-0 z-20 mt-2 grid min-w-48 border border-line bg-paper p-2 shadow-sm"
-        style={{ boxShadow: "0 16px 40px rgba(0, 0, 0, 0.12)" }}
+    <div ref={containerRef} className="relative inline-block">
+      <button
+        type="button"
+        onClick={() => setIsOpen((v) => !v)}
+        className="mono dim cursor-pointer hover:text-ink"
       >
-        {providerTools.map((provider) =>
-          provider.name === "Discord" && onDiscordSelect ? (
-            <button
-              key={provider.name}
-              type="button"
-              onClick={() => onDiscordSelect(provider.href)}
-              className="flex items-center justify-between gap-4 px-3 py-2 text-left text-sm text-ink hover:bg-paper-2"
-            >
-              <span>{provider.name}</span>
-              <span className="arr" />
-            </button>
-          ) : (
-            <a
-              key={provider.name}
-              href={provider.href}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
-            >
-              <span>{provider.name}</span>
-              <span className="arr" />
-            </a>
-          )
-        )}
-      </div>
-    </details>
+        {label} <span className="arr" />
+      </button>
+      {isOpen ? (
+        <div
+          className="absolute right-0 z-20 mt-2 grid min-w-48 border border-line bg-paper p-2"
+          style={{ boxShadow: "0 16px 40px rgba(0, 0, 0, 0.12)" }}
+        >
+          {providerTools.map((provider) =>
+            provider.name === "Discord" && onDiscordSelect ? (
+              <button
+                key={provider.name}
+                type="button"
+                onClick={() => {
+                  onDiscordSelect(provider.href);
+                  setIsOpen(false);
+                }}
+                className="flex items-center justify-between gap-4 px-3 py-2 text-left text-sm text-ink hover:bg-paper-2"
+              >
+                <span>{provider.name}</span>
+                <span className="arr" />
+              </button>
+            ) : (
+              <a
+                key={provider.name}
+                href={provider.href}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setIsOpen(false)}
+                className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
+              >
+                <span>{provider.name}</span>
+                <span className="arr" />
+              </a>
+            )
+          )}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ActionMenu({
+  access,
+  label,
+  consentLabel,
+  copyLabel,
+  calendarLabel,
+  deleteLabel,
+  calendarLocale,
+  isOpen,
+  onToggle,
+  onClose,
+  onConsent,
+  onCopy,
+  onDelete
+}: {
+  access: AccessRow;
+  label: string;
+  consentLabel: string;
+  copyLabel: string;
+  calendarLabel: string;
+  deleteLabel: string;
+  calendarLocale: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onConsent: (access: AccessRow) => void;
+  onCopy: (code: string) => void;
+  onDelete: (code: string) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    function handleOutsideClick(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    }
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen, onClose]);
+
+  function runAction(action: () => void | Promise<void>) {
+    void action();
+    onClose();
+  }
+
+  return (
+    <div ref={containerRef} className="relative inline-block">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="mono dim cursor-pointer hover:text-ink"
+      >
+        {label} <span className="arr" />
+      </button>
+      {isOpen ? (
+        <div
+          className="absolute right-0 z-20 mt-2 grid min-w-48 border border-line bg-paper p-2 text-left"
+          style={{ boxShadow: "0 16px 40px rgba(0, 0, 0, 0.12)" }}
+        >
+          <button
+            type="button"
+            onClick={() => runAction(() => onConsent(access))}
+            disabled={!hasConsentSnapshot(access)}
+            className="flex items-center justify-between gap-4 px-3 py-2 text-left text-sm text-ink hover:bg-paper-2 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <span>{consentLabel}</span>
+            <span className="arr" />
+          </button>
+          <button
+            type="button"
+            onClick={() => runAction(() => onCopy(access.code))}
+            className="flex items-center justify-between gap-4 px-3 py-2 text-left text-sm text-ink hover:bg-paper-2"
+          >
+            <span>{copyLabel}</span>
+            <span className="arr" />
+          </button>
+          <a
+            href={`/api/calendar/${encodeURIComponent(access.code)}?locale=${calendarLocale}`}
+            onClick={onClose}
+            className="flex items-center justify-between gap-4 px-3 py-2 text-sm text-ink hover:bg-paper-2"
+          >
+            <span>{calendarLabel}</span>
+            <span className="arr" />
+          </a>
+          <button
+            type="button"
+            onClick={() => runAction(() => onDelete(access.code))}
+            className="flex items-center justify-between gap-4 px-3 py-2 text-left text-sm text-ink hover:bg-paper-2"
+            style={{ color: "var(--accent)" }}
+          >
+            <span>{deleteLabel}</span>
+            <span className="arr" />
+          </button>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -351,7 +490,9 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [language, setLanguage] = useState<"fr" | "en">("fr");
   const [expiresAt, setExpiresAt] = useState("");
   const [visioUrl, setVisioUrl] = useState("");
-  const [status, setStatus] = useState("");
+  const [gatewayStatus, setGatewayStatus] = useState("");
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
   const [editingDateCode, setEditingDateCode] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState("");
@@ -360,6 +501,13 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   const [editingVisioCode, setEditingVisioCode] = useState<string | null>(null);
   const [editingVisioUrl, setEditingVisioUrl] = useState("");
   const [selectedConsentAccess, setSelectedConsentAccess] = useState<AccessRow | null>(null);
+  const [openMenuCode, setOpenMenuCode] = useState<string | null>(null);
+
+  function showToast(message: string, type: "success" | "error" = "success") {
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    setToast({ message, type });
+    toastTimerRef.current = setTimeout(() => setToast(null), 2800);
+  }
 
   const origin = useMemo(() => {
     if (typeof window === "undefined") {
@@ -388,21 +536,19 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
   }
 
   async function loadAccesses() {
-    setStatus(t.status.loading);
+    setGatewayStatus(t.status.loading);
 
     try {
       const body = await fetchAdmin("/api/admin/accesses");
       setAccesses(body.accesses ?? []);
       setIsUnlocked(true);
-      setStatus(t.status.loaded);
+      setGatewayStatus("");
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : t.status.unknown);
+      setGatewayStatus(error instanceof Error ? error.message : t.status.unknown);
     }
   }
 
   async function createAccess() {
-    setStatus(t.status.creating);
-
     try {
       const body = await fetchAdmin("/api/admin/accesses", {
         method: "POST",
@@ -430,9 +576,9 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       setLanguage("fr");
       setExpiresAt("");
       setVisioUrl("");
-      setStatus(t.status.created);
+      showToast(t.status.created);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : t.status.unknown);
+      showToast(error instanceof Error ? error.message : t.status.unknown, "error");
     }
   }
 
@@ -442,11 +588,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
   async function copyLink(code: string) {
     await navigator.clipboard.writeText(buildLink(code));
-    setStatus(t.status.copied);
+    showToast(t.status.copied);
   }
 
   async function deleteAccess(code: string) {
-    setStatus(t.status.deleting);
     setPendingDelete(null);
 
     try {
@@ -454,15 +599,13 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         method: "DELETE"
       });
       setAccesses((current) => current.filter((a) => a.code !== code));
-      setStatus(t.status.deleted);
+      showToast(t.status.deleted);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : t.status.unknown);
+      showToast(error instanceof Error ? error.message : t.status.unknown, "error");
     }
   }
 
   async function updateVisioUrl(code: string) {
-    setStatus(t.status.updatingVisio);
-
     try {
       const body = await fetchAdmin("/api/admin/accesses", {
         method: "PATCH",
@@ -480,9 +623,9 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
       setEditingVisioCode(null);
       setEditingVisioUrl("");
-      setStatus(t.status.updatedVisio);
+      showToast(t.status.updatedVisio);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : t.status.unknown);
+      showToast(error instanceof Error ? error.message : t.status.unknown, "error");
     }
   }
 
@@ -498,14 +641,14 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           current.map((access) => (access.code === code ? (body.access as AccessRow) : access))
         );
       }
+
+      showToast(t.status.updatedLanguage);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : t.status.unknown);
+      showToast(error instanceof Error ? error.message : t.status.unknown, "error");
     }
   }
 
   async function updateInterviewDate(code: string) {
-    setStatus(t.status.updatingSchedule);
-
     try {
       const body = await fetchAdmin("/api/admin/accesses", {
         method: "PATCH",
@@ -527,11 +670,15 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
       setEditingDate("");
       setEditingTime("");
       setEditingDuration(60);
-      setStatus(body.warning ?? t.status.updatedSchedule);
+      showToast(body.warning ?? t.status.updatedSchedule);
     } catch (error) {
-      setStatus(error instanceof Error ? error.message : t.status.unknown);
+      showToast(error instanceof Error ? error.message : t.status.unknown, "error");
     }
   }
+
+  const pendingDeleteAccess = pendingDelete
+    ? accesses.find((access) => access.code === pendingDelete)
+    : null;
 
   return (
     <div className="grid gap-6">
@@ -566,7 +713,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           >
             {t.gateway.submit} <span className="arr" />
           </button>
-          {status ? <p className="mt-4 text-sm text-muted">{status}</p> : null}
+          {gatewayStatus ? <p className="mt-4 text-sm text-muted">{gatewayStatus}</p> : null}
         </section>
       ) : (
         <>
@@ -596,27 +743,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         </h3>
         <div className="mt-5 grid gap-5 md:grid-cols-2">
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.artist}</span>
-            <input
-              type="text"
-              value={participantName}
-              onChange={(event) => setParticipantName(event.target.value)}
-              placeholder={locale === "fr" ? "Nom de l'artiste" : "Artist name"}
-              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
-            />
-          </label>
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.contact}</span>
-            <input
-              type="text"
-              value={participantContact}
-              onChange={(event) => setParticipantContact(event.target.value)}
-              placeholder={locale === "fr" ? "E-mail ou contact" : "Email or contact"}
-              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
-            />
-          </label>
-          <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.date}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.date}
+              <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>*</span>
+            </span>
             <input
               type="date"
               value={interviewDate}
@@ -625,7 +755,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.time}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.time}
+              <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>*</span>
+            </span>
             <input
               type="time"
               value={interviewTime}
@@ -634,7 +767,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.duration}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.duration}
+              <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>*</span>
+            </span>
             <input
               type="number"
               min={5}
@@ -648,7 +784,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             />
           </label>
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.language}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.language}
+              <span className="mono" style={{ fontSize: 10, color: "var(--accent)" }}>*</span>
+            </span>
             <select
               value={language}
               onChange={(event) => setLanguage(event.target.value as "fr" | "en")}
@@ -659,7 +798,36 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             </select>
           </label>
           <label className="grid gap-2">
-            <span className="text-sm font-semibold text-ink">{t.create.expiry}</span>
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.artist}
+              <span className="mono dim" style={{ fontSize: 10, fontWeight: 400 }}>{t.create.optional}</span>
+            </span>
+            <input
+              type="text"
+              value={participantName}
+              onChange={(event) => setParticipantName(event.target.value)}
+              placeholder={locale === "fr" ? "Nom de l'artiste" : "Artist name"}
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.contact}
+              <span className="mono dim" style={{ fontSize: 10, fontWeight: 400 }}>{t.create.optional}</span>
+            </span>
+            <input
+              type="text"
+              value={participantContact}
+              onChange={(event) => setParticipantContact(event.target.value)}
+              placeholder={locale === "fr" ? "E-mail ou contact" : "Email or contact"}
+              className="min-h-12 border border-line bg-paper px-3 text-ink outline-none transition focus:border-ochre focus:ring-2 focus:ring-ochre/20"
+            />
+          </label>
+          <label className="grid gap-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-ink">
+              {t.create.expiry}
+              <span className="mono dim" style={{ fontSize: 10, fontWeight: 400 }}>{t.create.optional}</span>
+            </span>
             <input
               type="datetime-local"
               value={expiresAt}
@@ -669,7 +837,10 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
           </label>
           <label className="grid gap-2 md:col-span-2">
             <span className="flex items-center justify-between gap-3 text-sm font-semibold text-ink">
-              <span>{t.create.visioUrl}</span>
+              <span className="flex items-center gap-2">
+                {t.create.visioUrl}
+                <span className="mono dim" style={{ fontSize: 10, fontWeight: 400 }}>{t.create.optional}</span>
+              </span>
               <ProviderToolsButton
                 label={locale === "fr" ? "Outils" : "Tools"}
                 onDiscordSelect={setVisioUrl}
@@ -701,20 +872,21 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
 
       <section className="admin-table-card border border-line bg-paper-2/40 p-5 md:p-7">
         <span className="mono dim">{t.list.tag}</span>
-        <div className="admin-table-scroll mt-5 overflow-x-auto">
-          <table className="admin-access-table w-full min-w-[1120px] border-collapse text-left text-sm">
-            <colgroup>
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "12%" }} />
-              <col style={{ width: "16%" }} />
-              <col style={{ width: "18%" }} />
-              <col style={{ width: "11%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "8%" }} />
-              <col style={{ width: "8%" }} />
-              <col style={{ width: "7%" }} />
-            </colgroup>
-            <thead className="border-b border-line text-xs uppercase tracking-[0.12em] text-ochre">
+        <div className="admin-table-shell mt-5">
+          <div className="admin-table-scroll admin-table-main">
+            <table className="admin-access-table w-full min-w-[1100px] border-collapse text-left text-sm">
+              <colgroup>
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "11%" }} />
+                <col style={{ width: "15%" }} />
+                <col style={{ width: "17%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "9%" }} />
+                <col style={{ width: "7%" }} />
+                <col style={{ width: "13%" }} />
+                <col style={{ width: "8%" }} />
+              </colgroup>
+              <thead className="border-b border-line text-xs uppercase tracking-[0.12em] text-ochre">
               <tr>
                 <th className="py-3 pr-4">{t.list.code}</th>
                 <th className="py-3 pr-4">{t.list.artist}</th>
@@ -724,7 +896,7 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                 <th className="py-3 pr-4">{t.list.status}</th>
                 <th className="py-3 pr-4">{t.list.expiry}</th>
                 <th className="py-3 pr-4">{t.list.visio}</th>
-                <th className="py-3 pr-4">{t.list.action}</th>
+                <th className="admin-action-rail-col py-3 pl-4 pr-4">{t.list.action}</th>
               </tr>
             </thead>
             <tbody>
@@ -998,57 +1170,27 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
                       </div>
                     )}
                   </td>
-                  <td className="py-4 pr-0 align-top">
-                    <div className="admin-action-stack">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedConsentAccess(access)}
-                        disabled={!hasConsentSnapshot(access)}
-                        title={
-                          hasConsentSnapshot(access)
-                            ? t.list.consent
-                            : t.list.consentUnavailable
-                        }
-                        className="admin-table-action mono dim hover:text-ink disabled:cursor-not-allowed disabled:opacity-40"
-                      >
-                        {t.list.consent} →
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => copyLink(access.code)}
-                        className="admin-table-action mono dim hover:text-ink"
-                      >
-                        {t.list.copy} →
-                      </button>
-                      {pendingDelete === access.code ? (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => deleteAccess(access.code)}
-                            className="admin-table-action mono hover:text-ink"
-                            style={{ color: "var(--accent)" }}
-                          >
-                            {t.list.confirmDelete} {access.code} →
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setPendingDelete(null)}
-                            className="admin-table-action mono dim hover:text-ink"
-                          >
-                            ✕
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setPendingDelete(access.code)}
-                          className="admin-table-action mono dim hover:text-ink"
-                          style={{ opacity: 0.5 }}
-                        >
-                          {t.list.delete}
-                        </button>
-                      )}
-                    </div>
+                  <td
+                    className="admin-action-rail-col py-4 pl-4 pr-4"
+                    style={openMenuCode === access.code ? { zIndex: 30 } : undefined}
+                  >
+                    <ActionMenu
+                      access={access}
+                      label={t.list.action}
+                      consentLabel={t.list.consent}
+                      copyLabel={t.list.copy}
+                      calendarLabel={t.list.addToCalendar}
+                      deleteLabel={t.list.delete}
+                      calendarLocale={access.language ?? locale}
+                      isOpen={openMenuCode === access.code}
+                      onToggle={() =>
+                        setOpenMenuCode((prev) => (prev === access.code ? null : access.code))
+                      }
+                      onClose={() => setOpenMenuCode(null)}
+                      onConsent={setSelectedConsentAccess}
+                      onCopy={copyLink}
+                      onDelete={setPendingDelete}
+                    />
                   </td>
                 </tr>
               ))}
@@ -1062,7 +1204,75 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
             </tbody>
           </table>
         </div>
+        </div>
       </section>
+
+      {pendingDeleteAccess ? (
+        <div className="preview-backdrop" onClick={() => setPendingDelete(null)}>
+          <div
+            className="form-panel"
+            style={{
+              maxWidth: 520,
+              background: "var(--papier)",
+              boxShadow: "0 24px 60px rgba(12, 10, 8, 0.28)",
+              position: "relative"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setPendingDelete(null)}
+              aria-label={t.list.close}
+              className="modal-close-button"
+            >
+              ×
+            </button>
+            <span className="mono dim">{t.list.deleteModalTag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
+            >
+              {t.list.deleteModalTitle}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.list.deleteModalIntro}
+            </p>
+            <div className="form-divider">
+              <div className="grid gap-2 text-sm text-muted">
+                <span>
+                  <strong className="text-ink">{t.list.code}</strong> ·{" "}
+                  {pendingDeleteAccess.code}
+                </span>
+                <span>
+                  <strong className="text-ink">{t.list.artist}</strong> ·{" "}
+                  {pendingDeleteAccess.participant_name || "—"}
+                </span>
+                <span>
+                  <strong className="text-ink">{t.list.date}</strong> ·{" "}
+                  {pendingDeleteAccess.interview_date} · {pendingDeleteAccess.interview_time}
+                </span>
+              </div>
+              <div className="mt-6 flex flex-wrap justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setPendingDelete(null)}
+                  className="pill"
+                >
+                  {t.list.cancel}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => deleteAccess(pendingDeleteAccess.code)}
+                  className="pill dark"
+                  style={{ borderColor: "var(--accent)", background: "var(--accent)" }}
+                >
+                  {t.list.confirmDelete} {pendingDeleteAccess.code}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {selectedConsentAccess ? (
         <div
@@ -1151,9 +1361,20 @@ export function AdminAccessPanel({ locale = "fr" }: AdminAccessPanelProps) {
         </div>
       ) : null}
 
-      {status ? <p className="text-sm text-muted">{status}</p> : null}
         </>
       )}
+
+      {toast ? (
+        <div
+          key={toast.message}
+          className="admin-toast"
+          data-type={toast.type}
+          role="status"
+          aria-live="polite"
+        >
+          {toast.message}
+        </div>
+      ) : null}
     </div>
   );
 }
