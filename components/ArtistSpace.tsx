@@ -488,9 +488,10 @@ export function ArtistSpace({
   }
 
   return (
-    <section style={{ padding: "48px 28px 80px" }}>
-      <div style={{ maxWidth: "var(--wide)", margin: "0 auto" }}>
+    <section className="artist-space" style={{ padding: "48px 28px 80px" }}>
+      <div className="artist-space-inner" style={{ maxWidth: "var(--wide)", margin: "0 auto" }}>
         <div
+          className="artist-space-head"
           style={{
             display: "flex",
             alignItems: "flex-end",
@@ -499,7 +500,7 @@ export function ArtistSpace({
             flexWrap: "wrap"
           }}
         >
-          <div style={{ flex: "1 1 320px", minWidth: 0 }}>
+          <div className="artist-space-title" style={{ flex: "1 1 320px", minWidth: 0 }}>
             <span className="mono dim">{t.tag}</span>
             <h1
               className="section-title"
@@ -511,6 +512,7 @@ export function ArtistSpace({
             </h1>
           </div>
           <div
+            className="artist-space-actions"
             style={{
               display: "flex",
               gap: 10,
@@ -533,7 +535,7 @@ export function ArtistSpace({
 
         {profileName || profileContact || interviewDate || formattedExpiration ? (
           <div
-            className="mono dim"
+            className="artist-space-meta mono dim"
             style={{
               marginTop: 12,
               display: "flex",
@@ -579,6 +581,7 @@ export function ArtistSpace({
 
         {pendingDateRequest ? (
           <div
+            className="artist-space-alert"
             style={{
               marginTop: 16,
               padding: "12px 14px",
@@ -602,6 +605,7 @@ export function ArtistSpace({
         ) : null}
 
         <div
+          className="artist-space-grid"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
@@ -610,11 +614,12 @@ export function ArtistSpace({
           }}
         >
           <div
-            className="form-panel"
+            className="form-panel artist-space-card"
             style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
           >
             <div>
               <div
+                className="artist-space-card-head"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -654,6 +659,7 @@ export function ArtistSpace({
               </p>
               {pendingProviderInfo ? (
                 <div
+                  className="artist-space-alert"
                   style={{
                     marginTop: 16,
                     padding: "12px 14px",
@@ -699,6 +705,7 @@ export function ArtistSpace({
             </div>
             {currentVisioUrl ? (
               <div
+                className="artist-space-card-actions"
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -737,7 +744,7 @@ export function ArtistSpace({
           </div>
 
           <div
-            className="form-panel"
+            className="form-panel artist-space-card"
             style={{ display: "flex", flexDirection: "column", gap: 20, justifyContent: "space-between" }}
           >
             <div>
@@ -759,6 +766,7 @@ export function ArtistSpace({
         </div>
 
         <div
+          className="artist-space-danger"
           style={{
             marginTop: 24,
             paddingTop: 18,

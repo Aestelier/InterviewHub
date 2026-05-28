@@ -1018,6 +1018,17 @@ button:hover > .arr {
   gap: 14px;
 }
 
+/* espace artiste */
+.artist-space-card {
+  min-width: 0;
+}
+.artist-space-alert {
+  min-width: 0;
+}
+.artist-space-card-actions {
+  min-width: 0;
+}
+
 /* note humaine */
 .human-band {
   background: var(--sage-deep);
@@ -1621,6 +1632,19 @@ footer.foot {
   }
   .form-rail {
     position: static;
+    order: -1;
+  }
+  .artist-space {
+    padding: 40px 24px 72px !important;
+  }
+  .artist-space-grid {
+    grid-template-columns: 1fr !important;
+    gap: 18px !important;
+    margin-top: 30px !important;
+  }
+  .artist-space-actions {
+    margin-left: 0 !important;
+    justify-content: flex-start !important;
   }
   .human-band {
     padding: 58px 24px 66px;
@@ -1873,6 +1897,113 @@ footer.foot {
   .form-actions,
   .form-rail {
     padding: 22px 20px;
+  }
+  .access-panel {
+    max-width: none !important;
+  }
+  .artist-space {
+    padding: 32px 20px 60px !important;
+  }
+  .artist-space-head {
+    display: grid !important;
+    gap: 24px !important;
+    align-items: start !important;
+  }
+  .artist-space-title .section-title {
+    max-width: 12ch;
+    font-size: clamp(30px, 10vw, 40px) !important;
+    line-height: 1.04;
+  }
+  .artist-space-actions {
+    display: grid !important;
+    width: 100%;
+    gap: 10px !important;
+  }
+  .artist-space-actions .pill {
+    width: 100%;
+    min-height: 46px;
+    justify-content: center;
+  }
+  .artist-space-meta {
+    display: grid !important;
+    gap: 0 !important;
+    margin-top: 22px !important;
+    padding-top: 0 !important;
+    border-top: 0 !important;
+  }
+  .artist-space-meta span {
+    display: grid;
+    grid-template-columns: minmax(88px, auto) minmax(0, 1fr);
+    gap: 12px;
+    padding: 11px 0;
+    border-top: 1px solid var(--hair);
+    overflow-wrap: anywhere;
+  }
+  .artist-space-meta span span {
+    display: inline;
+    padding: 0;
+    border-top: 0;
+  }
+  .artist-space-alert {
+    padding: 14px !important;
+  }
+  .artist-space-alert span {
+    overflow-wrap: anywhere;
+  }
+  .artist-space-grid {
+    gap: 16px !important;
+    margin-top: 28px !important;
+  }
+  .artist-space-card {
+    gap: 24px !important;
+    padding: 24px 20px !important;
+  }
+  .artist-space-card .section-title {
+    font-size: clamp(22px, 7vw, 28px) !important;
+    line-height: 1.08;
+  }
+  .artist-space-card .prose {
+    font-size: 15px !important;
+    line-height: 1.62;
+  }
+  .artist-space-card-head {
+    display: grid !important;
+    justify-content: stretch !important;
+    gap: 8px !important;
+  }
+  .artist-space-card-actions {
+    display: grid !important;
+    gap: 10px !important;
+  }
+  .artist-space-card-actions .pill,
+  .artist-space-card > .pill,
+  .artist-space-card > a.pill {
+    width: 100%;
+    justify-content: center;
+    min-height: 46px;
+  }
+  .artist-space-card-actions .text-link {
+    justify-self: center;
+    min-height: 40px;
+    padding: 10px 0;
+    text-align: center;
+  }
+  .artist-space-danger {
+    justify-content: center !important;
+    margin-top: 22px !important;
+  }
+  .artist-space-danger .text-link {
+    min-height: 40px;
+    padding: 10px 0;
+  }
+  .preview-backdrop {
+    align-items: end;
+    padding: 10px;
+  }
+  .preview-backdrop > .form-panel {
+    max-width: none !important;
+    max-height: calc(100dvh - 20px);
+    overflow: auto;
   }
   .field-grid {
     grid-template-columns: 1fr;
