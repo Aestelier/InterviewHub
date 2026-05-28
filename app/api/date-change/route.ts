@@ -49,12 +49,6 @@ export async function POST(request: Request) {
     return Response.json({ error: "Durée invalide (minutes)." }, { status: 400 });
   }
 
-  const resendApiKey = process.env.RESEND_API_KEY;
-
-  if (!resendApiKey) {
-    return Response.json({ error: "Service e-mail non configuré." }, { status: 503 });
-  }
-
   const code = normalizeAccessCode(body.code);
 
   try {
@@ -106,29 +100,31 @@ export async function POST(request: Request) {
       .filter(Boolean)
       .join("\n");
 
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        from: sender,
-        to: recipient,
-        subject,
-        text
-      })
-    });
+    const resendApiKey = process.env.RESEND_API_KEY;
 
-    if (!response.ok) {
-      const result = (await response.json().catch(() => null)) as { message?: string } | null;
-      return Response.json(
-        { error: result?.message ?? "Envoi e-mail impossible." },
-        { status: 502 }
-      );
+    if (!resendApiKey) {
+      return Response.json({ ok: true, emailSent: false });
     }
 
-    return Response.json({ ok: true });
+    try {
+      const response = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendApiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          from: sender,
+          to: recipient,
+          subject,
+          text
+        })
+      });
+
+      return Response.json({ ok: true, emailSent: response.ok });
+    } catch {
+      return Response.json({ ok: true, emailSent: false });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur inconnue.";
     return Response.json({ error: message }, { status: 500 });

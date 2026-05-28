@@ -46,6 +46,8 @@ const copy: Record<
       dateLabel: string;
       timeLabel: string;
       consentTitle: string;
+      editProfile: string;
+      changeSlot: string;
       hide: string;
       details: string;
       preview: string;
@@ -54,6 +56,34 @@ const copy: Record<
       railLabel: string;
       railTag: string;
       railItems: string[];
+      profile: {
+        tag: string;
+        title: string;
+        intro: string;
+        save: string;
+        saving: string;
+        cancel: string;
+        saved: string;
+        failed: string;
+      };
+      dateChange: {
+        tag: string;
+        title: string;
+        intro: string;
+        currentLabel: string;
+        dateLabel: string;
+        timeLabel: string;
+        durationLabel: string;
+        durationSuffix: string;
+        submit: string;
+        submitting: string;
+        sent: string;
+        failed: string;
+        cancel: string;
+        pendingTag: string;
+        pendingLabel: string;
+        pendingHint: string;
+      };
       previewTag: string;
       previewStale: string;
       previewFresh: string;
@@ -163,6 +193,8 @@ const copy: Record<
       dateLabel: "Date de l'entretien",
       timeLabel: "Horaire de l'entretien",
       consentTitle: "Consentements",
+      editProfile: "Modifier nom et contact",
+      changeSlot: "Proposer un autre créneau",
       hide: "Masquer",
       details: "Détails",
       preview: "Prévisualiser le PDF",
@@ -176,6 +208,36 @@ const copy: Record<
         "Le PDF est généré localement, puis téléchargé par vous.",
         "Aucune cession de droits n'est créée par ce formulaire."
       ],
+      profile: {
+        tag: "[ profil ]",
+        title: "Modifier vos informations.",
+        intro:
+          "Ces informations sont utilisées pour le formulaire de consentement et transmises à l'organisateur pour cet entretien.",
+        save: "Enregistrer",
+        saving: "Enregistrement...",
+        cancel: "Fermer",
+        saved: "Informations mises à jour.",
+        failed: "Impossible de mettre à jour les informations."
+      },
+      dateChange: {
+        tag: "[ nouveau créneau ]",
+        title: "Proposer un autre créneau.",
+        intro:
+          "Cette demande sera envoyée à l'organisateur. Le créneau actuel reste valable tant qu'il n'a pas été modifié.",
+        currentLabel: "Créneau actuel",
+        dateLabel: "Date",
+        timeLabel: "Horaire",
+        durationLabel: "Durée (minutes)",
+        durationSuffix: "min",
+        submit: "Envoyer la demande",
+        submitting: "Envoi...",
+        sent: "Demande envoyée.",
+        failed: "Impossible d'envoyer la demande.",
+        cancel: "Annuler",
+        pendingTag: "[ en attente ]",
+        pendingLabel: "Nouveau créneau demandé",
+        pendingHint: "L'organisateur vous confirmera la mise à jour."
+      },
       previewTag: "[ aperçu PDF ]",
       previewStale: "Cet aperçu n'inclut pas encore les dernières modifications.",
       previewFresh: "Aperçu à jour.",
@@ -283,6 +345,8 @@ const copy: Record<
       dateLabel: "Interview date",
       timeLabel: "Interview time",
       consentTitle: "Consent",
+      editProfile: "Edit name and contact",
+      changeSlot: "Propose another slot",
       hide: "Hide",
       details: "Details",
       preview: "Preview PDF",
@@ -296,6 +360,36 @@ const copy: Record<
         "The PDF is generated locally, then downloaded by you.",
         "No rights transfer is created by this form."
       ],
+      profile: {
+        tag: "[ profile ]",
+        title: "Edit your information.",
+        intro:
+          "This information is used for the consent form and shared with the organiser for this interview.",
+        save: "Save",
+        saving: "Saving...",
+        cancel: "Close",
+        saved: "Information updated.",
+        failed: "Unable to update the information."
+      },
+      dateChange: {
+        tag: "[ new slot ]",
+        title: "Propose another slot.",
+        intro:
+          "This request will be sent to the organiser. Your current slot remains valid until it is updated.",
+        currentLabel: "Current slot",
+        dateLabel: "Date",
+        timeLabel: "Time",
+        durationLabel: "Duration (minutes)",
+        durationSuffix: "min",
+        submit: "Send request",
+        submitting: "Sending...",
+        sent: "Request sent.",
+        failed: "Unable to send the request.",
+        cancel: "Cancel",
+        pendingTag: "[ pending ]",
+        pendingLabel: "New slot requested",
+        pendingHint: "The organiser will confirm the update."
+      },
       previewTag: "[ PDF preview ]",
       previewStale: "This preview does not include the latest changes yet.",
       previewFresh: "Preview up to date.",
@@ -329,6 +423,25 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
   const [previewSignature, setPreviewSignature] = useState("");
   const [isPreviewExpanded, setIsPreviewExpanded] = useState(false);
   const [status, setStatus] = useState("");
+  const [interviewDurationMinutes, setInterviewDurationMinutes] = useState(60);
+  const [pendingDateRequest, setPendingDateRequest] = useState<{
+    date: string;
+    time: string;
+    duration: number;
+  } | null>(null);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [profileDraftName, setProfileDraftName] = useState("");
+  const [profileDraftContact, setProfileDraftContact] = useState("");
+  const [isProfileSaving, setIsProfileSaving] = useState(false);
+  const [profileStatus, setProfileStatus] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+  const [draftDate, setDraftDate] = useState("");
+  const [draftTime, setDraftTime] = useState("");
+  const [draftDuration, setDraftDuration] = useState(60);
+  const [isDateRequestSending, setIsDateRequestSending] = useState(false);
+  const [dateRequestStatus, setDateRequestStatus] = useState("");
+  const [dateRequestError, setDateRequestError] = useState("");
   const canGenerate = useMemo(
     () =>
       formData.participantName.trim().length > 0 &&
@@ -399,6 +512,9 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
             interviewDate: string;
             interviewTime: string;
             interviewDurationMinutes: number;
+            dateChangeRequestedDate: string | null;
+            dateChangeRequestedTime: string | null;
+            dateChangeRequestedDurationMinutes: number | null;
             visioUrl: string | null;
           };
           error?: string;
@@ -423,6 +539,18 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
     setAccessCode(body.access.code);
     setAccessInput(body.access.code);
+    setInterviewDurationMinutes(body.access.interviewDurationMinutes);
+    setPendingDateRequest(
+      body.access.dateChangeRequestedDate &&
+        body.access.dateChangeRequestedTime &&
+        body.access.dateChangeRequestedDurationMinutes
+        ? {
+            date: body.access.dateChangeRequestedDate,
+            time: body.access.dateChangeRequestedTime,
+            duration: body.access.dateChangeRequestedDurationMinutes
+          }
+        : null
+    );
     setFormData((current) => ({
       ...current,
       participantName: body.access?.participantName ?? current.participantName,
@@ -437,6 +565,90 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
 
   function updateField(field: keyof Omit<ConsentFormData, "consents">, value: string) {
     setFormData((current) => ({ ...current, [field]: value }));
+  }
+
+  function openProfileModal() {
+    setProfileDraftName(formData.participantName);
+    setProfileDraftContact(formData.participantContact);
+    setProfileStatus("");
+    setProfileError("");
+    setIsProfileOpen(true);
+  }
+
+  async function saveProfile() {
+    setIsProfileSaving(true);
+    setProfileStatus("");
+    setProfileError("");
+
+    const response = await fetch(`/api/access/${encodeURIComponent(accessCode)}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        participantName: profileDraftName,
+        participantContact: profileDraftContact
+      })
+    });
+
+    setIsProfileSaving(false);
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      setProfileError(body?.error ?? t.workspace.profile.failed);
+      return;
+    }
+
+    const body = (await response.json().catch(() => null)) as {
+      access?: { participantName?: string; participantContact?: string };
+    } | null;
+
+    const nextName = body?.access?.participantName ?? profileDraftName.trim();
+    const nextContact = body?.access?.participantContact ?? profileDraftContact.trim();
+    setFormData((current) => ({
+      ...current,
+      participantName: nextName,
+      participantContact: nextContact
+    }));
+    setProfileDraftName(nextName);
+    setProfileDraftContact(nextContact);
+    setProfileStatus(t.workspace.profile.saved);
+  }
+
+  function openDateModal() {
+    setDraftDate(pendingDateRequest?.date ?? formData.interviewDate);
+    setDraftTime(pendingDateRequest?.time ?? formData.interviewTime);
+    setDraftDuration(pendingDateRequest?.duration ?? interviewDurationMinutes);
+    setDateRequestStatus("");
+    setDateRequestError("");
+    setIsDateModalOpen(true);
+  }
+
+  async function requestDateChange() {
+    setIsDateRequestSending(true);
+    setDateRequestStatus("");
+    setDateRequestError("");
+
+    const response = await fetch("/api/date-change", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        code: accessCode,
+        requestedDate: draftDate,
+        requestedTime: draftTime,
+        requestedDurationMinutes: draftDuration,
+        locale
+      })
+    });
+
+    setIsDateRequestSending(false);
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      setDateRequestError(body?.error ?? t.workspace.dateChange.failed);
+      return;
+    }
+
+    setPendingDateRequest({ date: draftDate, time: draftTime, duration: draftDuration });
+    setDateRequestStatus(t.workspace.dateChange.sent);
   }
 
   function updateConsentSet(keys: ConsentKey[], value: boolean) {
@@ -641,8 +853,8 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
                 <span className="form-label">{t.workspace.nameLabel}</span>
                 <input
                   value={formData.participantName}
-                  onChange={(event) => updateField("participantName", event.target.value)}
-                  className="form-input"
+                  readOnly
+                  className="form-input form-input-readonly"
                   autoComplete="name"
                 />
               </label>
@@ -652,10 +864,8 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
                   <span className="form-label">{t.workspace.contactLabel}</span>
                   <input
                     value={formData.participantContact}
-                    onChange={(event) =>
-                      updateField("participantContact", event.target.value)
-                    }
-                    className="form-input"
+                    readOnly
+                    className="form-input form-input-readonly"
                     autoComplete="email"
                   />
                 </label>
@@ -665,8 +875,8 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
                   <input
                     type="date"
                     value={formData.interviewDate}
-                    onChange={(event) => updateField("interviewDate", event.target.value)}
-                    className="form-input"
+                    readOnly
+                    className="form-input form-input-readonly"
                   />
                 </label>
 
@@ -675,10 +885,29 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
                   <input
                     type="time"
                     value={formData.interviewTime}
-                    onChange={(event) => updateField("interviewTime", event.target.value)}
-                    className="form-input"
+                    readOnly
+                    className="form-input form-input-readonly"
                   />
                 </label>
+              </div>
+              {pendingDateRequest ? (
+                <div className="form-pending-alert">
+                  <span className="mono dim">{t.workspace.dateChange.pendingTag}</span>
+                  <strong>
+                    {t.workspace.dateChange.pendingLabel} · {pendingDateRequest.date} ·{" "}
+                    {pendingDateRequest.time} · {pendingDateRequest.duration}{" "}
+                    {t.workspace.dateChange.durationSuffix}
+                  </strong>
+                  <span className="mono dim">{t.workspace.dateChange.pendingHint}</span>
+                </div>
+              ) : null}
+              <div className="form-info-actions">
+                <button type="button" onClick={openProfileModal} className="pill">
+                  {t.workspace.editProfile} <span className="arr" />
+                </button>
+                <button type="button" onClick={openDateModal} className="pill">
+                  {t.workspace.changeSlot} <span className="arr" />
+                </button>
               </div>
             </div>
           </section>
@@ -818,6 +1047,249 @@ export function ConsentForm({ initialAccessCode = "", locale = "fr" }: ConsentFo
           </ul>
         </aside>
       </div>
+
+      {isProfileOpen ? (
+        <div
+          className="preview-backdrop"
+          onClick={() => {
+            if (!isProfileSaving) setIsProfileOpen(false);
+          }}
+        >
+          <div
+            className="form-panel"
+            style={{
+              maxWidth: 460,
+              background: "var(--papier)",
+              boxShadow: "0 24px 60px rgba(12, 10, 8, 0.28)",
+              position: "relative"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                if (!isProfileSaving) setIsProfileOpen(false);
+              }}
+              aria-label={t.workspace.profile.cancel}
+              disabled={isProfileSaving}
+              className="modal-close-button"
+            >
+              ×
+            </button>
+            <span className="mono dim">{t.workspace.profile.tag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
+            >
+              {t.workspace.profile.title}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.workspace.profile.intro}
+            </p>
+            <div className="form-divider">
+              <div className="field-stack">
+                <label className="form-field">
+                  <span className="form-label">{t.workspace.nameLabel}</span>
+                  <input
+                    value={profileDraftName}
+                    onChange={(event) => {
+                      setProfileDraftName(event.target.value);
+                      setProfileStatus("");
+                      setProfileError("");
+                    }}
+                    className="form-input"
+                    autoComplete="name"
+                    disabled={isProfileSaving}
+                  />
+                </label>
+                <label className="form-field">
+                  <span className="form-label">{t.workspace.contactLabel}</span>
+                  <input
+                    value={profileDraftContact}
+                    onChange={(event) => {
+                      setProfileDraftContact(event.target.value);
+                      setProfileStatus("");
+                      setProfileError("");
+                    }}
+                    className="form-input"
+                    type="email"
+                    autoComplete="email"
+                    disabled={isProfileSaving}
+                  />
+                </label>
+              </div>
+              {profileError ? (
+                <p className="form-status is-warning" style={{ marginTop: 14 }}>
+                  {profileError}
+                </p>
+              ) : null}
+              {profileStatus ? (
+                <p className="form-status" style={{ marginTop: 14 }}>
+                  {profileStatus}
+                </p>
+              ) : null}
+              <div className="form-action-row" style={{ marginTop: 20 }}>
+                <button
+                  type="button"
+                  onClick={() => void saveProfile()}
+                  disabled={
+                    isProfileSaving ||
+                    (profileDraftName.trim() === formData.participantName.trim() &&
+                      profileDraftContact.trim() === formData.participantContact.trim())
+                  }
+                  className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isProfileSaving ? t.workspace.profile.saving : t.workspace.profile.save}
+                  <span className="arr" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsProfileOpen(false)}
+                  disabled={isProfileSaving}
+                  className="text-link"
+                >
+                  {t.workspace.profile.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {isDateModalOpen ? (
+        <div
+          className="preview-backdrop"
+          onClick={() => {
+            if (!isDateRequestSending) setIsDateModalOpen(false);
+          }}
+        >
+          <div
+            className="form-panel"
+            style={{
+              maxWidth: 480,
+              background: "var(--papier)",
+              boxShadow: "0 24px 60px rgba(12, 10, 8, 0.28)",
+              position: "relative"
+            }}
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => {
+                if (!isDateRequestSending) setIsDateModalOpen(false);
+              }}
+              aria-label={t.workspace.dateChange.cancel}
+              disabled={isDateRequestSending}
+              className="modal-close-button"
+            >
+              ×
+            </button>
+            <span className="mono dim">{t.workspace.dateChange.tag}</span>
+            <h2
+              className="section-title"
+              style={{ fontSize: "clamp(20px, 2vw, 26px)", marginTop: 12, paddingRight: 36 }}
+            >
+              {t.workspace.dateChange.title}
+            </h2>
+            <p className="prose" style={{ marginTop: 14, fontSize: 15 }}>
+              {t.workspace.dateChange.intro}
+            </p>
+            <p className="mono dim" style={{ marginTop: 10, fontSize: 12 }}>
+              {t.workspace.dateChange.currentLabel} · {formData.interviewDate} ·{" "}
+              {formData.interviewTime} · {interviewDurationMinutes}{" "}
+              {t.workspace.dateChange.durationSuffix}
+            </p>
+            <div className="form-divider">
+              <div className="field-stack">
+                <label className="form-field">
+                  <span className="form-label">{t.workspace.dateChange.dateLabel}</span>
+                  <input
+                    type="date"
+                    value={draftDate}
+                    onChange={(event) => {
+                      setDraftDate(event.target.value);
+                      setDateRequestStatus("");
+                      setDateRequestError("");
+                    }}
+                    className="form-input"
+                    disabled={isDateRequestSending}
+                  />
+                </label>
+                <label className="form-field">
+                  <span className="form-label">{t.workspace.dateChange.timeLabel}</span>
+                  <input
+                    type="time"
+                    value={draftTime}
+                    onChange={(event) => {
+                      setDraftTime(event.target.value);
+                      setDateRequestStatus("");
+                      setDateRequestError("");
+                    }}
+                    className="form-input"
+                    disabled={isDateRequestSending}
+                  />
+                </label>
+                <label className="form-field">
+                  <span className="form-label">{t.workspace.dateChange.durationLabel}</span>
+                  <input
+                    type="number"
+                    min={5}
+                    max={1440}
+                    step={5}
+                    value={draftDuration}
+                    onChange={(event) => {
+                      setDraftDuration(Number(event.target.value) || 0);
+                      setDateRequestStatus("");
+                      setDateRequestError("");
+                    }}
+                    className="form-input"
+                    disabled={isDateRequestSending}
+                  />
+                </label>
+              </div>
+              {dateRequestError ? (
+                <p className="form-status is-warning" style={{ marginTop: 14 }}>
+                  {dateRequestError}
+                </p>
+              ) : null}
+              {dateRequestStatus ? (
+                <p className="form-status" style={{ marginTop: 14 }}>
+                  {dateRequestStatus}
+                </p>
+              ) : null}
+              <div className="form-action-row" style={{ marginTop: 20 }}>
+                <button
+                  type="button"
+                  onClick={() => void requestDateChange()}
+                  disabled={
+                    isDateRequestSending ||
+                    !draftDate ||
+                    !draftTime ||
+                    !draftDuration ||
+                    (draftDate === formData.interviewDate &&
+                      draftTime === formData.interviewTime &&
+                      draftDuration === interviewDurationMinutes)
+                  }
+                  className="pill dark disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  {isDateRequestSending
+                    ? t.workspace.dateChange.submitting
+                    : t.workspace.dateChange.submit}
+                  <span className="arr" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDateModalOpen(false)}
+                  disabled={isDateRequestSending}
+                  className="text-link"
+                >
+                  {t.workspace.dateChange.cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       {isPreviewExpanded ? (
         <div className="preview-backdrop" onClick={() => setIsPreviewExpanded(false)}>

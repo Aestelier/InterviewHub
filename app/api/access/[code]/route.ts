@@ -174,6 +174,9 @@ export async function GET(
         interviewDate: access.interview_date,
         interviewTime: access.interview_time,
         interviewDurationMinutes: access.interview_duration_minutes,
+        dateChangeRequestedDate: access.date_change_requested_date,
+        dateChangeRequestedTime: access.date_change_requested_time,
+        dateChangeRequestedDurationMinutes: access.date_change_requested_duration_minutes,
         visioUrl: access.visio_url ?? null
       }
     });
